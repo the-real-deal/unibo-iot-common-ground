@@ -19,5 +19,5 @@ void loop(){
   if (currIntensity == 0 || currIntensity == 255) {
     fadeAmount = -fadeAmount ; 
   }     
-  delay(15);                               
+  delay(150);                               
 }
