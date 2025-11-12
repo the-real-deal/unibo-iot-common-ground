@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
+#include <EnableInterrupt.h>
 
 #define LS 9
 #define B1 8
@@ -13,9 +14,14 @@
 
 LiquidCrystal_I2C lcd(0x20,  16, 2);
 
+enum {IDLE, START, PLAYING, GAMEOVER};
 int score = 0;
+bool start = true;
 int currentIntensity;
 int fadeAmount;
+int button_pins[] = {B1,B2,B3,B4};
+int size = sizeof(button_pins)/sizeof(button_pins[0]);
+int sequence[] = {1,2,3,4};
 void setPins(){
   /*Led setUp*/
   pinMode(LS, OUTPUT);
@@ -48,6 +54,68 @@ void printStart(){
     lcd.setCursor(0, 1);
     lcd.print("Press B1 to Start");	
 }
+void printGo(){
+    lcd.setCursor(0,0);
+    lcd.print("Go!");
+    lcd.setCursor(0, 1);
+    lcd.print("Score = " + score);	
+}
+void printSequence(){
+
+    lcd.setCursor(0, 0);
+    lcd.print("Welcome to TOS!");
+    lcd.setCursor(0, 1);
+    lcd.print("Press B1 to Start");	
+}
+
+void checksequence(){
+  
+}
+
+//Shuffle function that permutates an array.
+void shuffle(int* array){
+  for (int i=(size-1); i>=0; i--){
+    int j = rand() % i;
+    int temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  for (int i = 0; i<size; i++){
+    Serial.print(array[i]);
+  }
+  Serial.println();
+}
+
+void step(){
+  int value;
+  for (int i = 0; i<size; i++){
+    if (digitalRead(button_pins[i])==HIGH){
+      value = button_pins[i];
+      break;
+    }
+  }
+
+  switch (value)
+  {
+  case B1:
+    if(start){
+
+    }
+    else{
+
+    }
+    break;
+  case B2:
+  break;
+  case B3:
+  break;
+  case B4:
+  break;
+  default:
+    break;
+  }
+}
 
 void setup()
 {
@@ -59,12 +127,23 @@ void setup()
   currentIntensity = 0;
   fadeAmount = 5;
   Serial.begin(9600);
+
+  for (int i = 0; i<size;i++){
+    attachInterrupt(digitalPinToInterrupt(button_pins[i]),step,RISING);
+  }
+
 }
 
 void loop()
 {
-  fading();
-  printStart();
-  delay(1000);
+  if (start){
+    fading();
+    printStart();
+  }
+  else{
+    lcd.clear();
+    shuffle(sequence);
+    printSequence();
+  }
+  
 }
-
