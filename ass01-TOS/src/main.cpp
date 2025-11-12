@@ -49,27 +49,19 @@ void fading(){
 }  
 
 void printStart(){
+    lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Welcome to TOS!");
     lcd.setCursor(0, 1);
     lcd.print("Press B1 to Start");	
 }
-void printGo(){
-    lcd.setCursor(0,0);
-    lcd.print("Go!");
-    lcd.setCursor(0, 1);
-    lcd.print("Score = " + score);	
-}
+
 void printSequence(){
-
-    lcd.setCursor(0, 0);
-    lcd.print("Welcome to TOS!");
-    lcd.setCursor(0, 1);
-    lcd.print("Press B1 to Start");	
-}
-
-void checksequence(){
-  
+    lcd.clear();
+    lcd.setCursor(0,0);
+    for (int i = 0; i<size; i++){
+      lcd.print(sequence[i]);
+    }
 }
 
 //Shuffle function that permutates an array.
@@ -80,11 +72,6 @@ void shuffle(int* array){
     array[i] = array[j];
     array[j] = temp;
   }
-
-  for (int i = 0; i<size; i++){
-    Serial.print(array[i]);
-  }
-  Serial.println();
 }
 
 void step(){
@@ -100,7 +87,9 @@ void step(){
   {
   case B1:
     if(start){
-
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Go!");
     }
     else{
 
@@ -141,7 +130,6 @@ void loop()
     printStart();
   }
   else{
-    lcd.clear();
     shuffle(sequence);
     printSequence();
   }
