@@ -2,7 +2,7 @@
 #include <LiquidCrystal_I2C.h>
 #define EI_ARDUINO_INTERRUPTED_PIN;
 #include <EnableInterrupt.h>
-
+#include <TimerOne.h>
 
 #define LS 9
 #define B1 8
@@ -17,15 +17,16 @@
 LiquidCrystal_I2C lcd(0x20,  16, 2);
 
 enum state {IDLE, START, PLAYING, GAMEOVER, WINNING};
-state gameState = START;
+volatile state gameState = START;
 int score = 0;
-bool start = true;
 int currentIntensity;
 int fadeAmount;
 int button_pins[] = {B1,B2,B3,B4};
 int size = sizeof(button_pins)/sizeof(button_pins[0]);
 int sequence[] = {1,2,3,4};
-int index = 0;
+volatile int index = 0;
+int timeMaxS = 15;
+bool shouldWelcome = true;
 void setPins(){
   /*Led setUp*/
   pinMode(LS, OUTPUT);
@@ -39,6 +40,10 @@ void setPins(){
   pinMode(B2, INPUT);
   pinMode(B3, INPUT);
   pinMode(B4, INPUT);
+}
+
+void changeState(state newState){
+  gameState = newState;
 }
 
 bool checkSequence(int index, int button){
@@ -93,7 +98,11 @@ void step(){
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Go!");
-      gameState = PLAYING;
+
+      Timer1.attachInterrupt(inactivityGameOver);
+      Timer1.setPeriod(timeMaxS*1000000);
+
+      changeState(PLAYING);
     }
     else{
       progress = checkSequence(index,1);
@@ -113,7 +122,7 @@ void step(){
   }
 
   if (!progress){
-    gameState = GAMEOVER;
+    changeState(GAMEOVER);
   }
 
   if (index<3){
@@ -123,6 +132,14 @@ void step(){
     index = 0;
   }
   
+}
+
+void suggestSleep(){
+  changeState(IDLE);
+}
+
+void inactivityGameOver(){
+  changeState(GAMEOVER);
 }
 
 void setup()
@@ -139,7 +156,10 @@ void setup()
   for (int i = 0; i<size;i++){
     enableInterrupt(button_pins[i],step,RISING);
   }
-
+  Timer1.attachInterrupt(suggestSleep);
+  Timer1.setPeriod(10*1000000);
+  
+    shuffle(sequence);
 }
 
 void loop()
@@ -147,21 +167,25 @@ void loop()
   switch (gameState)
   {
   case START :
+    if (shouldWelcome){
+      printStart();
+      shouldWelcome = false;
+    }
     fading();
-    printStart();
     break;
   case PLAYING:
-    shuffle(sequence);
     printSequence();
     break;
   case WINNING:
+    score++;
     printVictory();
-    gameState = PLAYING;
+    shuffle(sequence);
+    changeState(PLAYING);
     break;
   case GAMEOVER:
     printGameOver();
     delay(10000);
-    gameState = START;
+    changeState(START);
     break;
   case IDLE:
     goToSpleep();
