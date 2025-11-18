@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
+#define EI_ARDUINO_INTERRUPTED_PIN;
 #include <EnableInterrupt.h>
 
 
@@ -15,7 +16,8 @@
 
 LiquidCrystal_I2C lcd(0x20,  16, 2);
 
-enum {IDLE, START, PLAYING, GAMEOVER};
+enum state {IDLE, START, PLAYING, GAMEOVER, WINNING};
+state gameState = START;
 int score = 0;
 bool start = true;
 int currentIntensity;
@@ -23,6 +25,7 @@ int fadeAmount;
 int button_pins[] = {B1,B2,B3,B4};
 int size = sizeof(button_pins)/sizeof(button_pins[0]);
 int sequence[] = {1,2,3,4};
+int index = 0;
 void setPins(){
   /*Led setUp*/
   pinMode(LS, OUTPUT);
@@ -37,6 +40,10 @@ void setPins(){
   pinMode(B3, INPUT);
   pinMode(B4, INPUT);
 }
+
+bool checkSequence(int index, int button){
+  return sequence[index] == button;
+} 
 
 void fading(){
   analogWrite(LS, currentIntensity);
@@ -76,35 +83,46 @@ void shuffle(int* array){
 }
 
 void step(){
-  int value;
-  for (int i = 0; i<size; i++){
-    if (digitalRead(button_pins[i])==HIGH){
-      value = button_pins[i];
-      break;
-    }
-  }
+  int value = arduinoInterruptedPin;
+  bool progress = true;
 
   switch (value)
   {
   case B1:
-    if(start){
+    if(gameState == START){
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Go!");
+      gameState = PLAYING;
     }
     else{
-
+      progress = checkSequence(index,1);
     }
     break;
   case B2:
+    progress = checkSequence(index,2);
   break;
   case B3:
+    progress = checkSequence(index,3);
   break;
   case B4:
+    progress = checkSequence(index,4);
   break;
   default:
     break;
   }
+
+  if (!progress){
+    gameState = GAMEOVER;
+  }
+
+  if (index<3){
+    index++;
+  }
+  else{
+    index = 0;
+  }
+  
 }
 
 void setup()
@@ -119,20 +137,35 @@ void setup()
   Serial.begin(9600);
 
   for (int i = 0; i<size;i++){
-    attachInterrupt(digitalPinToInterrupt(button_pins[i]),step,RISING);
+    enableInterrupt(button_pins[i],step,RISING);
   }
 
 }
 
 void loop()
-{
-  if (start){
+{ 
+  switch (gameState)
+  {
+  case START :
     fading();
     printStart();
-  }
-  else{
+    break;
+  case PLAYING:
     shuffle(sequence);
     printSequence();
+    break;
+  case WINNING:
+    printVictory();
+    gameState = PLAYING;
+    break;
+  case GAMEOVER:
+    printGameOver();
+    delay(10000);
+    gameState = START;
+    break;
+  case IDLE:
+    goToSpleep();
+    break;
   }
   
 }
