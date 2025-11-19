@@ -10,9 +10,9 @@
 #define L1 13
 #define L2 12
 #define L3 11
-#define L4 10
+#define L4 6
 
-LiquidCrystal_I2C lcd(0x20, 16, 2);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 typedef enum {
     sleeping,

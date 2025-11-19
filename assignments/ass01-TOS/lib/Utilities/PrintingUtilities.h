@@ -12,4 +12,12 @@ void printStart(LiquidCrystal_I2C *lcd);
  * Prints the integer sequence `sequence` of `sequenceLength` elements onto the display `lcd`. 
  */
 void printSequence(LiquidCrystal_I2C *lcd, int *sequence, int sequenceLength);
+
+/*
+ */
+void printGoodEnding(LiquidCrystal_I2C *lcd, int score); 
+
+/*
+ */
+void printBadEnding(LiquidCrystal_I2C *lcd, int score);
 #endif

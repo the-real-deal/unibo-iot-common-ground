@@ -10,7 +10,7 @@
     If the string `message` contains a new line character `\n`, then the display goes to the next line.
     If the string `message` contains more than or equal to `MAX_LINES` new line characters `\n`, then the program aborts.
 */
-void displayMessage(LiquidCrystal_I2C* display, const char *message);
+void displayMessage(LiquidCrystal_I2C* display, const String& message);
 
 /**
  * Initializes `display`.

@@ -6,7 +6,6 @@ void fadeLed(const int pin, const int fadeAmount)
     static int currentIntensity = 0;
     static int fadeAmountAndDirection = fadeAmount;
     currentIntensity += fadeAmountAndDirection;
-    Serial.println(currentIntensity);
     if (currentIntensity <= 0 || currentIntensity >= 255)
     {
         fadeAmountAndDirection = -fadeAmountAndDirection;
@@ -38,18 +37,12 @@ void initAllLeds(int *pins, const int pinsCount)
 
 void turnOn(int pin) 
 {
-    if (digitalRead(pin) == LOW) 
-    {
-        digitalWrite(pin, HIGH);
-    }
+    digitalWrite(pin, HIGH);
 }
 
 void turnOff(int pin) 
 {
-    if (digitalRead(pin) == HIGH) 
-    {
-        digitalWrite(pin, LOW);
-    }
+    digitalWrite(pin, LOW);
 }
 
 void turnOnFor(int pin, int seconds)

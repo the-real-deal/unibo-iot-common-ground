@@ -1,6 +1,7 @@
 #include "Utilities.h"
 #include "stdlib.h"
 #include "string.h"
+#include "time.h"
 
 void swap(int *x, int *y)
 {
@@ -11,6 +12,7 @@ void swap(int *x, int *y)
 
 void shuffle(int *vector, int vectorSize) 
 {
+    srand(time(NULL));
     for (int i = vectorSize - 1; i >= 0; i--) 
     {
         swap(&vector[i], &vector[rand() % (i + 1)]);

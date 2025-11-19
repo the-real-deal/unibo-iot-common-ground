@@ -2,11 +2,11 @@
 #include <assert.h>
 #include <Arduino.h>
 
-void displayMessage(LiquidCrystal_I2C *display, const char *message)
+void displayMessage(LiquidCrystal_I2C *display, const String& message)
 {   
     display->clear();
     int offsetX = 0, offsetY = 0;
-    const int messageLength = strlen(message);
+    const int messageLength = message.length();
     for (int i = 0; i < messageLength; i++) 
     {
         assert(offsetY <= MAX_LINES_IDX);

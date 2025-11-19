@@ -3,7 +3,7 @@
 #include "Utilities.h"
 #include "Arduino.h"
 
-#define __DEBUG_CONSOLE__
+// #define __DEBUG_CONSOLE__
 
 void printStart(LiquidCrystal_I2C *lcd)
 {
@@ -25,4 +25,24 @@ void printSequence(LiquidCrystal_I2C *lcd, int *sequence, int sequenceLength)
     Serial.println(sequenceInString);
     #endif
     free(sequenceInString);
+}
+
+void printGoodEnding(LiquidCrystal_I2C *lcd, int score) 
+{
+    #ifndef __DEBUG_CONSOLE__
+    displayMessage(lcd, "GOOD! Score: " + String(score));
+    #endif
+    #ifdef __DEBUG_CONSOLE__
+    Serial.println("GOOD! Score: " + score);
+    #endif
+}
+
+void printBadEnding(LiquidCrystal_I2C *lcd, int score) 
+{
+    #ifndef __DEBUG_CONSOLE__
+    displayMessage(lcd, "GAME OVER!\nFinal Score: " + String(score));
+    #endif
+    #ifdef __DEBUG_CONSOLE__
+    Serial.println("GAME OVER!\nFinal Score: " + score);
+    #endif
 }

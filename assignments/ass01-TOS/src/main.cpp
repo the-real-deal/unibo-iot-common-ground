@@ -4,7 +4,7 @@
 // #include "avr8-stub.h"
 // #include "app_api.h" // only needed with flash breakpoints
 
-// See docs for explaination of this define: 
+// See docs for explaination of this define:
 // https://github.com/GreyGnome/EnableInterrupt/wiki/Usage#determine-the-pin-that-was-interrupted
 #define EI_ARDUINO_INTERRUPTED_PIN
 #include <EnableInterrupt.h>
@@ -16,12 +16,14 @@
 #include <LCDUtilities.h>
 #include <ButtonUtilities.h>
 #include <PrintingUtilities.h>
+#include <Logger.h>
 #include <config.h>
 
 #include <string.h>
 
 #define ARRAY_LENGTH(vect) (int)(sizeof(vect) / sizeof(vect[0]))
 #define SECONDS_TO_MICRO(seconds) seconds * 1000000
+#define SECONDS_TO_MILLIS(seconds) seconds * 1000
 
 int score = 0;
 int buttonPins[] = {BTN1, BTN2, BTN3, BTN4};
@@ -31,40 +33,39 @@ int sequence[] = {1, 2, 3, 4};
 volatile int hitsNumber = 0;
 
 volatile bool shouldWelcome;
-volatile bool shouldDisplaySequence;
+volatile bool shouldDisplayRoundStart;
 
 volatile State currentGameState;
 
-void changeState(State newState) 
+void changeState(State newState)
 {
-  noInterrupts();
   currentGameState = newState;
-  interrupts();
 }
 
-void suggestSleep() 
+void suggestSleep()
 {
+  Serial.println("INTERRUPT CALLED");
   changeState(sleeping);
 }
 
-void inactivityGameOver() 
+void inactivityGameOver()
 {
   changeState(gameover_lost);
 }
 
-void startSleeping() 
+void startSleeping()
 {
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   sleep_mode();
 }
 
-void stopSleeping() 
+void stopSleeping()
 {
   sleep_disable();
 }
 
-bool checkSequence(int index, int button) 
+bool checkSequence(int index, int button)
 {
   return sequence[index] == button;
 }
@@ -77,44 +78,37 @@ void step()
   int buttonNumber;
   switch (buttonPressed)
   {
-    // only the press of B1 can wake up the system from deep sleep.
-    // so, if the button pressed is not B1 and the global state is IDLE or STARTED
-    case BTN1:
-      buttonNumber = 1;
-      if (currentGameState == sleeping) 
-      {
-        stopSleeping();
-        changeState(started);
-        return;
-      }
-      if (currentGameState == started) 
-      {
-        displayMessage(&lcd, "Go");
-        delay(2500);
-        printSequence(&lcd, sequence, ARRAY_LENGTH(sequence));
-        Timer1.detachInterrupt();
-        Timer1.attachInterrupt(inactivityGameOver);
-        Timer1.setPeriod(SECONDS_TO_MICRO(5));
-        changeState(playing);
-        return;
-      }
-      break;
-    
-    case BTN2:
-      buttonNumber = 2;
-      break;
+  // only the press of B1 can wake up the system from deep sleep.
+  // so, if the button pressed is not B1 and the global state is IDLE or STARTED
+  case BTN1:
+    buttonNumber = 1;
+    if (currentGameState == sleeping)
+    {
+      stopSleeping();
+      changeState(started);
+      return;
+    } else if (currentGameState == started)
+    {
+      changeState(playing);
+      return;
+    }
+    break;
 
-    case BTN3:
-      buttonNumber = 3;
-      break;
+  case BTN2:
+    buttonNumber = 2;
+    break;
 
-    case BTN4:
-      buttonNumber = 4;
-      break;
-    
-    default:
-      abort();
-      break;
+  case BTN3:
+    buttonNumber = 3;
+    break;
+
+  case BTN4:
+    buttonNumber = 4;
+    break;
+
+  default:
+    abort();
+    break;
   }
 
   hitsNumber++;
@@ -122,22 +116,37 @@ void step()
   const int buttonIndex = buttonNumber - 1;
   const int correspondingLed = ledPins[buttonIndex];
 
-  arduinoPinState == HIGH ? 
+  digitalRead(buttonPressed) == HIGH ? 
     turnOn(correspondingLed) : 
     turnOff(correspondingLed);
-  
-  if (!checkSequence(hitsNumber, buttonNumber) || hitsNumber > ARRAY_LENGTH(sequence)) 
+
+  if (!checkSequence(hitsNumber, buttonNumber) || hitsNumber > ARRAY_LENGTH(sequence))
   {
-    changeState(gameover_lost);
+    logInfo(String(!checkSequence(hitsNumber, buttonNumber)));
+    logInfo(String(hitsNumber > ARRAY_LENGTH(sequence)));
+    //changeState(gameover_lost);
     return;
   }
 
   /* Winning condition: the player turned on all the leds in the correct order. */
-  if (hitsNumber == ARRAY_LENGTH(sequence)) 
+  if (hitsNumber == ARRAY_LENGTH(sequence))
   {
     changeState(gameover_victory);
     return;
   }
+}
+
+void setNewRound() 
+{
+  hitsNumber = 0;
+  shouldDisplayRoundStart = true;
+}
+
+void setNewGame() 
+{
+  score = 0;
+  shouldWelcome = true;
+  setNewRound();
 }
 
 void setup()
@@ -147,7 +156,7 @@ void setup()
   initAllLeds(ledPins, ARRAY_LENGTH(ledPins));
   initLed(LS);
   initLCD(&lcd);
-
+  
   for (int i = 0; i < ARRAY_LENGTH(buttonPins); i++)
   {
     // Before there was `attachInterrupt`, which is included in the Wiring framework.
@@ -155,37 +164,59 @@ void setup()
     enableInterrupt(buttonPins[i], step, CHANGE);
   }
 
-  Timer1.initialize(SECONDS_TO_MICRO(10));
-  Timer1.attachInterrupt(suggestSleep);
+  // Timer1.initialize(SECONDS_TO_MICRO(10));
+  // Timer1.attachInterrupt(suggestSleep);
 
+  setNewGame();
   shouldWelcome = true;
-  shouldDisplaySequence = true;
+  shouldDisplayRoundStart = true;
   currentGameState = started;
+  shuffle(sequence, ARRAY_LENGTH(sequence));
 }
 
 void loop()
 {
   switch (currentGameState)
   {
-    case sleeping:
-      startSleeping();
-      break;
-    case started:
-      if (shouldWelcome) 
-      {
-        printStart(&lcd);
-        shouldWelcome = false;
-      }
-      fadeLed(LS);
-      break;
-    case playing:
-      if (shouldDisplaySequence) 
-      {
-        printSequence(&lcd, sequence, ARRAY_LENGTH(sequence));
-        shouldDisplaySequence = false;
-      } 
-      break;
-    default:
-      break;
+  case sleeping:
+    startSleeping();
+    break;
+  case started:
+    if (shouldWelcome)
+    {
+      printStart(&lcd);
+      shouldWelcome = false;
+    }
+    fadeLed(LS);
+    break;
+  case playing:
+    if (shouldDisplayRoundStart)
+    {
+      // Gameover timeout interrupt
+      // Timer1.detachInterrupt();
+      // Timer1.attachInterrupt(inactivityGameOver);
+      // Timer1.setPeriod(SECONDS_TO_MICRO(5));
+      turnOff(LS);
+      displayMessage(&lcd, "Go");
+      delay(2500);
+      printSequence(&lcd, sequence, ARRAY_LENGTH(sequence));
+      delay(2500);
+      shouldDisplayRoundStart = false;
+    }
+    break;
+  case gameover_victory:
+    score += 100;
+    printGoodEnding(&lcd, score);
+    changeState(playing);
+    setNewRound();
+    break;
+  case gameover_lost:
+    printBadEnding(&lcd, score);
+    delay(SECONDS_TO_MILLIS(10));
+    changeState(started);
+    setNewGame();
+    break;
+  default:
+    break;
   }
 }
