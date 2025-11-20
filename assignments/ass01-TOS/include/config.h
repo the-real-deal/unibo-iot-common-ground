@@ -12,6 +12,8 @@
 #define L3 11
 #define L4 6
 
+#define POT_PIN A0
+
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 typedef enum {

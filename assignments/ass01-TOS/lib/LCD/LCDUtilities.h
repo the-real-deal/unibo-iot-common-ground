@@ -16,4 +16,5 @@ void displayMessage(LiquidCrystal_I2C* display, const String& message);
  * Initializes `display`.
  */
 void initLCD(LiquidCrystal_I2C* display);
+
 #endif

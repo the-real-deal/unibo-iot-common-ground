@@ -18,6 +18,10 @@ void printSequence(LiquidCrystal_I2C *lcd, int *sequence, int sequenceLength);
 void printGoodEnding(LiquidCrystal_I2C *lcd, int score); 
 
 /*
+*/
+void printDifficulty(LiquidCrystal_I2C *lcd, int difficulty);
+
+/*
  */
 void printBadEnding(LiquidCrystal_I2C *lcd, int score);
 #endif

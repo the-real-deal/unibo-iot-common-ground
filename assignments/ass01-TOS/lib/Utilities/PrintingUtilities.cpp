@@ -46,3 +46,12 @@ void printBadEnding(LiquidCrystal_I2C *lcd, int score)
     Serial.println("GAME OVER!\nFinal Score: " + score);
     #endif
 }
+
+void printDifficulty(LiquidCrystal_I2C *lcd, int difficulty){
+    #ifndef __DEBUG_CONSOLE__
+    displayMessage(lcd,"Difficulty: " + String(difficulty));
+    #endif
+    #ifdef __DEBUG_CONSOLE__
+    Serial.println("Difficulty: " + String(difficulty));
+    #endif
+}   

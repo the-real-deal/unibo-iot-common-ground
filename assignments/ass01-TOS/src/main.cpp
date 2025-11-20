@@ -15,6 +15,7 @@
 #include <LEDUtilities.h>
 #include <LCDUtilities.h>
 #include <ButtonUtilities.h>
+#include <POTUtilities.h>
 #include <PrintingUtilities.h>
 #include <Logger.h>
 #include <config.h>
@@ -29,6 +30,7 @@ int score = 0;
 int buttonPins[] = {BTN1, BTN2, BTN3, BTN4};
 int ledPins[] = {L1, L2, L3, L4};
 int sequence[] = {1, 2, 3, 4};
+int difficulty = 0;
 
 volatile int hitsNumber = 0;
 
@@ -120,6 +122,8 @@ void step()
     turnOn(correspondingLed) : 
     turnOff(correspondingLed);
 
+  logInfo("Button " + String(buttonNumber) + " pressed. Hit number: " + String(hitsNumber));
+
   if (!checkSequence(hitsNumber, buttonNumber) || hitsNumber > ARRAY_LENGTH(sequence))
   {
     logInfo(String(!checkSequence(hitsNumber, buttonNumber)));
@@ -182,11 +186,20 @@ void loop()
     startSleeping();
     break;
   case started:
-    if (shouldWelcome)
-    {
-      printStart(&lcd);
-      shouldWelcome = false;
+    
+    if (hasDifficultyChanged(difficulty, readDifficultyFromPOT(POT_PIN)) || shouldWelcome){
+        if (shouldWelcome)
+        {
+          printStart(&lcd);
+          delay(2000);
+          shouldWelcome = false;
+        }
+        difficulty = readDifficultyFromPOT(POT_PIN);
+        printDifficulty(&lcd,difficulty);
+        delay(2000);
+        printStart(&lcd);
     }
+    
     fadeLed(LS);
     break;
   case playing:

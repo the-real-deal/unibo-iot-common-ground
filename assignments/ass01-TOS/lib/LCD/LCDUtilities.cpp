@@ -2,8 +2,11 @@
 #include <assert.h>
 #include <Arduino.h>
 
+String messageDisplayed = "";
+
 void displayMessage(LiquidCrystal_I2C *display, const String& message)
 {   
+    messageDisplayed = message;
     display->clear();
     int offsetX = 0, offsetY = 0;
     const int messageLength = message.length();
