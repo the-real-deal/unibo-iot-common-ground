@@ -169,11 +169,10 @@ void setNewGame()
 
 void turnOnErrorLed(int pin) 
 {
-    const int ERROR_LED = 2;
+    const int ERROR_LED_TIME = SECONDS_TO_MILLIS(2);
     turnOn(pin);
-    delay(ERROR_LED);
+    delay(ERROR_LED_TIME);
     turnOff(pin);
-    delay(ERROR_LED);
 }
 
 void setup()
@@ -243,7 +242,7 @@ void loop()
   case gameover_lost:
     turnOnErrorLed(LS);
     printBadEnding(&lcd, score);
-    delay(SECONDS_TO_MILLIS(10));
+    //delay(SECONDS_TO_MILLIS(10));
     changeState(started);
     setNewGame();
     break;
