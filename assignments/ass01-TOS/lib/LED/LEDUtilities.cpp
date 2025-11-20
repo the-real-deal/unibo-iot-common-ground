@@ -6,6 +6,7 @@ void fadeLed(const int pin, const int fadeAmount)
     static int currentIntensity = 0;
     static int fadeAmountAndDirection = fadeAmount;
     currentIntensity += fadeAmountAndDirection;
+    
     if (currentIntensity <= 0 || currentIntensity >= 255)
     {
         fadeAmountAndDirection = -fadeAmountAndDirection;
@@ -13,7 +14,6 @@ void fadeLed(const int pin, const int fadeAmount)
     currentIntensity = constrain(currentIntensity, 0 , 255);
     analogWrite(pin, currentIntensity);
     delay(50);
-    
 }
 
 void fadeLed(const int pin) 
@@ -50,4 +50,12 @@ void turnOnFor(int pin, int seconds)
     turnOn(pin);
     delay(seconds * 1000);
     turnOff(pin);
+}
+
+void turnOffAllLeds(int *pins, const int pinsCount) 
+{
+    for (int i = 0; i < pinsCount; i++) 
+    {
+        turnOff(pins[i]);
+    }
 }

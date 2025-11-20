@@ -25,6 +25,7 @@
 #define ARRAY_LENGTH(vect) (int)(sizeof(vect) / sizeof(vect[0]))
 #define SECONDS_TO_MICRO(seconds) seconds * 1000000
 #define SECONDS_TO_MILLIS(seconds) seconds * 1000
+#define BOUNCING_DELAY 150
 
 int score = 0;
 int buttonPins[] = {BTN1, BTN2, BTN3, BTN4};
@@ -36,6 +37,8 @@ volatile int hitsNumber = 0;
 
 volatile bool shouldWelcome;
 volatile bool shouldDisplayRoundStart;
+
+volatile long lastInterruptTime = 0;
 
 volatile State currentGameState;
 
@@ -69,11 +72,18 @@ void stopSleeping()
 
 bool checkSequence(int index, int button)
 {
+  logInfo("Checking button " + String(button) + " at index " + String(index) + " against sequence value " + String(sequence[index]));
   return sequence[index] == button;
 }
 
 void step()
 {
+  long interruptTime = millis();
+  // Debounce
+  if (interruptTime - lastInterruptTime < BOUNCING_DELAY){
+    return;
+  }
+  lastInterruptTime = interruptTime;
   // `arduinoInterruptedPin` contains the pin which triggered the interrupt.
   int buttonPressed = arduinoInterruptedPin;
 
@@ -112,38 +122,42 @@ void step()
     abort();
     break;
   }
-
+  
   hitsNumber++;
-
+  
   const int buttonIndex = buttonNumber - 1;
   const int correspondingLed = ledPins[buttonIndex];
-
+  const int indexInSequence = hitsNumber - 1;
+  
   digitalRead(buttonPressed) == HIGH ? 
-    turnOn(correspondingLed) : 
-    turnOff(correspondingLed);
-
-  logInfo("Button " + String(buttonNumber) + " pressed. Hit number: " + String(hitsNumber));
-
-  if (!checkSequence(hitsNumber, buttonNumber) || hitsNumber > ARRAY_LENGTH(sequence))
+  turnOn(correspondingLed) : 
+  turnOff(correspondingLed);
+  
+  logInfo("Button " + String(buttonNumber) + " pressed. Hit number: " + String(indexInSequence)); //!!!
+  
+  if (!checkSequence(indexInSequence, buttonNumber) || indexInSequence > ARRAY_LENGTH(sequence))
   {
-    logInfo(String(!checkSequence(hitsNumber, buttonNumber)));
-    logInfo(String(hitsNumber > ARRAY_LENGTH(sequence)));
-    //changeState(gameover_lost);
+    logInfo(String(!checkSequence(indexInSequence, buttonNumber)));
+    logInfo(String(indexInSequence > ARRAY_LENGTH(sequence)));
+    changeState(gameover_lost);
     return;
   }
-
+  
   /* Winning condition: the player turned on all the leds in the correct order. */
   if (hitsNumber == ARRAY_LENGTH(sequence))
   {
     changeState(gameover_victory);
     return;
   }
+  
 }
 
 void setNewRound() 
 {
   hitsNumber = 0;
   shouldDisplayRoundStart = true;
+  turnOffAllLeds(ledPins, ARRAY_LENGTH(ledPins));
+  shuffle(sequence, ARRAY_LENGTH(sequence));
 }
 
 void setNewGame() 
@@ -151,6 +165,15 @@ void setNewGame()
   score = 0;
   shouldWelcome = true;
   setNewRound();
+}
+
+void turnOnErrorLed(int pin) 
+{
+    const int ERROR_LED = 2;
+    turnOn(pin);
+    delay(ERROR_LED);
+    turnOff(pin);
+    delay(ERROR_LED);
 }
 
 void setup()
@@ -165,7 +188,7 @@ void setup()
   {
     // Before there was `attachInterrupt`, which is included in the Wiring framework.
     // The function `enableInterrupt` comes with the library `EnableInterrupt`
-    enableInterrupt(buttonPins[i], step, CHANGE);
+    enableInterrupt(buttonPins[i], step, RISING);
   }
 
   // Timer1.initialize(SECONDS_TO_MICRO(10));
@@ -186,21 +209,15 @@ void loop()
     startSleeping();
     break;
   case started:
-    
+    fadeLed(LS);
     if (hasDifficultyChanged(difficulty, readDifficultyFromPOT(POT_PIN)) || shouldWelcome){
         if (shouldWelcome)
         {
-          printStart(&lcd);
-          delay(2000);
           shouldWelcome = false;
         }
         difficulty = readDifficultyFromPOT(POT_PIN);
-        printDifficulty(&lcd,difficulty);
-        delay(2000);
-        printStart(&lcd);
+        printStart(&lcd, difficulty);
     }
-    
-    fadeLed(LS);
     break;
   case playing:
     if (shouldDisplayRoundStart)
@@ -224,6 +241,7 @@ void loop()
     setNewRound();
     break;
   case gameover_lost:
+    turnOnErrorLed(LS);
     printBadEnding(&lcd, score);
     delay(SECONDS_TO_MILLIS(10));
     changeState(started);

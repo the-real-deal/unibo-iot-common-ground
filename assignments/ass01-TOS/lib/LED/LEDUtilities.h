@@ -36,4 +36,9 @@ void turnOnFor(int pin, int seconds);
  */
 void turnOff(int pin);
 
+/*
+* Perform a `digitalWrite(LOW)` on all the `pinsCount` pins `pins`.
+*/
+void turnOffAllLeds(int *pins, const int pinsCount);
+
 #endif

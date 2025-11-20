@@ -6,7 +6,7 @@
 /*
  * Prints the welcome message on the display `lcd`. 
  */
-void printStart(LiquidCrystal_I2C *lcd);
+void printStart(LiquidCrystal_I2C *lcd, int difficulty);
 
 /**
  * Prints the integer sequence `sequence` of `sequenceLength` elements onto the display `lcd`. 
@@ -16,10 +16,6 @@ void printSequence(LiquidCrystal_I2C *lcd, int *sequence, int sequenceLength);
 /*
  */
 void printGoodEnding(LiquidCrystal_I2C *lcd, int score); 
-
-/*
-*/
-void printDifficulty(LiquidCrystal_I2C *lcd, int difficulty);
 
 /*
  */
