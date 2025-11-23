@@ -3,6 +3,7 @@
 #include "Utilities.h"
 #include "Arduino.h"
 
+// Comment out the following define to debug the program with the terminal.
 // #define __DEBUG_CONSOLE__
 
 void printStart(LiquidCrystal_I2C *lcd, int difficulty)
