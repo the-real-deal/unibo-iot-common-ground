@@ -1,17 +1,17 @@
 #include "Logger.h"
 #include "Arduino.h"
 
-void log(const String& message)
+void logMessage(const String& message)
 {
-    Serial.println("[" + String(millis()) + "] Logger: " + message);
+    Serial.println("[" + String(millis()) + "] " + message);
 }
 
 void logInfo(const String& message)
 {
-    log(String("{INFO}") + message);
+    logMessage(String("{INFO}") + message);
 }
 
 void logError(const String& error)
 {
-    log(String("{INFO}") + error);
+    logMessage(String("{ERROR}") + error);
 }

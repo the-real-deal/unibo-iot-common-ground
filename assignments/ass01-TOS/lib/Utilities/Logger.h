@@ -6,7 +6,7 @@
 /*
  * Displays `message` on the terminal.
  */
-void log(const String& message);
+void logMessage(const String& message);
 
 /*
  * Displays `message` on the terminal at information level.  

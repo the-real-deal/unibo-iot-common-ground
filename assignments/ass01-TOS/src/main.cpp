@@ -90,8 +90,6 @@ void step()
   int buttonNumber;
   switch (buttonPressed)
   {
-  // only the press of B1 can wake up the system from deep sleep.
-  // so, if the button pressed is not B1 and the global state is IDLE or STARTED
   case BTN1:
     buttonNumber = 1;
     if (currentGameState == sleeping)
