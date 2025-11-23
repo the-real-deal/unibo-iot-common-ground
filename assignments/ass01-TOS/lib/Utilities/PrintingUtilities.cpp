@@ -7,11 +7,12 @@
 
 void printStart(LiquidCrystal_I2C *lcd, int difficulty)
 {
+    const String msg = "Welcome to TOS!\nPress B1 to start.\nDifficulty: " + String(difficulty);
     #ifndef __DEBUG_CONSOLE__
-    displayMessage(lcd, "Welcome to TOS!\nPress B1 to start.\nDifficulty: " + String(difficulty));
+    displayMessage(lcd, msg);
     #endif
     #ifdef __DEBUG_CONSOLE__
-    Serial.println("Welcome to TOS!\nPress B1 to start.");
+    Serial.println(msg);
     #endif
 }
 
@@ -29,20 +30,22 @@ void printSequence(LiquidCrystal_I2C *lcd, int *sequence, int sequenceLength)
 
 void printGoodEnding(LiquidCrystal_I2C *lcd, int score) 
 {
+    const String msg = "GOOD! Score: " + String(score);
     #ifndef __DEBUG_CONSOLE__
-    displayMessage(lcd, "GOOD! Score: " + String(score));
+    displayMessage(lcd, msg);
     #endif
     #ifdef __DEBUG_CONSOLE__
-    Serial.println("GOOD! Score: " + score);
+    Serial.println(msg);
     #endif
 }
 
 void printBadEnding(LiquidCrystal_I2C *lcd, int score) 
 {
+    const String msg = "GAME OVER!\nFinal Score: " + String(score);
     #ifndef __DEBUG_CONSOLE__
-    displayMessage(lcd, "GAME OVER!\nFinal Score: " + String(score));
+    displayMessage(lcd, msg);
     #endif
     #ifdef __DEBUG_CONSOLE__
-    Serial.println("GAME OVER!\nFinal Score: " + score);
+    Serial.println(msg);
     #endif
 }

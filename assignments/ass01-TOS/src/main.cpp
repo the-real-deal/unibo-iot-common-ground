@@ -49,7 +49,7 @@ void changeState(State newState)
 
 void suggestSleep()
 {
-  Serial.println("INTERRUPT CALLED");
+  logInfo("SLEEP INTERRUPT CALLED");
   changeState(sleeping);
 }
 
@@ -126,11 +126,8 @@ void step()
   const int buttonIndex = buttonNumber - 1;
   const int correspondingLed = ledPins[buttonIndex];
   const int indexInSequence = hitsNumber - 1;
-  
-  digitalRead(buttonPressed) == HIGH ? 
-  turnOn(correspondingLed) : 
-  turnOff(correspondingLed);
-  
+   
+  turnOn(correspondingLed);
   logInfo("Button " + String(buttonNumber) + " pressed. Hit number: " + String(indexInSequence)); //!!!
   
   if (!checkSequence(indexInSequence, buttonNumber) || indexInSequence > ARRAY_LENGTH(sequence))
@@ -163,14 +160,6 @@ void setNewGame()
   score = 0;
   shouldWelcome = true;
   setNewRound();
-}
-
-void turnOnErrorLed(int pin) 
-{
-    const int ERROR_LED_TIME = SECONDS_TO_MILLIS(2);
-    turnOn(pin);
-    delay(ERROR_LED_TIME);
-    turnOff(pin);
 }
 
 void setup()
@@ -238,7 +227,7 @@ void loop()
     setNewRound();
     break;
   case gameover_lost:
-    turnOnErrorLed(LS);
+    turnOnFor(LS, 2);
     printBadEnding(&lcd, score);
     //delay(SECONDS_TO_MILLIS(10));
     changeState(started);
