@@ -31,7 +31,7 @@ int score = 0;
 int buttonPins[] = {BTN1, BTN2, BTN3, BTN4};
 int ledPins[] = {L1, L2, L3, L4};
 int sequence[] = {1, 2, 3, 4};
-int difficulty = 0;
+int currentDifficulty = 0;
 
 volatile int hitsNumber = 0;
 
@@ -126,7 +126,7 @@ void step()
   const int buttonIndex = buttonNumber - 1;
   const int correspondingLed = ledPins[buttonIndex];
   const int indexInSequence = hitsNumber - 1;
-   
+  
   turnOn(correspondingLed);
   logInfo("Button " + String(buttonNumber) + " pressed. Hit number: " + String(indexInSequence)); //!!!
   
@@ -196,14 +196,16 @@ void loop()
     break;
   case started:
     fadeLed(LS);
-    if (hasDifficultyChanged(difficulty, readDifficultyFromPOT(POT_PIN)) || shouldWelcome){
-        if (shouldWelcome)
-        {
-          shouldWelcome = false;
-        }
-        difficulty = readDifficultyFromPOT(POT_PIN);
-        printStart(&lcd, difficulty);
+    if (shouldWelcome)
+    {
+      shouldWelcome = false;
+      printStart(&lcd, currentDifficulty);
     }
+    const int newDifficulty = readDifficultyFromPOT(POT_PIN);
+    if (!hasDifficultyChanged(currentDifficulty, newDifficulty)){
+        return;
+    }
+    currentDifficulty = newDifficulty;
     break;
   case playing:
     if (shouldDisplayRoundStart)
