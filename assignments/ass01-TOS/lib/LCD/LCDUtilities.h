@@ -1,8 +1,8 @@
 #ifndef __LCD_UTILS__
 #define __LCD_UTILS__
 
-#define MAX_LINES_IDX 3
-#define MAX_LINES MAX_LINES_IDX + 1
+#define MAX_LINES 4
+#define MAX_LINES_IDX MAX_LINES - 1
 
 #include <LiquidCrystal_I2C.h>
 /*
