@@ -1,6 +1,9 @@
 #ifndef __LED_UTILS__
 #define __LED_UTILS__
 
+#define MIN_LED_INTENSITY 0
+#define MAX_LED_INTENSITY 255
+
 /*
  * Fade led by `fadeAmount` amount (default value: 5) at pin number `pin`.
  */

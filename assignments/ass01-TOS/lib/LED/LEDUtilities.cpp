@@ -3,15 +3,13 @@
 
 void fadeLed(const int pin, const int fadeAmount) 
 {
-    static int currentIntensity = 0;
+    static int currentIntensity = MIN_LED_INTENSITY;
     static int fadeAmountAndDirection = fadeAmount;
     currentIntensity += fadeAmountAndDirection;
-    
-    if (currentIntensity <= 0 || currentIntensity >= 255)
+    if (currentIntensity <= MIN_LED_INTENSITY || currentIntensity >= MAX_LED_INTENSITY)
     {
         fadeAmountAndDirection = -fadeAmountAndDirection;
     }
-    currentIntensity = constrain(currentIntensity, 0 , 255);
     analogWrite(pin, currentIntensity);
     delay(50);
 }
