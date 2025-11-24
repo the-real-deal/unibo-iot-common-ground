@@ -1,18 +1,15 @@
 #include <LCDUtilities.h>
-#include <assert.h>
 #include <Arduino.h>
-
-String messageDisplayed = "";
 
 void displayMessage(LiquidCrystal_I2C *display, const String& message)
 {   
-    messageDisplayed = message;
     display->clear();
     int offsetX = 0, offsetY = 0;
     const int messageLength = message.length();
-    for (int i = 0; i < messageLength; i++) 
+    for (int i = 0; 
+        (i < messageLength) && (offsetY < MAX_LINES); 
+        i++) 
     {
-        assert(offsetY <= MAX_LINES_IDX);
         if (message[i] == '\n')
         {
             offsetX = 0;

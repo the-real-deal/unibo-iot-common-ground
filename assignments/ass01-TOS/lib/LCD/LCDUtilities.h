@@ -8,7 +8,7 @@
 /*
     Print a string `message` on the given LCD Display `display`.
     If the string `message` contains a new line character `\n`, then the display goes to the next line.
-    If the string `message` contains more than or equal to `MAX_LINES` new line characters `\n`, then the program aborts.
+    If the string `message` contains more than or equal to `MAX_LINES` new line characters `\n`, then the overflowing text will be ignored.
 */
 void displayMessage(LiquidCrystal_I2C* display, const String& message);
 
