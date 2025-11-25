@@ -206,6 +206,7 @@ void loop()
     startSleeping();
     break;
   case started:
+  {
     fadeLed(LS);
     const int newDifficulty = readDifficultyFromPOT(POT_PIN);
     if (hasDifficultyChanged(newDifficulty, currentDifficulty) || shouldWelcome) 
@@ -218,7 +219,9 @@ void loop()
       printStart(&lcd, currentDifficulty);
     }
     break;
+  }
   case playing:
+  {
     if (shouldDisplayRoundStart)
     {
       // Gameover timeout interrupt
@@ -230,20 +233,25 @@ void loop()
       shouldDisplayRoundStart = false;
     }
     break;
+  }
   case gameover_victory:
+  {
     score += SCORE_INCREMENT;
     printGoodEnding(&lcd, score);
     changeState(playing);
     currentMaxTimeSeconds /= (currentDifficulty + 1);
     setNewRound(currentMaxTimeSeconds);
     break;
+  }
   case gameover_lost:
+  {
     turnOnFor(LS, 2);
     printBadEnding(&lcd, score);
     delay(SECONDS_TO_MILLIS(10));
     changeState(started);
     setNewGame();
     break;
+  }
   default:
     break;
   }
