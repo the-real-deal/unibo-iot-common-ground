@@ -9,7 +9,6 @@
 #define EI_ARDUINO_INTERRUPTED_PIN
 #include <EnableInterrupt.h>
 #include <LiquidCrystal_I2C.h>
-#include <TimerOne.h>
 
 #include <Utilities.h>
 #include <LEDUtilities.h>
@@ -18,6 +17,7 @@
 #include <POTUtilities.h>
 #include <PrintingUtilities.h>
 #include <Logger.h>
+#include <Timer.h>
 #include <config.h>
 
 #include <string.h>
@@ -82,11 +82,8 @@ bool checkSequence(int index, int button)
 
 void setNewRound(int roundTimeSeconds) 
 {
-  // Timer1.stop();
-  // Timer1.detachInterrupt();
-  // Timer1.attachInterrupt(inactivityGameOver);
-  // Timer1.setPeriod(SECONDS_TO_MICRO(roundTimeSeconds));
-  // Timer1.start();
+  setTimerPeriod(roundTimeSeconds);
+  startTimer();
 
   hitsNumber = 0;
   shouldDisplayRoundStart = true;
@@ -192,9 +189,8 @@ void setup()
     enableInterrupt(buttonPins[i], step, RISING);
   }
 
-  // Timer1.initialize(SECONDS_TO_MICRO(10));
-  // Timer1.attachInterrupt(suggestSleep);
-  // Timer1.start();
+  setTimerPeriod(SECONDS_TO_MILLIS(10));
+  startTimer();
 
   currentGameState = started;
 }
@@ -208,6 +204,11 @@ void loop()
     break;
   case started:
   {
+    if (hasTimeElapsed()) 
+    {
+      changeState(sleeping);
+      return;
+    }
     fadeLed(LS);
     const int newDifficulty = readDifficultyFromPOT(POT_PIN);
     if (hasDifficultyChanged(newDifficulty, currentDifficulty) || shouldWelcome) 
@@ -232,6 +233,11 @@ void loop()
       printSequence(&lcd, sequence, ARRAY_LENGTH(sequence));
       delay(PRINTING_DELAY);
       shouldDisplayRoundStart = false;
+    }
+
+    if (hasTimeElapsed()) 
+    {
+      changeState(gameover_lost);
     }
     break;
   }
