@@ -8,10 +8,10 @@ void logMessage(const String& message)
 
 void logInfo(const String& message)
 {
-    logMessage(String("{INFO}") + message);
+    logMessage(String("{INFO} ") + message);
 }
 
 void logError(const String& error)
 {
-    logMessage(String("{ERROR}") + error);
+    logMessage(String("{ERROR} ") + error);
 }

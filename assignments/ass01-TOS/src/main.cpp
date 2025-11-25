@@ -26,14 +26,16 @@
 #define SECONDS_TO_MICRO(seconds) seconds * 1000000
 #define SECONDS_TO_MILLIS(seconds) seconds * 1000
 #define BOUNCING_DELAY 150
+#define INITIAL_MAX_TIME_SECONDS 60
+#define SCORE_INCREMENT 100
 
-int score = 0;
+int score;
 int buttonPins[] = {BTN1, BTN2, BTN3, BTN4};
 int ledPins[] = {L1, L2, L3, L4};
 int sequence[] = {1, 2, 3, 4};
-int currentDifficulty = 0;
-
-volatile int hitsNumber = 0;
+int currentDifficulty;
+int currentMaxTimeSeconds; 
+volatile int hitsNumber;
 
 volatile bool shouldWelcome;
 volatile bool shouldDisplayRoundStart;
@@ -50,6 +52,7 @@ void changeState(State newState)
 void suggestSleep()
 {
   logInfo("SLEEP INTERRUPT CALLED");
+  displayMessage(&lcd, "Going to sleep...");
   changeState(sleeping);
 }
 
@@ -76,6 +79,29 @@ bool checkSequence(int index, int button)
   return sequence[index] == button;
 }
 
+void setNewRound(int roundTimeSeconds) 
+{
+  // Timer1.stop();
+  // Timer1.detachInterrupt();
+  // Timer1.attachInterrupt(inactivityGameOver);
+  // Timer1.setPeriod(SECONDS_TO_MICRO(roundTimeSeconds));
+  // Timer1.start();
+
+  hitsNumber = 0;
+  shouldDisplayRoundStart = true;
+  turnOffAllLeds(ledPins, ARRAY_LENGTH(ledPins));
+  shuffle(sequence, ARRAY_LENGTH(sequence));
+  logInfo(intArrayToString(sequence, ARRAY_LENGTH(sequence)));
+}
+
+void setNewGame() 
+{
+  score = 0;
+  shouldWelcome = true;
+  currentMaxTimeSeconds = INITIAL_MAX_TIME_SECONDS / (currentDifficulty + 1);
+  setNewRound(currentMaxTimeSeconds);
+}
+
 void step()
 {
   long interruptTime = millis();
@@ -100,6 +126,7 @@ void step()
     } else if (currentGameState == started)
     {
       changeState(playing);
+      setNewGame();
       return;
     }
     break;
@@ -121,19 +148,22 @@ void step()
     break;
   }
   
+  if (currentGameState != playing) 
+  {
+    return;
+  }
+
   hitsNumber++;
   
   const int buttonIndex = buttonNumber - 1;
   const int correspondingLed = ledPins[buttonIndex];
   const int indexInSequence = hitsNumber - 1;
-  
+
   turnOn(correspondingLed);
   logInfo("Button " + String(buttonNumber) + " pressed. Hit number: " + String(indexInSequence)); //!!!
   
   if (!checkSequence(indexInSequence, buttonNumber) || indexInSequence > ARRAY_LENGTH(sequence))
   {
-    logInfo(String(!checkSequence(indexInSequence, buttonNumber)));
-    logInfo(String(indexInSequence > ARRAY_LENGTH(sequence)));
     changeState(gameover_lost);
     return;
   }
@@ -144,22 +174,6 @@ void step()
     changeState(gameover_victory);
     return;
   }
-  
-}
-
-void setNewRound() 
-{
-  hitsNumber = 0;
-  shouldDisplayRoundStart = true;
-  turnOffAllLeds(ledPins, ARRAY_LENGTH(ledPins));
-  shuffle(sequence, ARRAY_LENGTH(sequence));
-}
-
-void setNewGame() 
-{
-  score = 0;
-  shouldWelcome = true;
-  setNewRound();
 }
 
 void setup()
@@ -179,12 +193,9 @@ void setup()
 
   // Timer1.initialize(SECONDS_TO_MICRO(10));
   // Timer1.attachInterrupt(suggestSleep);
+  // Timer1.start();
 
-  setNewGame();
-  shouldWelcome = true;
-  shouldDisplayRoundStart = true;
   currentGameState = started;
-  shuffle(sequence, ARRAY_LENGTH(sequence));
 }
 
 void loop()
@@ -196,24 +207,21 @@ void loop()
     break;
   case started:
     fadeLed(LS);
-    if (shouldWelcome)
+    const int newDifficulty = readDifficultyFromPOT(POT_PIN);
+    if (hasDifficultyChanged(newDifficulty, currentDifficulty) || shouldWelcome) 
     {
-      shouldWelcome = false;
+      currentDifficulty = newDifficulty;
+      if (shouldWelcome)
+      {
+        shouldWelcome = false;
+      }
       printStart(&lcd, currentDifficulty);
     }
-    const int newDifficulty = readDifficultyFromPOT(POT_PIN);
-    if (!hasDifficultyChanged(currentDifficulty, newDifficulty)){
-        return;
-    }
-    currentDifficulty = newDifficulty;
     break;
   case playing:
     if (shouldDisplayRoundStart)
     {
       // Gameover timeout interrupt
-      // Timer1.detachInterrupt();
-      // Timer1.attachInterrupt(inactivityGameOver);
-      // Timer1.setPeriod(SECONDS_TO_MICRO(5));
       turnOff(LS);
       displayMessage(&lcd, "Go");
       delay(2500);
@@ -223,15 +231,16 @@ void loop()
     }
     break;
   case gameover_victory:
-    score += 100;
+    score += SCORE_INCREMENT;
     printGoodEnding(&lcd, score);
     changeState(playing);
-    setNewRound();
+    currentMaxTimeSeconds /= (currentDifficulty + 1);
+    setNewRound(currentMaxTimeSeconds);
     break;
   case gameover_lost:
     turnOnFor(LS, 2);
     printBadEnding(&lcd, score);
-    //delay(SECONDS_TO_MILLIS(10));
+    delay(SECONDS_TO_MILLIS(10));
     changeState(started);
     setNewGame();
     break;
