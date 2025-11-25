@@ -23,19 +23,20 @@
 #include <string.h>
 
 #define ARRAY_LENGTH(vect) (int)(sizeof(vect) / sizeof(vect[0]))
-#define SECONDS_TO_MICRO(seconds) seconds * 1000000
-#define SECONDS_TO_MILLIS(seconds) seconds * 1000
+#define SECONDS_TO_MILLIS(seconds) seconds * 1000L
 #define BOUNCING_DELAY 150
-#define INITIAL_MAX_TIME_SECONDS 60
+#define INITIAL_MAX_TIME_SECONDS SECONDS_TO_MILLIS(24)
 #define SCORE_INCREMENT 100
 #define PRINTING_DELAY 2500
+#define SLEEP_DELAY_SECONDS SECONDS_TO_MILLIS(10)
 
 int score;
 int buttonPins[] = {BTN1, BTN2, BTN3, BTN4};
 int ledPins[] = {L1, L2, L3, L4};
 int sequence[] = {1, 2, 3, 4};
 int currentDifficulty;
-int currentMaxTimeSeconds; 
+
+unsigned long currentMaxTimeSeconds; 
 volatile int hitsNumber;
 
 volatile bool shouldWelcome;
@@ -50,20 +51,12 @@ void changeState(State newState)
   currentGameState = newState;
 }
 
-void suggestSleep()
-{
-  logInfo("SLEEP INTERRUPT CALLED");
-  displayMessage(&lcd, "Going to sleep...");
-  changeState(sleeping);
-}
-
-void inactivityGameOver()
-{
-  changeState(gameover_lost);
-}
-
 void startSleeping()
-{
+{ 
+  logInfo("SLEEP FUNCTION CALLED!");
+  displayMessage(&lcd, "Going to sleep...");
+  turnOff(LS);
+
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   sleep_mode();
@@ -82,23 +75,34 @@ bool checkSequence(int index, int button)
   return sequence[index] == button;
 }
 
-void setNewRound(int roundTimeSeconds) 
+void setNewRound(unsigned long roundTimeMS) 
 {
-  setTimerPeriod(roundTimeSeconds);
+  logInfo("Starting round with " + String(roundTimeMS) + "ms available.");
+  logInfo("Difficulty set to " + String(currentDifficulty));
+  setTimerPeriod(roundTimeMS);
   startTimer();
 
   hitsNumber = 0;
   shouldDisplayRoundStart = true;
   turnOffAllLeds(ledPins, ARRAY_LENGTH(ledPins));
   shuffle(sequence, ARRAY_LENGTH(sequence));
-  logInfo(intArrayToString(sequence, ARRAY_LENGTH(sequence)));
+  logInfo("Sequence: " + String(intArrayToString(sequence, ARRAY_LENGTH(sequence))));
+}
+
+void backToStart() 
+{
+  shouldWelcome = true;
+  resetTimer();
+  setTimerPeriod(SLEEP_DELAY_SECONDS);
+  turnOffAllLeds(ledPins, ARRAY_LENGTH(ledPins));
+  changeState(started);
 }
 
 void setNewGame() 
 {
   score = 0;
   shouldWelcome = true;
-  currentMaxTimeSeconds = SECONDS_TO_MILLIS(INITIAL_MAX_TIME_SECONDS) / (currentDifficulty + 1);
+  currentMaxTimeSeconds = INITIAL_MAX_TIME_SECONDS - SECONDS_TO_MILLIS((currentDifficulty + 1));
   setNewRound(currentMaxTimeSeconds);
 }
 
@@ -125,8 +129,7 @@ void step()
       return;
     } else if (currentGameState == started)
     {
-      changeState(playing);
-      setNewGame();
+      changeState(preparing);
       return;
     }
     break;
@@ -191,10 +194,11 @@ void setup()
     enableInterrupt(buttonPins[i], step, RISING);
   }
 
-  setTimerPeriod(SECONDS_TO_MILLIS(10));
+  setTimerPeriod(SLEEP_DELAY_SECONDS);
   startTimer();
 
   currentGameState = started;
+  shouldWelcome = true;
 }
 
 void loop()
@@ -209,7 +213,6 @@ void loop()
     if (hasTimeElapsed()) 
     {
       changeState(sleeping);
-      displayMessage(&lcd, "Going to sleep...");
       return;
     }
     fadeLed(LS);
@@ -225,11 +228,15 @@ void loop()
     }
     break;
   }
+  case preparing: 
+  {
+    setNewGame();
+    changeState(playing);
+  }
   case playing:
   {
     if (shouldDisplayRoundStart)
     {
-      // Gameover timeout interrupt
       turnOff(LS);
       displayMessage(&lcd, "Go");
       delay(PRINTING_DELAY);
@@ -249,9 +256,9 @@ void loop()
     score += SCORE_INCREMENT;
     printGoodEnding(&lcd, score);
     delay(PRINTING_DELAY);
-    changeState(playing);
-    currentMaxTimeSeconds /= (currentDifficulty + 1);
+    currentMaxTimeSeconds -= SECONDS_TO_MILLIS((currentDifficulty + 1));
     setNewRound(currentMaxTimeSeconds);
+    changeState(playing);
     break;
   }
   case gameover_lost:
@@ -259,8 +266,7 @@ void loop()
     turnOnFor(LS, 2);
     printBadEnding(&lcd, score);
     delay(SECONDS_TO_MILLIS(10));
-    changeState(started);
-    setNewGame();
+    backToStart();
     break;
   }
   default:
