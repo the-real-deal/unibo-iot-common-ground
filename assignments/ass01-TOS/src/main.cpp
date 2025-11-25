@@ -28,6 +28,7 @@
 #define BOUNCING_DELAY 150
 #define INITIAL_MAX_TIME_SECONDS 60
 #define SCORE_INCREMENT 100
+#define PRINTING_DELAY 2500
 
 int score;
 int buttonPins[] = {BTN1, BTN2, BTN3, BTN4};
@@ -227,9 +228,9 @@ void loop()
       // Gameover timeout interrupt
       turnOff(LS);
       displayMessage(&lcd, "Go");
-      delay(2500);
+      delay(PRINTING_DELAY);
       printSequence(&lcd, sequence, ARRAY_LENGTH(sequence));
-      delay(2500);
+      delay(PRINTING_DELAY);
       shouldDisplayRoundStart = false;
     }
     break;
@@ -238,6 +239,7 @@ void loop()
   {
     score += SCORE_INCREMENT;
     printGoodEnding(&lcd, score);
+    delay(PRINTING_DELAY);
     changeState(playing);
     currentMaxTimeSeconds /= (currentDifficulty + 1);
     setNewRound(currentMaxTimeSeconds);
