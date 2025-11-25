@@ -4,5 +4,6 @@
 void startTimer();
 bool hasTimeElapsed();
 void setTimerPeriod(unsigned long period);
+void resetTimer();
 
 #endif

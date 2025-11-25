@@ -18,3 +18,8 @@ void setTimerPeriod(unsigned long period)
 {
     timerPeriod = period;
 }
+
+void resetTimer() 
+{
+    startTimer();
+}

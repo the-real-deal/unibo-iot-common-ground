@@ -72,6 +72,8 @@ void startSleeping()
 void stopSleeping()
 {
   sleep_disable();
+  resetTimer();
+  shouldWelcome = true;
 }
 
 bool checkSequence(int index, int button)
@@ -96,7 +98,7 @@ void setNewGame()
 {
   score = 0;
   shouldWelcome = true;
-  currentMaxTimeSeconds = INITIAL_MAX_TIME_SECONDS / (currentDifficulty + 1);
+  currentMaxTimeSeconds = SECONDS_TO_MILLIS(INITIAL_MAX_TIME_SECONDS) / (currentDifficulty + 1);
   setNewRound(currentMaxTimeSeconds);
 }
 
@@ -207,6 +209,7 @@ void loop()
     if (hasTimeElapsed()) 
     {
       changeState(sleeping);
+      displayMessage(&lcd, "Going to sleep...");
       return;
     }
     fadeLed(LS);
