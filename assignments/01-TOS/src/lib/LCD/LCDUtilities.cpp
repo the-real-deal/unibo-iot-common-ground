@@ -1,5 +1,5 @@
-#include <LCDUtilities.h>
-#include <Arduino.h>
+#include "lib/LCD/LCDUtilities.h"
+#include "Arduino.h"
 
 void displayMessage(LiquidCrystal_I2C *display, const String& message)
 {   

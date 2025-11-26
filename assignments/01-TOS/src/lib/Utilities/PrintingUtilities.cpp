@@ -1,6 +1,6 @@
-#include "PrintingUtilities.h"
-#include "LCDUtilities.h"
-#include "Utilities.h"
+#include "lib/Utilities/PrintingUtilities.h"
+#include "lib/LCD/LCDUtilities.h"
+#include "lib/Utilities/Utilities.h"
 #include "Arduino.h"
 
 // Comment out the following define to debug the program with the terminal.

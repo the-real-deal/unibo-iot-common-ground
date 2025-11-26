@@ -1,6 +1,6 @@
-#include "POTUtilities.h"
-#include <Arduino.h>
-#include <math.h>
+#include "lib/POT/POTUtilities.h"
+#include "Arduino.h"
+#include "math.h"
 
 
 int readDifficultyFromPOT(int POT_PIN) 

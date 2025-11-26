@@ -1,5 +1,5 @@
 #include "Arduino.h"
-#include "Timer.h"
+#include "lib/Timer/Timer.h"
 
 static unsigned long firstInstant;
 static unsigned long timerPeriod;

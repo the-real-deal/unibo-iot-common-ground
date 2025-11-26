@@ -1,8 +1,5 @@
 #include <Arduino.h>
 #include <avr/sleep.h>
-// Debugging tools — TODO: change if needed, not compatible with Arduino.h
-// #include "avr8-stub.h"
-// #include "app_api.h" // only needed with flash breakpoints
 
 // See docs for explaination of this define:
 // https://github.com/GreyGnome/EnableInterrupt/wiki/Usage#determine-the-pin-that-was-interrupted
@@ -10,14 +7,14 @@
 #include <EnableInterrupt.h>
 #include <LiquidCrystal_I2C.h>
 
-#include <Utilities.h>
-#include <LEDUtilities.h>
-#include <LCDUtilities.h>
-#include <ButtonUtilities.h>
-#include <POTUtilities.h>
-#include <PrintingUtilities.h>
-#include <Logger.h>
-#include <Timer.h>
+#include <lib/Utilities/Utilities.h>
+#include <lib/LED/LEDUtilities.h>
+#include <lib/LCD/LCDUtilities.h>
+#include <lib/Button/ButtonUtilities.h>
+#include <lib/POT/POTUtilities.h>
+#include <lib/Utilities/PrintingUtilities.h>
+#include <lib/Utilities/Logger.h>
+#include <lib/Timer/Timer.h>
 #include <config.h>
 
 #include <string.h>
@@ -199,6 +196,8 @@ void setup()
 
   currentGameState = started;
   shouldWelcome = true;
+  logInfo(":::::: TOS successfully initialized! ::::::");
+  logInfo("Format of time displayed: HH:MM:ss:mmm");
 }
 
 void loop()
