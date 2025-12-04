@@ -2,7 +2,6 @@
  * Board selected: esp32doit-devkit-v1
  * (check `platformio.ini` for info)
  * 
- * TODO: Something not working with serial monitor.
  */
 #include <Arduino.h>
 #define BAUD_RATE 115200
