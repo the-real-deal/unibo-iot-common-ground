@@ -5,10 +5,11 @@ import org.slf4j.LoggerFactory;
 
 import it.unibo.sdh.api.model.CommunicationChannel;
 import it.unibo.sdh.api.model.EventListener;
-import it.unibo.sdh.impl.model.DroneContext;
+import it.unibo.sdh.impl.model.DroneStates;
 import it.unibo.sdh.impl.model.FetchHangarStateAgent;
-import it.unibo.sdh.impl.model.HangarState;
+import it.unibo.sdh.impl.model.HangarStates;
 import it.unibo.sdh.impl.model.SerialCommunicationChannel;
+import it.unibo.sdh.impl.model.StateHolder;
 import it.unibo.sdh.impl.view.DashboardView;
 import jssc.SerialPortException;
 
@@ -17,11 +18,13 @@ public class DashboardController {
     final static Logger logger = LoggerFactory.getLogger(DashboardController.class);
 
     private CommunicationChannel channel;
-    private DashboardView view;
     private HangarListener hangarListener;
     private FetchHangarStateAgent hangarAgent;
-    private DroneContext drone;
+    private StateHolder<DroneStates> drone;
+    private StateHolder<HangarStates> hangar;
     private DroneListener droneListener;
+
+    private DashboardView view;
 
     public DashboardController(final String arduinoSerialPort, final DashboardView view) {
         try {
@@ -34,33 +37,45 @@ public class DashboardController {
 
         this.view = view;
 
+        this.hangar = new StateHolder<HangarStates>(HangarStates.NORMAL);
         this.hangarListener = new HangarListener();
-        this.hangarAgent = new FetchHangarStateAgent(channel);
+        this.hangarAgent = new FetchHangarStateAgent(channel, hangar);
         this.hangarAgent.subscribe(hangarListener);
         this.hangarAgent.start();
         
-        this.drone = new DroneContext();
+        this.drone = new StateHolder<DroneStates>(DroneStates.REST);
         this.droneListener = new DroneListener();
     }
 
     public void takeOff() {
-        droneListener.update(DroneContext.States.TAKING_OFF);
+        this.drone.setState(DroneStates.TAKING_OFF);
+        droneListener.update(this.drone);
     }
 
     public void land() {
-        droneListener.update(DroneContext.States.LANDING);
+        this.drone.setState(DroneStates.LANDING);
+        droneListener.update(this.drone);
     }
 
     public void resetHangar() {
-        hangarListener.update(HangarState.NORMAL);
+        this.hangar.setState(HangarStates.NORMAL);
+        hangarListener.update(this.hangar);
     }
 
-    private class HangarListener implements EventListener<HangarState> {
+    public HangarStates getHangarState() {
+        return hangar.getCurrentState();
+    }
+
+    public DroneStates getDroneState() {
+        return drone.getCurrentState();
+    }
+
+    private class HangarListener implements EventListener<StateHolder<HangarStates>> {
 
         @Override
-        public void update(final HangarState data) {
-            view.displayHangarState(data.name());
-            switch (data) {
+        public void update(final StateHolder<HangarStates> data) {
+            view.displayHangarState(data.getCurrentState().name());
+            switch (data.getCurrentState()) {
                 case NORMAL:
                     view.enableActionButtons();
                     break;
@@ -77,13 +92,13 @@ public class DashboardController {
 
     }
 
-    private class DroneListener implements EventListener<DroneContext.States> {
+    private class DroneListener implements EventListener<StateHolder<DroneStates>> {
 
         @Override
-        public void update(final DroneContext.States data) {
-            drone.setState(data);
-            channel.sendMessage(data.name());
-            view.displayDroneState(data.name());
+        public void update(final StateHolder<DroneStates> data) {
+            drone.setState(data.getCurrentState());
+            channel.sendMessage(data.getCurrentState().name());
+            view.displayDroneState(data.getCurrentState().name());
         }
 
     }
