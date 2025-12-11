@@ -1,11 +1,11 @@
-package it.unibo.sdh.impl.serial_communication;
+package it.unibo.sdh.impl.model;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import it.unibo.sdh.api.serial_communication.CommunicationChannel;
+import it.unibo.sdh.api.model.CommunicationChannel;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
@@ -35,14 +35,14 @@ public class SerialCommunicationChannel implements CommunicationChannel, SerialP
     @Override
     public void serialEvent(SerialPortEvent serialPortEvent) {
         try {
-            String msg = port.readString(serialPortEvent.getEventValue());
-            msg = msg.replaceAll("\r", "");
-            currentMessage.append(msg);
+            final var rawMessage = port.readString(serialPortEvent.getEventValue());
+            final var sanitizedMessage = rawMessage.replaceAll("\r", "");
+            currentMessage.append(sanitizedMessage);
         } catch (final SerialPortException ex) { }
         boolean goAhead = true;
         while (goAhead) {
-            final String finalMessage = currentMessage.toString();
-            final int indexOfNewLine = finalMessage.indexOf("\n");
+            final var finalMessage = currentMessage.toString();
+            final var indexOfNewLine = finalMessage.indexOf("\n");
             if (indexOfNewLine >= 0) {
                 try {
                     messageQueue.put(finalMessage.substring(0, indexOfNewLine));
@@ -81,7 +81,7 @@ public class SerialCommunicationChannel implements CommunicationChannel, SerialP
     }
 
     @Override
-    public boolean isChannelAvailable() {
+    public boolean isAvailable() {
         return !messageQueue.isEmpty();
     }
 

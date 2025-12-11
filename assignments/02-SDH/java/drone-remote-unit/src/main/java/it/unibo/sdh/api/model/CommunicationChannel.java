@@ -1,4 +1,4 @@
-package it.unibo.sdh.api.serial_communication;
+package it.unibo.sdh.api.model;
 
 import java.util.Optional;
 
@@ -8,7 +8,7 @@ public interface CommunicationChannel {
 
     Optional<String> receiveMessage();
 
-    boolean isChannelAvailable();
+    boolean isAvailable();
 
     void close();
 }
