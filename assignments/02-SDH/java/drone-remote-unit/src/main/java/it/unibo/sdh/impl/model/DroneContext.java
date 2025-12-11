@@ -1,6 +1,6 @@
 package it.unibo.sdh.impl.model;
 
-public class Drone {
+public class DroneContext {
 
     public enum States {
         REST,
@@ -11,7 +11,7 @@ public class Drone {
 
     private States state;
     
-    public Drone() {
+    public DroneContext() {
         this.state = States.REST;
     }
 

@@ -17,10 +17,15 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.unibo.sdh.impl.controller.DashboardController;
 
 public class DashboardView extends JFrame {
-    
+   
+	private static Logger logger = LoggerFactory.getLogger(DashboardView.class);
+
     private JButton takeOffButton;
     private JButton landButton;
     private JButton resetButton;
@@ -33,7 +38,7 @@ public class DashboardView extends JFrame {
     public DashboardView() {
         super(".:: Drone Remote Unit — DASHBOARD ::.");
 
-        setSize(600,200);
+        setSize(600,250);
 		this.setResizable(false);
 		
 		final JPanel mainPanel = new JPanel();
@@ -42,15 +47,28 @@ public class DashboardView extends JFrame {
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 		
 		final JPanel stateViewPanel = new JPanel();
-		stateViewPanel.setLayout(new GridLayout(1, 2));
+		stateViewPanel.setLayout(new GridLayout(1, 3));
 
 		final JPanel hangarStateView = new JPanel();
 		hangarStateView.setLayout(new BoxLayout(hangarStateView, BoxLayout.Y_AXIS));
 		hangarStateView.add(new JLabel("HANGAR state"));
+		
+		final JPanel hangarStateViewRow = new JPanel();
+		hangarStateViewRow.setLayout(new BoxLayout(hangarStateViewRow, BoxLayout.X_AXIS));
 		hangarStateDisplay = new JTextField();
 		hangarStateDisplay.setEditable(false);
 		hangarStateDisplay.setPreferredSize(new Dimension(150,15));
-		hangarStateView.add(hangarStateDisplay);
+		resetButton = new JButton("RESET");
+		resetButton.setEnabled(true);
+		resetButton.setOpaque(true);
+		resetButton.setBackground(Color.RED);
+		// resetButton.setForeground(Color.WHITE);
+		resetButton.addActionListener((l) -> {
+            controller.resetHangar();
+        });
+		hangarStateViewRow.add(hangarStateDisplay);
+		hangarStateViewRow.add(resetButton);
+		hangarStateView.add(hangarStateViewRow);
 
 		final JPanel droneStateView = new JPanel();
 		droneStateView.setLayout(new BoxLayout(droneStateView, BoxLayout.Y_AXIS));
@@ -61,6 +79,7 @@ public class DashboardView extends JFrame {
 		droneStateView.add(droneStateDisplay);
 		
 		stateViewPanel.add(hangarStateView);
+		stateViewPanel.add(Box.createRigidArea(new Dimension(0,0)));
 		stateViewPanel.add(droneStateView);
 		mainPanel.add(stateViewPanel);
 		mainPanel.add(new JSeparator());
@@ -90,20 +109,10 @@ public class DashboardView extends JFrame {
             controller.land();
         });
 
-		// TODO: Work with reset
-		resetButton = new JButton("RESET");
-		resetButton.setEnabled(true);
-		resetButton.setBackground(Color.RED);
-		// resetButton.setForeground(Color.WHITE);
-		resetButton.addActionListener((l) -> {
-            // controller.reset();
-        });
-
 		final JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));	    
 		buttonPanel.add(takeOffButton);
 		buttonPanel.add(landButton);
-		buttonPanel.add(resetButton);
 		
 		mainPanel.add(buttonPanel);
 		mainPanel.add(Box.createRigidArea(new Dimension(0,20)));
@@ -124,6 +133,7 @@ public class DashboardView extends JFrame {
 
     public void registerController(DashboardController controller) {
         this.controller = controller;
+		logger.atInfo().log("Dashboard Controller successfully registered.");
     }
 
 	public void displayHangarState(final String state) {

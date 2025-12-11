@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.unibo.sdh.api.model.CommunicationChannel;
+import it.unibo.sdh.api.model.EventListener;
+import it.unibo.sdh.api.model.EventPublisher;
 
 public class FetchHangarStateAgent extends Thread implements EventPublisher<HangarState> {
 
