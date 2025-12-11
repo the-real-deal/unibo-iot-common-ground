@@ -1,5 +1,6 @@
 package it.unibo.sdh.impl.view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
@@ -22,6 +23,7 @@ public class DashboardView extends JFrame {
     
     private JButton takeOffButton;
     private JButton landButton;
+    private JButton resetButton;
     private JTextField distanceDisplay;
     private JTextField hangarStateDisplay;
     private JTextField droneStateDisplay;
@@ -88,10 +90,20 @@ public class DashboardView extends JFrame {
             controller.land();
         });
 
+		// TODO: Work with reset
+		resetButton = new JButton("RESET");
+		resetButton.setEnabled(true);
+		resetButton.setBackground(Color.RED);
+		// resetButton.setForeground(Color.WHITE);
+		resetButton.addActionListener((l) -> {
+            // controller.reset();
+        });
+
 		final JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));	    
 		buttonPanel.add(takeOffButton);
 		buttonPanel.add(landButton);
+		buttonPanel.add(resetButton);
 		
 		mainPanel.add(buttonPanel);
 		mainPanel.add(Box.createRigidArea(new Dimension(0,20)));
