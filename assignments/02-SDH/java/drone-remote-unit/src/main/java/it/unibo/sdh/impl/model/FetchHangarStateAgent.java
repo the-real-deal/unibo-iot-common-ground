@@ -7,16 +7,17 @@ import it.unibo.sdh.api.model.CommunicationChannel;
 import it.unibo.sdh.api.model.EventListener;
 import it.unibo.sdh.api.model.EventPublisher;
 
-public class FetchHangarStateAgent extends Thread implements EventPublisher<HangarState> {
+public class FetchHangarStateAgent extends Thread implements EventPublisher<StateHolder<HangarStates>> {
 
     private CommunicationChannel channel;
-    private HangarState currentState;
-    private List<EventListener<HangarState>> stateChangeListeners;
+    private StateHolder<HangarStates> state;
+    private List<EventListener<StateHolder<HangarStates>>> stateChangeListeners;
     
-    public FetchHangarStateAgent(final CommunicationChannel channel) {
+    public FetchHangarStateAgent(final CommunicationChannel channel, final StateHolder<HangarStates> state) {
         this.channel = channel;
-        this.currentState = HangarState.NORMAL;
         this.stateChangeListeners = new ArrayList<>();
+        this.state = state;
+        notifyAll(state);
     }
 
     @Override
@@ -26,26 +27,28 @@ public class FetchHangarStateAgent extends Thread implements EventPublisher<Hang
             if (serialMessage.isEmpty()) {
                 continue;
             }
-            final var fetchedState = HangarState.valueOf(serialMessage.get());
-            if (fetchedState != currentState) {
-                notifyAll(fetchedState);
-                currentState = fetchedState;
+            final var fetchedState = HangarStates.valueOf(serialMessage.get());
+            synchronized (state) {
+                if (fetchedState != state.getCurrentState()) {
+                    state.setState(fetchedState);
+                    notifyAll(state);
+                }
             }
         }
     }
 
     @Override
-    public void subscribe(EventListener<HangarState> listener) {
+    public void subscribe(EventListener<StateHolder<HangarStates>> listener) {
         stateChangeListeners.add(listener);
     }
 
     @Override
-    public boolean unsubscribe(EventListener<HangarState> listener) {
+    public boolean unsubscribe(EventListener<StateHolder<HangarStates>> listener) {
         return stateChangeListeners.remove(listener);
     }
 
     @Override
-    public void notifyAll(HangarState data) {
+    public void notifyAll(StateHolder<HangarStates> data) {
         stateChangeListeners.forEach(listener -> {
             listener.update(data);
         });

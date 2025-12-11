@@ -83,7 +83,6 @@ public class DashboardView extends JFrame {
 		stateViewPanel.add(droneStateView);
 		mainPanel.add(stateViewPanel);
 		mainPanel.add(new JSeparator());
-		// mainPanel.add(Box.createRigidArea(new Dimension(0,20)));
 		
 		final JPanel infoLine = new JPanel();
 		infoLine.setLayout(new BoxLayout(infoLine, BoxLayout.LINE_AXIS));
@@ -127,6 +126,8 @@ public class DashboardView extends JFrame {
 
     public void display() {
         SwingUtilities.invokeLater(() -> {
+			this.droneStateDisplay.setText(controller.getDroneState().name());
+			this.hangarStateDisplay.setText(controller.getHangarState().name());
             this.setVisible(true);
         });
     }

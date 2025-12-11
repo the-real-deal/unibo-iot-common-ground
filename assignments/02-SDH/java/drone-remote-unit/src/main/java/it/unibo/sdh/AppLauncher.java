@@ -12,6 +12,5 @@ public class AppLauncher {
         
         dashboardView.registerController(controller);
         dashboardView.display();
-    
     }
 }
