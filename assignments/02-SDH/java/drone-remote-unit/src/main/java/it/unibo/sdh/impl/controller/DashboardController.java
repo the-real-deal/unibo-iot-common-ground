@@ -2,13 +2,13 @@ package it.unibo.sdh.impl.controller;
 
 import it.unibo.sdh.api.model.CommunicationChannel;
 import it.unibo.sdh.impl.model.Drone;
+import it.unibo.sdh.impl.model.EventListener;
 import it.unibo.sdh.impl.model.FetchHangarStateAgent;
 import it.unibo.sdh.impl.model.HangarState;
-import it.unibo.sdh.impl.model.HangarStateListener;
 import it.unibo.sdh.impl.model.SerialCommunicationChannel;
 import it.unibo.sdh.impl.view.DashboardView;
 
-public class DashboardController implements HangarStateListener {
+public class DashboardController implements EventListener<HangarState> {
 
     private CommunicationChannel channel;
     private DashboardView view;
