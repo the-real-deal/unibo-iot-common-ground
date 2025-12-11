@@ -1,5 +1,6 @@
 package it.unibo.sdh.impl.model;
 
+// TODO: Think about the usability.
 public class DroneContext {
 
     public enum States {
