@@ -2,6 +2,7 @@ package it.unibo.sdh.impl.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import it.unibo.sdh.api.model.CommunicationChannel;
 import it.unibo.sdh.api.model.EventListener;
@@ -38,7 +39,7 @@ public class FetchHangarStateAgent extends Thread implements EventPublisher<Stat
                 }
                 synchronized (state) {
                     if (state.getCurrentState().isEmpty() || fetchedState != state.getCurrentState().get()) {
-                        state.setState(fetchedState);
+                        state.setState(Optional.of(fetchedState));
                         notifyAll(state);
                     }
                 }
