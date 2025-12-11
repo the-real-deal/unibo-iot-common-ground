@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -126,13 +127,17 @@ public class DashboardView extends JFrame {
 
     public void display() {
         SwingUtilities.invokeLater(() -> {
-			this.droneStateDisplay.setText(controller.getDroneState().name());
-			this.hangarStateDisplay.setText(controller.getHangarState().name());
+			if (Objects.isNull(controller)) {
+				logger.atError().log("Cannot display GUI: controller not setup yet.");
+				System.exit(-1);
+			}
+			controller.getDroneState().ifPresent(state -> this.droneStateDisplay.setText(state.name()));
+			controller.getHangarState().ifPresent(state -> this.hangarStateDisplay.setText(state.name()));
             this.setVisible(true);
         });
     }
 
-    public void registerController(DashboardController controller) {
+    public void registerController(final DashboardController controller) {
         this.controller = controller;
 		logger.atInfo().log("Dashboard Controller successfully registered.");
     }
