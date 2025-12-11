@@ -1,16 +1,21 @@
 package it.unibo.sdh;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.unibo.sdh.impl.controller.DashboardController;
 import it.unibo.sdh.impl.view.DashboardView;
 
 public class AppLauncher {
-    public static void main(String[] args) {
-
+    private static final Logger logger = LoggerFactory.getLogger(AppLauncher.class);
+    public static void main(final String[] args) {
         final var serialPort = "/dev/cu.usbmodem1201";
         final var dashboardView = new DashboardView();
-        final var controller = new DashboardController(serialPort, dashboardView);
+        final var dashboardController = new DashboardController(serialPort, dashboardView);
         
-        dashboardView.registerController(controller);
+        dashboardView.registerController(dashboardController);
         dashboardView.display();
+
+        logger.atInfo().log("Application has successfully started!");
     }
 }

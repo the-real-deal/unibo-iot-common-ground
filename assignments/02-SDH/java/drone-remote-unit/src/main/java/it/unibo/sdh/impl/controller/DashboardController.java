@@ -1,6 +1,7 @@
 package it.unibo.sdh.impl.controller;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,18 +22,20 @@ public class DashboardController {
     private static final int MAX_RECONNECTION_ATTEMPTS = 5;
 
     private CommunicationChannel channel;
+
+    private StateHolder<HangarStates> hangar;
     private HangarListener hangarListener;
     private FetchHangarStateAgent hangarAgent;
+    
     private StateHolder<DroneStates> drone;
-    private StateHolder<HangarStates> hangar;
     private DroneListener droneListener;
+    
     private DashboardView view;
 
     public DashboardController(final String arduinoSerialPort, final DashboardView view) {
         boolean arduinoConnected = false;
-        int attempt;
         logger.atInfo().log("Trying to reach Arduino on port: ".concat(arduinoSerialPort));
-        for (attempt = 0; attempt < MAX_RECONNECTION_ATTEMPTS && !arduinoConnected; attempt++) {
+        for (int attempt = 0; attempt < MAX_RECONNECTION_ATTEMPTS && !arduinoConnected; attempt++) {
             try {
                 channel = new SerialCommunicationChannel(arduinoSerialPort);
             } catch (final SerialPortException ex) { 
@@ -61,7 +64,7 @@ public class DashboardController {
 
         this.view = view;
 
-        this.hangar = new StateHolder<HangarStates>(HangarStates.NORMAL);
+        this.hangar = new StateHolder<HangarStates>();
         this.hangarListener = new HangarListener();
         this.hangarAgent = new FetchHangarStateAgent(channel, hangar);
         this.hangarAgent.subscribe(hangarListener);
@@ -86,11 +89,11 @@ public class DashboardController {
         hangarListener.update(this.hangar);
     }
 
-    public HangarStates getHangarState() {
+    public Optional<HangarStates> getHangarState() {
         return hangar.getCurrentState();
     }
 
-    public DroneStates getDroneState() {
+    public Optional<DroneStates> getDroneState() {
         return drone.getCurrentState();
     }
 
@@ -98,8 +101,11 @@ public class DashboardController {
 
         @Override
         public void update(final StateHolder<HangarStates> data) {
-            view.displayHangarState(data.getCurrentState().name());
-            switch (data.getCurrentState()) {
+            if (data.getCurrentState().isEmpty()) {
+                return;
+            }
+            view.displayHangarState(data.getCurrentState().get().name());
+            switch (data.getCurrentState().get()) {
                 case NORMAL:
                     view.enableActionButtons();
                     break;
@@ -120,9 +126,11 @@ public class DashboardController {
 
         @Override
         public void update(final StateHolder<DroneStates> data) {
-            drone.setState(data.getCurrentState());
-            channel.sendMessage(data.getCurrentState().name());
-            view.displayDroneState(data.getCurrentState().name());
+            if (data.getCurrentState().isEmpty()) {
+                return;
+            }
+            channel.sendMessage(data.getCurrentState().get().name());
+            view.displayDroneState(data.getCurrentState().get().name());
         }
 
     }

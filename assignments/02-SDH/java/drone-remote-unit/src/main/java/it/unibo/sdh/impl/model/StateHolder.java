@@ -1,17 +1,21 @@
 package it.unibo.sdh.impl.model;
 
+import java.util.Optional;
+
 public class StateHolder<S> {
-    private S state;
+    private Optional<S> state;
     
+    public StateHolder() {}
+
     public StateHolder(S initialState) {
-        this.state = initialState;
+        setState(initialState);
     }
 
-    public S getCurrentState() {
+    public Optional<S> getCurrentState() {
         return state;
     }
 
     public void setState(final S newState) {
-        this.state = newState;
+        this.state = Optional.of(newState);
     }
 }
