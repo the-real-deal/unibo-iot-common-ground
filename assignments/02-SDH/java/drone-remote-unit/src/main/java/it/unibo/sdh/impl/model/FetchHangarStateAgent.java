@@ -23,15 +23,17 @@ public class FetchHangarStateAgent extends Thread implements EventPublisher<Stat
     @Override
     public void run() {
         while (true) {
-            final var serialMessage = channel.receiveMessage();
-            if (serialMessage.isEmpty()) {
-                continue;
-            }
-            final var fetchedState = HangarStates.valueOf(serialMessage.get());
-            synchronized (state) {
-                if (fetchedState != state.getCurrentState()) {
-                    state.setState(fetchedState);
-                    notifyAll(state);
+            synchronized (channel) {
+                final var serialMessage = channel.receiveMessage();
+                if (serialMessage.isEmpty()) {
+                    continue;
+                }
+                final var fetchedState = HangarStates.valueOf(serialMessage.get());
+                synchronized (state) {
+                    if (fetchedState != state.getCurrentState()) {
+                        state.setState(fetchedState);
+                        notifyAll(state);
+                    }
                 }
             }
         }

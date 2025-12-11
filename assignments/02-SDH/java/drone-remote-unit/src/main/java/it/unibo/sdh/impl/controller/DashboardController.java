@@ -1,5 +1,7 @@
 package it.unibo.sdh.impl.controller;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +17,8 @@ import jssc.SerialPortException;
 
 public class DashboardController {
 
-    final static Logger logger = LoggerFactory.getLogger(DashboardController.class);
+    private final static Logger logger = LoggerFactory.getLogger(DashboardController.class);
+    private static final int MAX_RECONNECTION_ATTEMPTS = 5;
 
     private CommunicationChannel channel;
     private HangarListener hangarListener;
@@ -23,16 +26,37 @@ public class DashboardController {
     private StateHolder<DroneStates> drone;
     private StateHolder<HangarStates> hangar;
     private DroneListener droneListener;
-
     private DashboardView view;
 
     public DashboardController(final String arduinoSerialPort, final DashboardView view) {
-        try {
-            channel = new SerialCommunicationChannel(arduinoSerialPort);
-        } catch (final SerialPortException ex) { 
-            logger.atError().log("NOO! Cannot open port: ".concat(arduinoSerialPort));
-        } catch (final Exception ex) {
-            logger.atError().log("Generic exception caught: ".concat(ex.getMessage()));
+        boolean arduinoConnected = false;
+        int attempt;
+        logger.atInfo().log("Trying to reach Arduino on port: ".concat(arduinoSerialPort));
+        for (attempt = 0; attempt < MAX_RECONNECTION_ATTEMPTS && !arduinoConnected; attempt++) {
+            try {
+                channel = new SerialCommunicationChannel(arduinoSerialPort);
+            } catch (final SerialPortException ex) { 
+                logger.atError().log("NOO! Cannot open port: ".concat(arduinoSerialPort));
+            } catch (final Exception ex) {
+                logger.atError().log("Generic exception caught: ".concat(ex.getMessage()));
+            } finally {
+                arduinoConnected = !Objects.isNull(channel);
+                if (!arduinoConnected) {
+                    logger.info("Trying again in 5s, attempt #"
+                        .concat(String.valueOf(attempt + 1) + "/" + String.valueOf(MAX_RECONNECTION_ATTEMPTS)));
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        logger.atError().log("Something went wrong when waiting...");
+                        System.exit(-1);
+                    }
+                }
+            }
+        }
+
+        if (!arduinoConnected) {
+            logger.atError().log("Arduino not detected. Exiting...");
+            System.exit(-1);
         }
 
         this.view = view;
