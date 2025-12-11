@@ -32,27 +32,33 @@ public class SerialCommunicationChannel implements CommunicationChannel, SerialP
         this.port.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
     }
 
+    public SerialCommunicationChannel(final String portName) throws SerialPortException {
+        this(portName, SerialPort.BAUDRATE_9600);
+    }
+
     @Override
     public void serialEvent(SerialPortEvent serialPortEvent) {
-        try {
-            final var rawMessage = port.readString(serialPortEvent.getEventValue());
-            final var sanitizedMessage = rawMessage.replaceAll("\r", "");
-            currentMessage.append(sanitizedMessage);
-        } catch (final SerialPortException ex) { }
-        boolean goAhead = true;
-        while (goAhead) {
-            final var finalMessage = currentMessage.toString();
-            final var indexOfNewLine = finalMessage.indexOf("\n");
-            if (indexOfNewLine >= 0) {
-                try {
-                    messageQueue.put(finalMessage.substring(0, indexOfNewLine));
-                } catch (final InterruptedException ex) { }
-                currentMessage = new StringBuffer("");
-                if (indexOfNewLine + 1 < finalMessage.length()) {
-                    currentMessage.append(finalMessage.substring(indexOfNewLine + 1));
+        if (serialPortEvent.isRXCHAR()) {
+            try {
+                final var rawMessage = port.readString(serialPortEvent.getEventValue());
+                final var sanitizedMessage = rawMessage.replaceAll("\r", "");
+                currentMessage.append(sanitizedMessage);
+            } catch (final SerialPortException ex) { }
+            boolean goAhead = true;
+            while (goAhead) {
+                final var finalMessage = currentMessage.toString();
+                final var indexOfNewLine = finalMessage.indexOf("\n");
+                if (indexOfNewLine >= 0) {
+                    try {
+                        messageQueue.put(finalMessage.substring(0, indexOfNewLine));
+                    } catch (final InterruptedException ex) { }
+                    currentMessage = new StringBuffer("");
+                    if (indexOfNewLine + 1 < finalMessage.length()) {
+                        currentMessage.append(finalMessage.substring(indexOfNewLine + 1));
+                    }
+                } else {
+                    goAhead = false;
                 }
-            } else {
-                goAhead = false;
             }
         }
     }

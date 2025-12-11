@@ -1,4 +1,4 @@
-package it.unibo.sdh.impl.model;
+package it.unibo.sdh.api.model;
 
 public interface EventPublisher<D> {
     
