@@ -5,15 +5,13 @@ import java.util.List;
 
 import it.unibo.sdh.api.model.CommunicationChannel;
 
-public class FetchHangarStateAgent extends Thread implements HangarStateSetter {
+public class FetchHangarStateAgent extends Thread implements EventPublisher<HangarState> {
 
     private CommunicationChannel channel;
     private HangarState currentState;
-    private List<HangarStateListener> stateChangeListeners;
+    private List<EventListener<HangarState>> stateChangeListeners;
     
-    public FetchHangarStateAgent( 
-        final CommunicationChannel channel) {
-        
+    public FetchHangarStateAgent(final CommunicationChannel channel) {
         this.channel = channel;
         this.currentState = HangarState.NORMAL;
         this.stateChangeListeners = new ArrayList<>();
@@ -26,28 +24,28 @@ public class FetchHangarStateAgent extends Thread implements HangarStateSetter {
             if (serialMessage.isEmpty()) {
                 continue;
             }
-            final var retrievedState = HangarState.valueOf(serialMessage.get());
-            if (retrievedState != currentState) {
-                notifyAll(retrievedState);
-                currentState = retrievedState;
+            final var fetchedState = HangarState.valueOf(serialMessage.get());
+            if (fetchedState != currentState) {
+                notifyAll(fetchedState);
+                currentState = fetchedState;
             }
         }
     }
 
     @Override
-    public void subscribe(HangarStateListener listener) {
+    public void subscribe(EventListener<HangarState> listener) {
         stateChangeListeners.add(listener);
     }
 
     @Override
-    public boolean unsubscribe(HangarStateListener listener) {
+    public boolean unsubscribe(EventListener<HangarState> listener) {
         return stateChangeListeners.remove(listener);
     }
 
     @Override
-    public void notifyAll(HangarState state) {
+    public void notifyAll(HangarState data) {
         stateChangeListeners.forEach(listener -> {
-            listener.update(state);
+            listener.update(data);
         });
     }
 }
