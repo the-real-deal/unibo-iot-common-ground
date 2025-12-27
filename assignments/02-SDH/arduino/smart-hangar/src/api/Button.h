@@ -3,13 +3,16 @@
 
 #include "Arduino.h"
 
+/* Button Class:
+*  Interface for a digital button connected to a specified pin.
+*/
 class Button {
 public:
   Button(int pin);
   bool isPressed();
     
 private:
-  int pin;
+  const int pin;
 };
 
 #endif

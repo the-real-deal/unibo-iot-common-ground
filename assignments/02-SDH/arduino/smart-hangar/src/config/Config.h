@@ -13,4 +13,7 @@
 #define MIN_TEMP -40.0
 #define MAX_TEMP 125.0
 
+#define FROM_MS_TO_S 0.001f
+#define FROM_US_TO_S 0.000001f
+
 #endif

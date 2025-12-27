@@ -4,6 +4,9 @@
 #include "Arduino.h"
 #include "ServoTimer2.h"
 
+/* Door Class:
+*  Interface for a door represented by a servo motor connected to a specified pin.
+*/
 class Door {
 public:
   Door(int pin);
@@ -12,7 +15,7 @@ public:
   bool isOpen();
     
 private:
-  int pin;
+  const int pin;
   bool state;
   ServoTimer2 motor;
 };
