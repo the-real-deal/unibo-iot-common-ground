@@ -2,9 +2,7 @@
 #include "Arduino.h"
 #include "config/Config.h"
 
-Door::Door(int pin){
-  this->pin = pin;
-  this->state = false;
+Door::Door(int pin) : pin(pin), state(false) {
   motor.attach(pin);
   close();
 }

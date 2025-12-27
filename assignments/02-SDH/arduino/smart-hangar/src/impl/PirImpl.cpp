@@ -1,8 +1,7 @@
 #include "api/Pir.h"
 #include "Arduino.h"
 
-Pir::Pir(int pin){
-  this->pin = pin;
+Pir::Pir(int pin) : pin(pin) {
   pinMode(pin, INPUT);
 }
 

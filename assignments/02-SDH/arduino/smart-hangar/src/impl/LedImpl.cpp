@@ -1,8 +1,7 @@
 #include "api/Led.h"
 #include "Arduino.h"
 
-Led::Led(int pin){
-  this->pin = pin;
+Led::Led(int pin) : pin(pin) {
   this->state = false;
   pinMode(pin, OUTPUT);
 }

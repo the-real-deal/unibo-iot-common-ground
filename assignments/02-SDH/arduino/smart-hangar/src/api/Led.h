@@ -1,9 +1,11 @@
 #ifndef __LED__
 #define __LED__
+#include "Arduino.h"
 
-#include "Light.h"
-
-class Led: public Light { 
+/* Led Class:
+*  Interface for a Led connected to a specified pin.
+*/
+class Led{ 
 public:
   Led(int pin);
   void switchOn();
@@ -11,7 +13,7 @@ public:
   bool isOn();
     
 private:
-  int pin;
+  const int pin;
   bool state; 
 };
 
