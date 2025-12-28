@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import org.slf4j.Logger;
+
 import it.unibo.sdh.api.model.CommunicationChannel;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
@@ -13,6 +15,7 @@ import jssc.SerialPortException;
 
 public class SerialCommunicationChannel implements CommunicationChannel, SerialPortEventListener {
 
+    private final static Logger logger = org.slf4j.LoggerFactory.getLogger(SerialCommunicationChannel.class);
     private final static int MAX_MESSAGES_COUNT = 100;
     private StringBuffer currentMessage;
     private SerialPort port;
@@ -42,6 +45,7 @@ public class SerialCommunicationChannel implements CommunicationChannel, SerialP
             try {
                 final var rawMessage = port.readString(serialPortEvent.getEventValue());
                 final var sanitizedMessage = rawMessage.replaceAll("\r", "");
+                logger.atInfo().log("|SDH -> DRU| " + sanitizedMessage);
                 currentMessage.append(sanitizedMessage);
             } catch (final SerialPortException ex) { }
             boolean goAhead = true;
@@ -65,6 +69,7 @@ public class SerialCommunicationChannel implements CommunicationChannel, SerialP
 
     @Override
     public void sendMessage(final String message) {
+        logger.atInfo().log("|DRU -> SDH| " + message);
         final char[] array = (message.concat("\n")).toCharArray();
         final byte[] bytes = new byte[array.length];
         for (int i = 0; i < array.length; i++) {
@@ -87,7 +92,7 @@ public class SerialCommunicationChannel implements CommunicationChannel, SerialP
     }
 
     @Override
-    public boolean isAvailable() {
+    public boolean isMessageAvailable() {
         return !messageQueue.isEmpty();
     }
 

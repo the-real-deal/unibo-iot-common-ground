@@ -6,5 +6,10 @@ public interface EventPublisher<D> {
 
     boolean unsubscribe(EventListener<D> listener);
 
-    void notifyAll(D data);
+    /**
+     * Notifies all subscribed listeners with the provided event data.
+     *
+     * @param data the event data to be sent to all listeners
+     */
+    void publishEvent(D data);
 }

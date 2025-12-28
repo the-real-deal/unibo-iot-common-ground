@@ -2,11 +2,11 @@ package it.unibo.sdh.impl.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import it.unibo.sdh.api.model.CommunicationChannel;
 import it.unibo.sdh.api.model.EventListener;
 import it.unibo.sdh.api.model.EventPublisher;
+import it.unibo.sdh.api.model.StateHolder;
 
 public class FetchHangarStateAgent extends Thread implements EventPublisher<StateHolder<HangarStates>> {
 
@@ -18,7 +18,7 @@ public class FetchHangarStateAgent extends Thread implements EventPublisher<Stat
         this.channel = channel;
         this.stateChangeListeners = new ArrayList<>();
         this.state = state;
-        notifyAll(state);
+        publishEvent(state);
     }
 
     @Override
@@ -39,8 +39,8 @@ public class FetchHangarStateAgent extends Thread implements EventPublisher<Stat
                 }
                 synchronized (state) {
                     if (state.getCurrentState().isEmpty() || fetchedState != state.getCurrentState().get()) {
-                        state.setState(Optional.of(fetchedState));
-                        notifyAll(state);
+                        state.setState(fetchedState);
+                        publishEvent(state);
                     }
                 }
             }
@@ -58,7 +58,7 @@ public class FetchHangarStateAgent extends Thread implements EventPublisher<Stat
     }
 
     @Override
-    public void notifyAll(StateHolder<HangarStates> data) {
+    public void publishEvent(StateHolder<HangarStates> data) {
         stateChangeListeners.forEach(listener -> {
             listener.update(data);
         });
