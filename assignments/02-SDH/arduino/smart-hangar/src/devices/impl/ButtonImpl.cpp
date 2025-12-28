@@ -1,6 +1,6 @@
-#include "api/Button.h"
+#include "devices/api/Button.h"
 #include "Arduino.h"
-#include "config/Config.h"
+#include "devices/config/Config.h"
 
 
 /*

@@ -1,6 +1,6 @@
-#include "api/Door.h"
+#include "devices/api/Door.h"
 #include "Arduino.h"
-#include "config/Config.h"
+#include "devices/config/Config.h"
 
 /*
 * Door Constructor
