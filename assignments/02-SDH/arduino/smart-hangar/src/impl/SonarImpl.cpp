@@ -2,12 +2,17 @@
 #include "Arduino.h"
 #include "config/Config.h"
 
-// Speed of sound constants
+/*
+* Internal constants
+*/
 namespace {
   constexpr float SOUND_SPEED = 331.5f;      
   constexpr float SOUND_SPEED_TEMP_COEFF = 0.6f;  
 }
 
+/* 
+* Sonar Constructor
+*/
 Sonar::Sonar(int echoP, int trigP, long maxTime)
   : echoPin(echoP), trigPin(trigP), timeOut(maxTime), temperature(20.0f) {
   pinMode(trigPin, OUTPUT);
@@ -15,14 +20,23 @@ Sonar::Sonar(int echoP, int trigP, long maxTime)
   digitalWrite(trigPin, LOW); 
 }
 
+/*
+* Get distance measurement from the sonar sensor.
+*/
 void Sonar::setTemperature(float temp) {
   temperature = temp;
 }
 
+/*
+* Calculate speed of sound based on current temperature.
+*/
 float Sonar::getSoundSpeed() const {
   return SOUND_SPEED + (SOUND_SPEED_TEMP_COEFF * temperature);
 }
 
+/*
+* Get distance measurement from the sonar sensor.
+*/
 float Sonar::getDistance() {
   digitalWrite(trigPin, LOW);
   delayMicroseconds(3);
@@ -36,8 +50,7 @@ float Sonar::getDistance() {
     return NO_OBJ_DETECTED;  
   }
   
-  // Calculate distance
-  const float t = (tUS * FROM_US_TO_S) / 2.0f;  // time in seconds for one way
+  const float t = (tUS * FROM_US_TO_S) / 2.0f;  // time (in seconds) for one way
   const float distance = t * getSoundSpeed();
   
   return distance;

@@ -1,6 +1,7 @@
 #ifndef __CONFIG__
 #define __CONFIG__
 
+#define DELTA 100 // Bedouncing delta time for button
 #define DOOR_OPEN_POS 2250     // Door open position (90 degrees)
 #define DOOR_CLOSE_POS 750     // Door close position (0 degrees)
 
