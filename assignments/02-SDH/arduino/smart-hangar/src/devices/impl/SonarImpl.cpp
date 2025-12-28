@@ -1,6 +1,6 @@
-#include "api/Sonar.h"
+#include "devices/api/Sonar.h"
 #include "Arduino.h"
-#include "config/Config.h"
+#include "devices/config/Config.h"
 
 /*
 * Internal constants
