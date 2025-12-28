@@ -1,9 +1,9 @@
-#define LED_PIN 13
+#define LED_PIN LED_BUILTIN
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  pinMode(13, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
 
 }
 
