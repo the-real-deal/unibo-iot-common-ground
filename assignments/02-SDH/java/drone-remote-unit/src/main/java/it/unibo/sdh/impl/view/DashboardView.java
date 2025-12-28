@@ -60,7 +60,7 @@ public class DashboardView extends JFrame {
 		hangarStateDisplay.setEditable(false);
 		hangarStateDisplay.setPreferredSize(new Dimension(150,15));
 		resetButton = new JButton("RESET");
-		resetButton.setEnabled(true);
+		resetButton.setEnabled(false);
 		resetButton.setOpaque(true);
 		resetButton.setBackground(Color.RED);
 		// resetButton.setForeground(Color.WHITE);
@@ -139,7 +139,7 @@ public class DashboardView extends JFrame {
 
     public void registerController(final DashboardController controller) {
         this.controller = controller;
-		logger.atInfo().log("Dashboard Controller successfully registered.");
+		logger.atInfo().log("Dashboard Controller registered.");
     }
 
 	public void displayHangarState(final String state) {
@@ -158,5 +158,13 @@ public class DashboardView extends JFrame {
 	public void disableActionButtons() {
 		this.landButton.setEnabled(false);
 		this.takeOffButton.setEnabled(false);
+	}
+
+	public void enableResetButton() {
+		this.resetButton.setEnabled(true);
+	}
+
+	public void disableResetButton() {
+		this.resetButton.setEnabled(false);
 	}
 }
