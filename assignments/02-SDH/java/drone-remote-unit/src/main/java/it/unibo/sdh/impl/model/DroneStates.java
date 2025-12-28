@@ -4,5 +4,5 @@ public enum DroneStates {
     REST,
     TAKING_OFF,
     OPERATING,
-    LANDING
+    LANDING   
 }
