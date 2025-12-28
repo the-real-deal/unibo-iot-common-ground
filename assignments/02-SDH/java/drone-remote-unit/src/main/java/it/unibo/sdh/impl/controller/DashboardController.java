@@ -49,7 +49,7 @@ public class DashboardController {
         this.hangarAgent = new FetchHangarStateAgent(channel, hangar);
         this.hangarAgent.subscribe(hangarListener);
         this.hangarAgent.start();
-        
+
         this.drone = new StateHolderImpl<DroneStates>(DroneStates.REST);
         this.droneListener = new DroneListener();
     }
