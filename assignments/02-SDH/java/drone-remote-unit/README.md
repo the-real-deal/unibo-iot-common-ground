@@ -1,4 +1,4 @@
-> #### IoT Assignment 02 - *Smart Drone Hangar*
+> #### IoT Assignment #02 - *Smart Drone Hangar*
 > 
 > Computer Science and Engineering Course @ University of Bologna, Cesena Campus
 
