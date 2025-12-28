@@ -9,7 +9,7 @@ import it.unibo.sdh.impl.view.DashboardView;
 public class AppLauncher {
     private static final Logger logger = LoggerFactory.getLogger(AppLauncher.class);
     public static void main(final String[] args) {
-        final var serialPort = "/dev/cu.usbmodem1201";
+        final var serialPort = args.length > 0 ? args[0] : "/dev/cu.usbmodem1201";
         final var dashboardView = new DashboardView();
         final var dashboardController = new DashboardController(serialPort, dashboardView);
         
