@@ -1,6 +1,5 @@
 package it.unibo.sdh.impl.view;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
@@ -29,17 +28,17 @@ public class DashboardView extends JFrame {
 
     private JButton takeOffButton;
     private JButton landButton;
-    private JButton resetButton;
     private JTextField distanceDisplay;
     private JTextField hangarStateDisplay;
     private JTextField droneStateDisplay;
+	private JLabel hangarInAlarmNotification;
 
     private DashboardController controller;
 
     public DashboardView() {
         super(".:: Drone Remote Unit — DASHBOARD ::.");
 
-        setSize(600,250);
+        setSize(640,480);
 		this.setResizable(false);
 		
 		final JPanel mainPanel = new JPanel();
@@ -58,17 +57,8 @@ public class DashboardView extends JFrame {
 		hangarStateViewRow.setLayout(new BoxLayout(hangarStateViewRow, BoxLayout.X_AXIS));
 		hangarStateDisplay = new JTextField();
 		hangarStateDisplay.setEditable(false);
-		hangarStateDisplay.setPreferredSize(new Dimension(150,15));
-		resetButton = new JButton("RESET");
-		resetButton.setEnabled(false);
-		resetButton.setOpaque(true);
-		resetButton.setBackground(Color.RED);
-		// resetButton.setForeground(Color.WHITE);
-		resetButton.addActionListener((l) -> {
-            controller.resetHangar();
-        });
+		hangarStateDisplay.setMaximumSize(new Dimension(150,25));
 		hangarStateViewRow.add(hangarStateDisplay);
-		hangarStateViewRow.add(resetButton);
 		hangarStateView.add(hangarStateViewRow);
 
 		final JPanel droneStateView = new JPanel();
@@ -76,9 +66,13 @@ public class DashboardView extends JFrame {
 		droneStateView.add(new JLabel("DRONE state"));
 		droneStateDisplay = new JTextField();
 		droneStateDisplay.setEditable(false);
-		droneStateDisplay.setPreferredSize(new Dimension(150,15));
+		droneStateDisplay.setMaximumSize(new Dimension(150,25));
 		droneStateView.add(droneStateDisplay);
 		
+		this.hangarInAlarmNotification = new JLabel("Attention! Hangar in ALARM state!");
+		this.hangarInAlarmNotification.setVisible(false);
+		droneStateView.add(this.hangarInAlarmNotification);
+
 		stateViewPanel.add(hangarStateView);
 		stateViewPanel.add(Box.createRigidArea(new Dimension(0,0)));
 		stateViewPanel.add(droneStateView);
@@ -89,24 +83,24 @@ public class DashboardView extends JFrame {
 		infoLine.setLayout(new BoxLayout(infoLine, BoxLayout.LINE_AXIS));
 		distanceDisplay = new JTextField("-- mt.");
 		distanceDisplay.setEditable(false);
-		distanceDisplay.setPreferredSize(new Dimension(150,15));
+		distanceDisplay.setMaximumSize(new Dimension(150,25));
 		infoLine.add(new JLabel("Distance to ground: "));
 		infoLine.add(distanceDisplay);
 		
 		mainPanel.add(infoLine);
 		mainPanel.add(Box.createRigidArea(new Dimension(0,20)));
-		mainPanel.setPreferredSize(new Dimension(200,20));
+		mainPanel.setMinimumSize(new Dimension(this.getWidth(),this.getHeight()));
         
 		takeOffButton = new JButton("Take Off");
 		takeOffButton.setEnabled(true);
-		takeOffButton.addActionListener((l) -> {
-            controller.takeOff();
+		takeOffButton.addActionListener(l -> {
+            controller.tryToTakeOff();
         });
 
 		landButton = new JButton("Land");
 		landButton.setEnabled(true);
-		landButton.addActionListener((l) -> {
-            controller.land();
+		landButton.addActionListener(l -> {
+            controller.tryToLand();
         });
 
 		final JPanel buttonPanel = new JPanel();
@@ -114,8 +108,7 @@ public class DashboardView extends JFrame {
 		buttonPanel.add(takeOffButton);
 		buttonPanel.add(landButton);
 		
-		mainPanel.add(buttonPanel);
-		mainPanel.add(Box.createRigidArea(new Dimension(0,20)));
+		mainPanel.add(buttonPanel);;
 		setContentPane(mainPanel);
 
         addWindowListener(new WindowAdapter() {
@@ -131,14 +124,15 @@ public class DashboardView extends JFrame {
 				logger.atError().log("Cannot display GUI: controller not setup yet.");
 				System.exit(-1);
 			}
-			controller.getDroneState().ifPresent(state -> this.droneStateDisplay.setText(state.name()));
+			controller.getDroneState().ifPresent(state -> this.droneStateDisplay.setText(state.first().name()));
 			controller.getHangarState().ifPresent(state -> this.hangarStateDisplay.setText(state.name()));
-            this.setVisible(true);
+            this.pack();
+			this.setVisible(true);
         });
     }
 
     public void registerController(final DashboardController controller) {
-        this.controller = controller;
+        this.controller = Objects.requireNonNull(controller, "Cannot register null controller to the view!");
 		logger.atInfo().log("Dashboard Controller registered.");
     }
 
@@ -160,11 +154,15 @@ public class DashboardView extends JFrame {
 		this.takeOffButton.setEnabled(false);
 	}
 
-	public void enableResetButton() {
-		this.resetButton.setEnabled(true);
+	public void displayDroneDistance(final String distance) {
+		this.distanceDisplay.setText(distance);
 	}
 
-	public void disableResetButton() {
-		this.resetButton.setEnabled(false);
+	public void notifyHangarInAlarm() {
+		this.hangarInAlarmNotification.setVisible(true);
+	}
+
+	public void clearHangarInAlarmNotification() {
+		this.hangarInAlarmNotification.setVisible(false);
 	}
 }

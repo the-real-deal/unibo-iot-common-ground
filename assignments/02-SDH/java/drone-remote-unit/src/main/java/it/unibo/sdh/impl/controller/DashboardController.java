@@ -6,29 +6,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.unibo.sdh.api.model.CommunicationChannel;
-import it.unibo.sdh.api.model.EventListener;
+import it.unibo.sdh.api.model.MessageEncoder;
 import it.unibo.sdh.api.model.StateHolder;
-import it.unibo.sdh.impl.model.DroneStates;
-import it.unibo.sdh.impl.model.FetchHangarStateAgent;
-import it.unibo.sdh.impl.model.HangarStates;
+import it.unibo.sdh.impl.model.MessageEncoderImpl;
 import it.unibo.sdh.impl.model.StateHolderImpl;
+import it.unibo.sdh.impl.model.drone.DroneListener;
+import it.unibo.sdh.impl.model.drone.DroneStates;
+import it.unibo.sdh.impl.model.drone.FetchDroneStateAgent;
+import it.unibo.sdh.impl.model.hangar.FetchHangarStateAgent;
+import it.unibo.sdh.impl.model.hangar.HangarListener;
+import it.unibo.sdh.impl.model.hangar.HangarStates;
 import it.unibo.sdh.impl.view.DashboardView;
 import it.unibo.sdh.utils.CommunicationChannelUtils;
+import it.unibo.sdh.utils.Pair;
 
 public class DashboardController {
 
     private final static Logger logger = LoggerFactory.getLogger(DashboardController.class);
-    private static final String DRONE_PREFIX = "DU:"; // Drone Unit
-    private static final String HANGAR_PREFIX = "SH:"; // Smart Hangar
-
+    
     private CommunicationChannel channel;
-
+    private MessageEncoder encoder;
+    
     private StateHolder<HangarStates> hangar;
-    private HangarListener hangarListener;
     private FetchHangarStateAgent hangarAgent;
     
-    private StateHolder<DroneStates> drone;
-    private DroneListener droneListener;
+    private StateHolder<Pair<DroneStates, Optional<String>>> drone;
+    private FetchDroneStateAgent droneAgent;
     
     private DashboardView view;
 
@@ -37,91 +40,78 @@ public class DashboardController {
         CommunicationChannelUtils.tryToConnect(arduinoSerialPort)
             .ifPresentOrElse(channel -> {
                 this.channel = channel;
+                logger.atInfo().log("Arduino connected!");
             }, () -> {
                 logger.atError().log("Couldn't find Arduino. Exiting...");
                 System.exit(-1);
             });
 
+        this.encoder = new MessageEncoderImpl();
         this.view = view;
 
-        this.hangar = new StateHolderImpl<HangarStates>();
-        this.hangarListener = new HangarListener();
+        this.hangar = new StateHolderImpl<>();
         this.hangarAgent = new FetchHangarStateAgent(channel, hangar);
-        this.hangarAgent.subscribe(hangarListener);
+        this.hangarAgent.subscribe(new HangarListener(this));
+        
+        this.drone = new StateHolderImpl<>(new Pair<>(DroneStates.REST, Optional.empty()));
+        this.droneAgent = new FetchDroneStateAgent(channel, drone);
+        this.droneAgent.subscribe(new DroneListener(this));
+       
         this.hangarAgent.start();
-
-        this.drone = new StateHolderImpl<DroneStates>(DroneStates.REST);
-        this.droneListener = new DroneListener();
+        this.droneAgent.start();
     }
 
-    public void takeOff() {
-        this.drone.setState(DroneStates.TAKING_OFF);
-        droneListener.update(this.drone);
+    public void tryToTakeOff() {
+        final var msg = encoder
+            .setSource(CommunicationChannelUtils.DRONE_PREFIX)
+            .setContent(DroneStates.TAKING_OFF.name())
+            .build();
+        channel.sendMessage(msg);
+        encoder.clear();
     }
 
-    public void land() {
-        this.drone.setState(DroneStates.LANDING);
-        droneListener.update(this.drone);
+    public void tryToLand() {
+        final var msg = encoder
+            .setSource(CommunicationChannelUtils.DRONE_PREFIX)
+            .setContent(DroneStates.LANDING.name())
+            .build();
+        channel.sendMessage(msg);
+        encoder.clear();
     }
 
-    public void resetHangar() {
-        this.hangar.setState(HangarStates.NORMAL);
-        hangarListener.update(this.hangar);
+    public void enableActionButtons() {
+        view.enableActionButtons();
+    }
+
+    public void disableActionButtons() {
+        view.disableActionButtons();
     }
 
     public Optional<HangarStates> getHangarState() {
-        return hangar.getCurrentState();
+        return hangar.getState();
     }
 
-    public Optional<DroneStates> getDroneState() {
-        return drone.getCurrentState();
+    public Optional<Pair<DroneStates, Optional<String>>> getDroneState() {
+        return drone.getState();
+    }
+    
+    public void displayDroneState(final String state) {
+        view.displayDroneState(state);
     }
 
-    private class HangarListener implements EventListener<StateHolder<HangarStates>> {
-
-        @Override
-        public void update(final StateHolder<HangarStates> data) {
-            if (data.getCurrentState().isEmpty()) {
-                return;
-            }
-            final var newState = data.getCurrentState().get();
-            view.displayHangarState(newState.name());
-            switch (newState) {
-                case NORMAL:
-                    view.enableActionButtons();
-                    view.disableResetButton();
-                    break;
-                case PRE_ALARM:
-                    view.disableActionButtons();
-                    break;
-                case ALARM:
-                    view.enableResetButton();
-                    view.disableActionButtons();
-                    drone.getCurrentState().ifPresent(state -> {
-                        if (state == DroneStates.OPERATING) {
-                            // if drone is flying, it gets notified.
-                            channel.sendMessage(HANGAR_PREFIX.concat(newState.name()));
-                        } 
-                    });
-                    break;
-                default:
-                    break;
-            }
-        }
-
+    public void displayHangarState(final String state) {
+        view.displayHangarState(state);
     }
 
-    private class DroneListener implements EventListener<StateHolder<DroneStates>> {
+    public void displayDroneDistance(final Double distance) {
+        view.displayDroneDistance(String.valueOf(distance));
+    }
 
-        @Override
-        public void update(final StateHolder<DroneStates> data) {
-            if (data.getCurrentState().isEmpty()) {
-                return;
-            }
-            final var newState = data.getCurrentState().get();
-            channel.sendMessage(DRONE_PREFIX.concat(newState.name()));
-            view.displayDroneState(newState.name());
-        }
+    public void notifyHangarInAlarm() {
+        view.notifyHangarInAlarm();
+    }
 
+    public void clearHangarInAlarmNotification() {
+        view.clearHangarInAlarmNotification();
     }
 }

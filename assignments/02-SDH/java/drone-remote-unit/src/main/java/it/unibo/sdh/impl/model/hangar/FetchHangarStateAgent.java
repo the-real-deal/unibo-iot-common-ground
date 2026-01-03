@@ -1,12 +1,9 @@
-package it.unibo.sdh.impl.model;
-
-import java.util.ArrayList;
-import java.util.List;
+package it.unibo.sdh.impl.model.hangar;
 
 import it.unibo.sdh.api.model.CommunicationChannel;
-import it.unibo.sdh.api.model.EventListener;
-import it.unibo.sdh.api.model.EventPublisher;
 import it.unibo.sdh.api.model.StateHolder;
+import it.unibo.sdh.impl.model.MessageDecoderImpl;
+import it.unibo.sdh.impl.model.MonitoringStateAgent;
 
 /**
  * A background thread agent that monitors and fetches the hangar state from a serial communication channel.
@@ -18,15 +15,8 @@ import it.unibo.sdh.api.model.StateHolder;
  * <p>The agent runs in a continuous loop, parsing received messages as {@link HangarStates} enum values.
  * Invalid messages are silently ignored. State changes are detected by comparing the newly received state
  * with the current state, and only valid changes trigger event notifications to subscribers.</p>
- * 
- * @author SDH Team
- * @version 1.0
  */
-public class FetchHangarStateAgent extends Thread implements EventPublisher<StateHolder<HangarStates>> {
-
-    private CommunicationChannel channel;
-    private StateHolder<HangarStates> state;
-    private List<EventListener<StateHolder<HangarStates>>> stateChangeListeners;
+public class FetchHangarStateAgent extends MonitoringStateAgent<HangarStates> {
     
     /**
      * Constructs a FetchHangarStateAgent with the specified communication channel and state holder.
@@ -38,12 +28,8 @@ public class FetchHangarStateAgent extends Thread implements EventPublisher<Stat
      * @param state the state holder that maintains the current hangar state; must not be null
      * @throws NullPointerException if either channel or state is null
      */
-    public FetchHangarStateAgent(CommunicationChannel channel, StateHolder<HangarStates> state)
-    {
-        this.channel = channel;
-        this.stateChangeListeners = new ArrayList<>();
-        this.state = state;
-        publishEvent(state);
+    public FetchHangarStateAgent(CommunicationChannel channel, StateHolder<HangarStates> state) {
+        super(channel, state);
     }
 
     /**
@@ -66,68 +52,30 @@ public class FetchHangarStateAgent extends Thread implements EventPublisher<Stat
     @Override
     public void run() {
         while (true) {
+            final var channel = super.getChannel();
             synchronized (channel) {
                 final var serialMessage = channel.receiveMessage();
                 if (serialMessage.isEmpty()) {
                     // no message read, so move on to the next iteration
                     continue;
                 }
+                final var msg = serialMessage.get();
+                final var decoder = new MessageDecoderImpl(msg);
                 HangarStates fetchedState;
                 try {
-                    fetchedState = HangarStates.valueOf(serialMessage.get());
+                    fetchedState = HangarStates.valueOf(decoder.getContent().get());
                 } catch (IllegalArgumentException ex) {
                     // read message not relative to hangar state, so ignore it and keep going
                     continue;
                 }
+                final var state = super.getCurrentState();
                 synchronized (state) {
-                    if (state.getCurrentState().isEmpty() || fetchedState != state.getCurrentState().get()) {
+                    if (state.getState().isEmpty() || fetchedState != state.getState().get()) {
                         state.setState(fetchedState);
                         publishEvent(state);
                     }
                 }
             }
         }
-    }
-
-    /**
-     * Registers a listener to be notified when the hangar state changes.
-     * 
-     * <p>The listener will receive an update event whenever a state change is detected from
-     * the serial communication. Multiple listeners can be registered and will all receive
-     * notifications.</p>
-     * 
-     * @param listener the event listener to register; must not be null
-     */
-    @Override
-    public void subscribe(EventListener<StateHolder<HangarStates>> listener) {
-        stateChangeListeners.add(listener);
-    }
-
-    /**
-     * Unregisters a previously registered listener from receiving state change notifications.
-     * 
-     * <p>After unsubscription, the listener will no longer receive update events.</p>
-     * 
-     * @param listener the event listener to unregister
-     * @return true if the listener was successfully removed, false if the listener was not registered
-     */
-    @Override
-    public boolean unsubscribe(EventListener<StateHolder<HangarStates>> listener) {
-        return stateChangeListeners.remove(listener);
-    }
-
-    /**
-     * Publishes a state change event to all registered listeners.
-     * 
-     * <p>This method is called whenever the hangar state changes, notifying all subscribers
-     * about the new state. Each listener receives an update call with the state data.</p>
-     * 
-     * @param data the updated state holder containing the new hangar state
-     */
-    @Override
-    public void publishEvent(StateHolder<HangarStates> data) {
-        stateChangeListeners.forEach(listener -> {
-            listener.update(data);
-        });
     }
 }
