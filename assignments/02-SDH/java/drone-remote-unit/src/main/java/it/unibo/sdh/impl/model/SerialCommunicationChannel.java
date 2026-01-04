@@ -6,6 +6,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import it.unibo.sdh.api.model.CommunicationChannel;
 import jssc.SerialPort;
@@ -15,7 +16,7 @@ import jssc.SerialPortException;
 
 public class SerialCommunicationChannel implements CommunicationChannel, SerialPortEventListener {
 
-    private final static Logger logger = org.slf4j.LoggerFactory.getLogger(SerialCommunicationChannel.class);
+    private final static Logger logger = LoggerFactory.getLogger(SerialCommunicationChannel.class);
     private final static int MAX_MESSAGES_COUNT = 100;
     private StringBuffer currentMessage;
     private SerialPort port;
