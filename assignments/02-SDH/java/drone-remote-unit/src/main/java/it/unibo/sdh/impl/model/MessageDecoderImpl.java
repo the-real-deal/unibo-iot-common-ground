@@ -48,7 +48,7 @@ public class MessageDecoderImpl implements MessageDecoder {
     }
 
     @Override
-    public Optional<String> getSource() {
+    public Optional<String> getTopic() {
         if (message.isEmpty()) {
             return Optional.empty();
         }

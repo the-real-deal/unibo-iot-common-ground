@@ -29,7 +29,7 @@ public class FetchDroneStateAgent extends MonitoringStateAgent<Pair<DroneStates,
                 }
                 final var msg = serialMessage.get();
                 final var decoder = new MessageDecoderImpl(msg);
-                final var keepMessage = decoder.getSource().get().startsWith(CommunicationChannelUtils.DRONE_PREFIX);
+                final var keepMessage = decoder.getTopic().get().startsWith(CommunicationChannelUtils.DRONE_PREFIX);
                 if (!keepMessage) {
                     // if the message is not about the drone, then move on to the next iteration
                     continue;

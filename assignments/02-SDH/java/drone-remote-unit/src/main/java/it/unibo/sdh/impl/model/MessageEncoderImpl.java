@@ -18,8 +18,8 @@ public class MessageEncoderImpl implements MessageEncoder {
     }
 
     @Override
-    public MessageEncoder setSource(String source) {
-        this.messageBuilder.append(source);
+    public MessageEncoder setTopic(String topic) {
+        this.messageBuilder.append(topic);
         this.messageBuilder.append(this.separator);
         return this;
     }
