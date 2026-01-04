@@ -63,7 +63,7 @@ public class DashboardController {
 
     public void tryToTakeOff() {
         final var msg = encoder
-            .setSource(CommunicationChannelUtils.DRONE_PREFIX)
+            .setTopic(CommunicationChannelUtils.DRONE_PREFIX)
             .setContent(DroneStates.TAKING_OFF.name())
             .build();
         channel.sendMessage(msg);
@@ -72,7 +72,7 @@ public class DashboardController {
 
     public void tryToLand() {
         final var msg = encoder
-            .setSource(CommunicationChannelUtils.DRONE_PREFIX)
+            .setTopic(CommunicationChannelUtils.DRONE_PREFIX)
             .setContent(DroneStates.LANDING.name())
             .build();
         channel.sendMessage(msg);

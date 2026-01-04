@@ -39,7 +39,7 @@ public interface MessageDecoder {
      * 
      * @return an {@code Optional} containing the source, or {@code Optional.empty()} if the message or delimiter is not set
      */
-    Optional<String> getSource();
+    Optional<String> getTopic();
     
     /**
      * Extracts the value portion of the message (the part after the last delimiter).

@@ -3,13 +3,13 @@ package it.unibo.sdh.api.model;
 /**
  * Interface for building and encoding messages to be sent through a {@link CommunicationChannel}.
  * 
- * <p>This interface provides a builder pattern for constructing structured messages with source
+ * <p>This interface provides a builder pattern for constructing structured messages with topic
  * and content components. The final message is constructed using a delimiter-separated format.</p>
  * 
  * <p>Example usage:
  * <pre>
  * MessageEncoder encoder = new MessageEncoderImpl();
- * String message = encoder.setSource("DU")
+ * String message = encoder.setTopic("DU")
  *                          .setContent("TAKING_OFF")
  *                          .build();
  * </pre>
@@ -20,12 +20,12 @@ public interface MessageEncoder {
     /**
      * Sets the source component of the message.
      * 
-     * <p>The source typically identifies the origin or identifier of the message sender.</p>
+     * <p>The topic typically identifies the subject the message refers to; could be Drone Hangar or Drone Unit.</p>
      * 
-     * @param source the source identifier; must not be null
+     * @param topic the topic identifier; must not be null
      * @return this encoder instance for method chaining
      */
-    MessageEncoder setSource(String source);
+    MessageEncoder setTopic(String topic);
     
     /**
      * Sets the content component of the message.

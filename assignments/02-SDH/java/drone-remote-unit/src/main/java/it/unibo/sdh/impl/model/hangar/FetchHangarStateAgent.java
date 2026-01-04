@@ -62,7 +62,7 @@ public class FetchHangarStateAgent extends MonitoringStateAgent<HangarStates> {
                 }
                 final var msg = serialMessage.get();
                 final var decoder = new MessageDecoderImpl(msg);
-                if (decoder.getSource().get() != CommunicationChannelUtils.HANGAR_PREFIX) {
+                if (decoder.getTopic().get() != CommunicationChannelUtils.HANGAR_PREFIX) {
                     continue;
                 }
                 HangarStates fetchedState;
