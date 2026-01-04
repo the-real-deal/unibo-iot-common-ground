@@ -94,13 +94,13 @@ public class DashboardView extends JFrame {
 		takeOffButton = new JButton("Take Off");
 		takeOffButton.setEnabled(true);
 		takeOffButton.addActionListener(l -> {
-            controller.tryToTakeOff();
+            controller.requestTakingOff();
         });
 
 		landButton = new JButton("Land");
 		landButton.setEnabled(true);
 		landButton.addActionListener(l -> {
-            controller.tryToLand();
+            controller.requestLanding();
         });
 
 		final JPanel buttonPanel = new JPanel();

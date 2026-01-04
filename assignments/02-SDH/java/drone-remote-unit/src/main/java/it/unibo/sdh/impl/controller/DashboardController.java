@@ -61,7 +61,7 @@ public class DashboardController {
         this.droneAgent.start();
     }
 
-    public void tryToTakeOff() {
+    public void requestTakingOff() {
         final var msg = encoder
             .setTopic(CommunicationChannelUtils.DRONE_PREFIX)
             .setContent(DroneStates.TAKING_OFF.name())
@@ -70,7 +70,7 @@ public class DashboardController {
         encoder.clear();
     }
 
-    public void tryToLand() {
+    public void requestLanding() {
         final var msg = encoder
             .setTopic(CommunicationChannelUtils.DRONE_PREFIX)
             .setContent(DroneStates.LANDING.name())
