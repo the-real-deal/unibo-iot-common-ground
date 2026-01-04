@@ -6,11 +6,11 @@ import it.unibo.sdh.utils.CommunicationChannelUtils;
 public class MessageEncoderImpl implements MessageEncoder {
 
     private StringBuilder messageBuilder;
-    private String delimiter;
+    private String separator;
 
-    public MessageEncoderImpl(final String delimiter) {
+    public MessageEncoderImpl(final String separator) {
         this.messageBuilder = new StringBuilder();
-        this.delimiter = delimiter;
+        this.separator = separator;
     }
 
     public MessageEncoderImpl() {
@@ -20,21 +20,21 @@ public class MessageEncoderImpl implements MessageEncoder {
     @Override
     public MessageEncoder setSource(String source) {
         this.messageBuilder.append(source);
-        this.messageBuilder.append(this.delimiter);
+        this.messageBuilder.append(this.separator);
         return this;
     }
 
     @Override
     public MessageEncoder setContent(String content) {
         this.messageBuilder.append(content);
-        this.messageBuilder.append(this.delimiter);
+        this.messageBuilder.append(this.separator);
         return this;
     }
 
     @Override
     public String build() {
         final var result = this.messageBuilder.toString(); 
-        if (result.endsWith(this.delimiter)) {
+        if (result.endsWith(this.separator)) {
             return result.substring(0, result.length() - 1);
         }
         return result;
