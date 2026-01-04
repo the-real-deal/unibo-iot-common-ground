@@ -4,6 +4,7 @@ import it.unibo.sdh.api.model.CommunicationChannel;
 import it.unibo.sdh.api.model.StateHolder;
 import it.unibo.sdh.impl.model.MessageDecoderImpl;
 import it.unibo.sdh.impl.model.MonitoringStateAgent;
+import it.unibo.sdh.utils.CommunicationChannelUtils;
 
 /**
  * A background thread agent that monitors and fetches the hangar state from a serial communication channel.
@@ -61,6 +62,9 @@ public class FetchHangarStateAgent extends MonitoringStateAgent<HangarStates> {
                 }
                 final var msg = serialMessage.get();
                 final var decoder = new MessageDecoderImpl(msg);
+                if (decoder.getSource().get() != CommunicationChannelUtils.HANGAR_PREFIX) {
+                    continue;
+                }
                 HangarStates fetchedState;
                 try {
                     fetchedState = HangarStates.valueOf(decoder.getContent().get());

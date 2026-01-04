@@ -41,16 +41,19 @@ public class FetchDroneStateAgent extends MonitoringStateAgent<Pair<DroneStates,
                     continue;
                 }
                 final var value = decoder.getValue().get();
-                Pair<DroneStates, Optional<String>> newState = this.getCurrentState().getState().get(); 
-                if (decoded.equals(DroneStates.LANDING) && value == "OK") {
-                    newState = new Pair<>(DroneStates.REST, Optional.empty());
-                } else if (decoded.equals(DroneStates.LANDING) && StringUtils.isNumeric(value)) {
-                    newState = new Pair<>(DroneStates.OPERATING, Optional.of(value));
-                } else if (decoded.equals(DroneStates.TAKING_OFF) && value == "OK") {                    
-                    newState = new Pair<>(DroneStates.OPERATING, Optional.empty());
+                final var  stateHolder = super.getCurrentState(); 
+                synchronized (stateHolder) {
+                    Pair<DroneStates, Optional<String>> state = stateHolder.getState().get();
+                    if (decoded.equals(DroneStates.LANDING) && value == "OK") {
+                        state = new Pair<>(DroneStates.REST, Optional.empty());
+                    } else if (decoded.equals(DroneStates.LANDING) && StringUtils.isNumeric(value)) {
+                        state = new Pair<>(DroneStates.OPERATING, Optional.of(value));
+                    } else if (decoded.equals(DroneStates.TAKING_OFF) && value == "OK") {                    
+                        state = new Pair<>(DroneStates.OPERATING, Optional.empty());
+                    }
+                    var newStateHolder = new StateHolderImpl<>(state);
+                    this.publishEvent(newStateHolder);
                 }
-                var newStateHolder = new StateHolderImpl<>(newState);
-                this.publishEvent(newStateHolder);
                 return;
             }
         }
