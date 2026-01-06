@@ -50,7 +50,8 @@ float Sonar::getDistance() {
     return NO_OBJ_DETECTED;  
   }
   
-  const float t = (tUS * FROM_US_TO_S) / 2.0f;  // time (in seconds) for one way
+  const float t = (tUS * FROM_US_TO_S) / 2.0f;  // time (in seconds) for one way:
+  // The US starts from the sensor and comes back after "hitting" the object so it covers the distance twice.
   const float distance = t * getSoundSpeed();
   
   return distance;
