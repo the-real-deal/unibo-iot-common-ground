@@ -41,7 +41,7 @@ public class FetchDroneStateAgent extends MonitoringStateAgent<Pair<DroneStates,
                     continue;
                 }
                 final var value = decoder.getValue().get();
-                final var  stateHolder = super.getCurrentState(); 
+                final var stateHolder = super.getCurrentState(); 
                 synchronized (stateHolder) {
                     Pair<DroneStates, Optional<String>> state = stateHolder.getState().get();
                     if (decoded.equals(DroneStates.LANDING) && value == "OK") {
