@@ -1,42 +1,40 @@
 #include "tasks/DisplayTask.h"
+#include "kernel/Config.h"
+#include "context/Context.h"
+#include "devices/api/Lcd.h"
 #include <Arduino.h>
 
 #define READING_TIME 8000
 
 void DisplayTask::display(Lcd* pLcd, Context* pContext){
-    switch(pContext->hangarSystemState){
-        case DRONE_INSIDE:
-            plcd->clear();
-            plcd->setCursor(0,0);
-            plcd->print("DRONE INSIDE");
+    switch(pContext->getHangarSystemState()){
+        case Context::DRONE_INSIDE:
+            pLcd->clear();
+            pLcd->print("DRONE INSIDE", 0, 0);
             delay(READING_TIME);
         break; 
 
-        case TAKE_OFF:
-            plcd->clear();
-            plcd->setCursor(0,0);
-            plcd->print("TAKE OFF");
+        case Context::TAKE_OFF:
+            pLcd->clear();
+            pLcd->print("TAKE OFF", 0, 0);
             delay(READING_TIME);
         break;
 
-        case DRONE_OUT: 
-            plcd->clear();
-            plcd->setCursor(0,0);
-            plcd->print("DRONE OUT");
+        case Context::DRONE_OUT: 
+            pLcd->clear();
+            pLcd->print("DRONE OUT", 0, 0);
             delay(READING_TIME);
         break;
 
-        case LANDING:
-            plcd->clear();
-            plcd->setCursor(0,0);
-            plcd->print("LANDING");
+        case Context::LANDING:
+            pLcd->clear();
+            pLcd->print("LANDING", 0, 0);
             delay(READING_TIME);
         break;
 
-        case ALARM:
-            plcd->clear();
-            plcd->setCursor(0,0);
-            plcd->print("ALARM");
+        case Context::ALARM:
+            pLcd->clear();
+            pLcd->print("ALARM", 0, 0);
             delay(READING_TIME);
         break;
     }

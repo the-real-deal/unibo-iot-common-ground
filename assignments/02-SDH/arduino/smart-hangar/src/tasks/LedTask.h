@@ -1,8 +1,9 @@
 #ifndef __LED__
 #define __LED__
 
-#include "devices/Led.h"
+#include "devices/api/Led.h"
 #include "kernel/Task.h"
+#include "kernel/Config.h"
 #include "context/Context.h"
 #include <Arduino.h>
 
@@ -12,14 +13,16 @@ public:
     void tick();
 
 private:
+    enum ledState {IDLE, LED1, LED3};
+
     void setState(int state);
     long elapsedTimeInState();
     bool checkAndSetJustEntered();
 
     Context* pContext;
-    Led* l1;
+    Led* l1 = new Led(LED1_PIN);
     Led* l3;
-    enum {IDLE, LED1, LED3} state;
+    ledState state;
 };
 
 #endif

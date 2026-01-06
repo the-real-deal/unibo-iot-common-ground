@@ -3,7 +3,8 @@
 
 #include "kernel/Task.h"
 #include "context/Context.h"
-#include "devices/Led.h"
+#include "devices/api/Led.h"
+#include "kernel/Config.h"
 #include <Arduino.h>
 
 class BlinkingTask: public Task {
@@ -13,13 +14,15 @@ public:
   void tick();
 
 private:  
-  void setState(int state);
+
+  enum blinkingState{ IDLE, OFF, ON };
+  void setState(blinkingState state);
   long elapsedTimeInState();
   void log(const String& msg);
   
   bool checkAndSetJustEntered();
   
-  enum { IDLE, OFF, ON } state;
+  blinkingState state;
   long stateTimestamp;
   bool justEntered;
 

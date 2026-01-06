@@ -10,9 +10,9 @@ public:
 
   Context();
 
-  bool isAlarm();
-  bool canFly();
-  bool isInit();
+  bool getIsAlarm();
+  bool getCanFly();
+  bool getIsInit();
   void setInit();
   HangarSystemState getHangarSystemState();
   void setHangarSystemState(HangarSystemState s);

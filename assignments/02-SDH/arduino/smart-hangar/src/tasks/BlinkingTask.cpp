@@ -1,6 +1,6 @@
 #include "BlinkingTask.h"
 #include "kernel/Logger.h"
-//#include "config.h"
+#include "context/Context.h"
 #include <Arduino.h>
 
 BlinkingTask::BlinkingTask(Led* pLed, Context* pContext): 
@@ -16,7 +16,7 @@ void BlinkingTask::tick(){
             Logger.log(F("[BT] IDLE"));
 
         }
-        if (pContext->getHangarSystemState() != TAKE_OFF || pContext->getHangarSystemState() != LANDING){
+        if (pContext->getHangarSystemState() != Context::HangarSystemState::TAKE_OFF || pContext->getHangarSystemState() != Context::HangarSystemState::LANDING){
             setState(OFF);
         }
         break;
@@ -26,7 +26,7 @@ void BlinkingTask::tick(){
             pLed->switchOff();
             Logger.log(F("[BT] OFF"));
         }
-        if (pContext->getHangarSystemState() != TAKE_OFF || pContext->getHangarSystemState() != LANDING){
+        if (pContext->getHangarSystemState() != Context::HangarSystemState::TAKE_OFF || pContext->getHangarSystemState() != Context::HangarSystemState::LANDING){
             setState(IDLE);
         } else {
              setState(ON);
@@ -38,7 +38,7 @@ void BlinkingTask::tick(){
             pLed->switchOn();
             Logger.log(F("[BT] ON"));
         }
-        if (pContext->getHangarSystemState() != TAKE_OFF || pContext->getHangarSystemState() != LANDING){
+        if (pContext->getHangarSystemState() != Context::HangarSystemState::TAKE_OFF || pContext->getHangarSystemState() != Context::HangarSystemState::LANDING){
             setState(IDLE);
         } else {
             setState(OFF);
@@ -48,7 +48,7 @@ void BlinkingTask::tick(){
     }
 }
 
-void BlinkingTask::setState(int s){
+void BlinkingTask::setState(BlinkingTask::blinkingState s){
     state = s;
     stateTimestamp = millis();
     justEntered = true;

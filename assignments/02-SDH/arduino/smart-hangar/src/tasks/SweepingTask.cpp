@@ -8,7 +8,7 @@
 #define RESET_TIME 500
 
 
-SweepingTask::SweepingTask(ServoMotor* pMotor, Context* pContext): 
+SweepingTask::SweepingTask(ServoTimer2* pMotor, Context* pContext): 
     pMotor(pMotor), pContext(pContext){
     setState(IDLE);
 }

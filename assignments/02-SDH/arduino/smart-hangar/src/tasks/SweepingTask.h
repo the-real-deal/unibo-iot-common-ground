@@ -2,7 +2,8 @@
 #define __SWEEPING_TASK__
 
 #include "kernel/Task.h"
-#include "devices/ServoMotor.h"
+#include "devices/api/ServoTimer2.h"
+#include "devices/api/Button.h"
 #include "kernel/MsgService.h"
 #include "context/Context.h"
 #include <Arduino.h>
@@ -10,7 +11,7 @@
 class SweepingTask: public Task {
 
 public:
-  SweepingTask(Button* pButton, ServoMotor* pMotor, Context* pContext); 
+  SweepingTask(Button* pButton, ServoTimer2* pMotor, Context* pContext); 
   void tick();
 
 private:  
@@ -25,7 +26,7 @@ private:
   bool justEntered;
 
   Msg* pmessage;
-  ServoMotor* pMotor;
+  ServoTimer2* pMotor;
   /*mettere sensori di distanza --> controllo chiusura e apertura porta*/
   Context* pContext;
 

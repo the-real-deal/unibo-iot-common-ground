@@ -8,15 +8,15 @@ Context::Context(){
   isAlarm = false;
 }
 
-bool Context::isAlarm(){
+bool Context::getIsAlarm(){
   return this->isAlarm;
 }
 
-bool Context::canFly(){
+bool Context::getCanFly(){
   return this->canFly;
 }
 
-bool Context::isInit(){
+bool Context::getIsInit(){
   return this->isInit;
 }
 
