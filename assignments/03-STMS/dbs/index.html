@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+    <title>STMS Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>Smart Tank Monitoring System</h1>
+    </header>
+    <main>
+        <section>
+            <h2>System Status</h2>
+            <div id="status">AUTOMATIC</div>
+        </section>
+        <section>
+            <h2>Valve Control</h2>
+            <p>Current opening: <span id="valve">0</span>%</p>
+            
+            <div id="manual-control">
+            <input type="range" id="valve-slider" min="0" max="100" value="0" oninput="updateValveValue()">
+            </div>
+
+            <button id="mode-button" onclick="toggleMode()">Passa a MANUALE</button>
+        </section>
+        <section>
+            <h2>Water Level</h2>
+            <canvas id="waterChart"></canvas>
+        </section>
+    </main>
+    <footer>
+        <p>Dashboard Subsystem</p>
+    </footer>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/main.js"></script>
+</html>
