@@ -17,7 +17,7 @@ public class StateHolderImpl<S> implements StateHolder<S> {
     }
 
     @Override
-    public Optional<S> getCurrentState() {
+    public Optional<S> getState() {
         return state;
     }
  
