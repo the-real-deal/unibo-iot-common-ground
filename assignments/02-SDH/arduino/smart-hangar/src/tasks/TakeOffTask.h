@@ -14,7 +14,7 @@
 class TakeOffTask: public Task {
 
 public:
-  TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, ServoTimer2* pMotor, Context* pContext);
+  TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, Pir* pDistance, Sonar* pSonar);
   void tick();
 
 private:
@@ -31,6 +31,8 @@ private:
   Door* pDoor;
   SweepingTask* pSweepingTask;
   DisplayTask* pDisplayTask;
+  Pir* pDistance;
+  Sonar* pSonar;
   Context* pContext;
   
   long stateTimestamp;

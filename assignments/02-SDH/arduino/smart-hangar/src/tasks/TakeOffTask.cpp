@@ -2,13 +2,14 @@
 #include "kernel/Logger.h"
 #define DELAY_TIME 1000
 
-TakeOffTask::TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, ServoTimer2* pMotor, Context* pContext){
+TakeOffTask::TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext,  Pir* pDistance, Sonar* pSonar){
     this->pLcd = pLcd;
     this->pLed = pLed;
     this->pDoor = pDoor; 
     this->pContext = pContext;
-    pSweepingTask = new SweepingTask(pMotor, pContext);
+    pSweepingTask = new SweepingTask(pDoor, pContext, pDistance, pSonar);
     pDisplayTask = new DisplayTask();
+    //pLedTask = new LedTask();
     setState(IDLE);
 }
 
@@ -32,20 +33,7 @@ void TakeOffTask::tick() {
                 pLed->switchOn();
             }
             if (elapsedTimeInState() > DELAY_TIME) { 
-                setState(SWEEPING);
                 pSweepingTask->init();
-            }
-            break;
-        }
-        
-        case SWEEPING: {
-            if (checkAndSetJustEntered()) {
-                Logger.log(F("[TOT] Sweeping"));
-            }
-            pSweepingTask->tick();
-            
-            if (pSweepingTask->isCompleted()) {
-                setState(CLOSING_DOOR);
             }
             break;
         }
