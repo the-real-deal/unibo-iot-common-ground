@@ -8,10 +8,13 @@
 #define RESET_TIME 500
 
 
-SweepingTask::SweepingTask(ServoTimer2* pMotor, Context* pContext): 
-    pMotor(pMotor), pContext(pContext){
-    setState(IDLE);
-}
+SweepingTask::SweepingTask(Door* pMotor, Context* pContext, Pir* pDistance, Sonar* pSonar){
+    this->pMotor = pMotor;
+    this->pContext = pContext;
+    this->pDistance = pDistance;
+    this->pSonar = pSonar;
+} 
+
   
 void SweepingTask::tick(){
     switch (state){    
@@ -19,85 +22,41 @@ void SweepingTask::tick(){
         if (this->checkAndSetJustEntered()){
             Logger.log(F("[SWT] IDLE"));
         }
-        if (pmessage->getContent() == "takeOff" || pmessage->getContent() == "landing" || /*controllo distanza sonar*/){
-            setState(STARTING);
+        if (pmessage->getContent() == "takeOff" || pmessage->getContent() == "landing"  
+        || pDistance->isDetected()){
+            setState(OPENING);
         }
         break;
     }
-    case SWEEPING_FWD: {        
+    case OPENING: {        
         if (this->checkAndSetJustEntered()){
-            Logger.log(F("[SWT] SWEEPING_FWD"));
+            Logger.log(F("[SWT] OPENING"));
         }
-        
-        /* update motor pos*/
 
-        long dt = elapsedTimeInState();
-        currentPos = (((float) dt)/FWD_TIME)*180;
-        pMotor->setPosition(currentPos);
+        pMotor->open();
 
-        if (pButton->isPressed()){
-            pContext->setStopped();
-            Logger.log(F("[SWT] STOPPED!"));
-            setState(RESETTING);
-        } else if (dt > FWD_TIME){
-            setState(SWEEPING_BWD);
+        if(pMotor->isOpen()){
+            setState(CLOSING);
         }
         break;       
     }
-    case SWEEPING_BWD: {        
+    case CLOSING: {        
         if (this->checkAndSetJustEntered()){
-            Logger.log(F("[SWT] SWEEPING_BWD"));
+            Logger.log(F("[SWT] CLOSING"));
         }
 
-        /* update motor pos*/
-        
-        long dt = elapsedTimeInState();
-        currentPos = (((float) dt)/BWD_TIME)*180;
-        pMotor->write(currentPos);
+        pMotor->close();
 
-        if (pButton->isPressed()){
-            Logger.log(F("[SWT] STOPPED!"));
-            pContext->setStopped();
-            toBeStopped = true;
-        } 
-        
-        if (dt > BWD_TIME){
-            if (!toBeStopped){
-                setState(SWEEPING_FWD);
-            } else {
-                setState(RESETTING);    
-            }
-        }
-        break;       
-    }
-    case STARTING: {
-        if (this->checkAndSetJustEntered()){
-            Logger.log(F("[SWT] STARTING"));
-        }
-        if (elapsedTimeInState() > START_TIME){
-            pContext->setStarted();
-            pMotor->on();
-            currentPos = 0;
-            toBeStopped = false;
-            setState(SWEEPING_FWD);
-        }
-        break;
-    }
-    case RESETTING: {
-        if (this->checkAndSetJustEntered()){
-            Logger.log(F("[SWT] RESETTING"));
-        }
-        pMotor->setPosition(0);
-        if (elapsedTimeInState() > RESET_TIME){
-            pMotor->off();
+        if(!pMotor->isOpen()){
             setState(IDLE);
         }
+        break;       
     }
     }
 }
 
-void SweepingTask::setState(int s){
-    state = s;
+void SweepingTask::setState(doorState s){
+    doorState state = s;
     stateTimestamp = millis();
     justEntered = true;
 }

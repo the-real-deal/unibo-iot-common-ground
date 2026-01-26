@@ -2,8 +2,9 @@
 #define __SWEEPING_TASK__
 
 #include "kernel/Task.h"
-#include "devices/api/ServoTimer2.h"
-#include "devices/api/Button.h"
+#include "devices/api/Door.h"
+#include "devices/api/Pir.h"
+#include "devices/api/Sonar.h"
 #include "kernel/MsgService.h"
 #include "context/Context.h"
 #include <Arduino.h>
@@ -11,27 +12,30 @@
 class SweepingTask: public Task {
 
 public:
-  SweepingTask(Button* pButton, ServoTimer2* pMotor, Context* pContext); 
+  SweepingTask(Door* pMotor, Context* pContext, Pir* pDistance, Sonar* pSonar); 
   void tick();
 
-private:  
-  void setState(int state);
+private: 
+  enum doorState { IDLE, OPENING, CLOSING};
+  void setState(doorState state);
   long elapsedTimeInState();
   void log(const String& msg);
   
   bool checkAndSetJustEntered();
   
-  enum { IDLE, STARTING, SWEEPING_FWD, SWEEPING_BWD, RESETTING } state;
+ 
   long stateTimestamp;
   bool justEntered;
 
   Msg* pmessage;
-  ServoTimer2* pMotor;
-  /*mettere sensori di distanza --> controllo chiusura e apertura porta*/
+  Door* pMotor;
+  Pir* pDistance; 
+  Sonar* pSonar;
   Context* pContext;
 
   int currentPos;
   bool toBeStopped;
+  doorState state;
 };
 
 #endif
