@@ -31,6 +31,8 @@ float TempSensor::getTemperature() const {
     if (temperature > max) {
       max = temperature;
     }
+
+    delay(1); 
   }
 
   // Calculate average (excluding min and max)
