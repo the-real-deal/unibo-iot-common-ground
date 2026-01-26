@@ -19,7 +19,7 @@ void SweepingTask::tick(){
         if (this->checkAndSetJustEntered()){
             Logger.log(F("[SWT] IDLE"));
         }
-        if (pmessage == "takeOff" || pmessage == "landing" || /*controllo distanza sonar*/){
+        if (pmessage->getContent() == "takeOff" || pmessage->getContent() == "landing" || /*controllo distanza sonar*/){
             setState(STARTING);
         }
         break;
@@ -53,7 +53,7 @@ void SweepingTask::tick(){
         
         long dt = elapsedTimeInState();
         currentPos = (((float) dt)/BWD_TIME)*180;
-        pMotor->setPosition(currentPos);
+        pMotor->write(currentPos);
 
         if (pButton->isPressed()){
             Logger.log(F("[SWT] STOPPED!"));

@@ -35,7 +35,7 @@ void LedTask::tick(){
 }
 
 
-void LedTask::setState(int s){
+void LedTask::setState(ledState s){
     state = s;
     stateTimestamp = millis();
     justEntered = true;
