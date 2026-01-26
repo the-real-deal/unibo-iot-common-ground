@@ -3,7 +3,6 @@
 
 #include "kernel/Task.h"
 #include "devices/api/ServoTimer2.h"
-#include "devices/api/Button.h"
 #include "kernel/MsgService.h"
 #include "context/Context.h"
 #include <Arduino.h>
@@ -11,19 +10,20 @@
 class SweepingTask: public Task {
 
 public:
-  SweepingTask(Button* pButton, ServoTimer2* pMotor, Context* pContext); 
+  SweepingTask(ServoTimer2* pMotor, Context* pContext); 
   void tick();
 
 private:  
-  void setState(int state);
-  long elapsedTimeInState();
-  void log(const String& msg);
-  
-  bool checkAndSetJustEntered();
-  
-  enum { IDLE, STARTING, SWEEPING_FWD, SWEEPING_BWD, RESETTING } state;
+  enum State { IDLE, STARTING, SWEEPING_FWD, SWEEPING_BWD, RESETTING };
+  State state;
   long stateTimestamp;
   bool justEntered;
+
+  void setState(State newState);
+  long elapsedTimeInState();
+  void log(const String& msg);
+  bool checkAndSetJustEntered();
+  
 
   Msg* pmessage;
   ServoTimer2* pMotor;

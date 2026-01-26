@@ -52,7 +52,7 @@ ServoTimer2::ServoTimer2()
    if( ChannelCount < NBR_CHANNELS)  
 	this->chanIndex = ++ChannelCount;  // assign a channel number to this instance
    else
-	this->chanIndex = 0;  // todo	// too many channels, assigning 0 inhibits this instance from functioning 
+	this->chanIndex = 0; // too many channels, assigning 0 inhibits this instance from functioning 
 }
 
 uint8_t ServoTimer2::attach(int pin)

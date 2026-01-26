@@ -12,15 +12,12 @@ SweepingTask::SweepingTask(ServoTimer2* pMotor, Context* pContext):
     pMotor(pMotor), pContext(pContext){
     setState(IDLE);
 }
-  
+
 void SweepingTask::tick(){
     switch (state){    
     case IDLE: {
         if (this->checkAndSetJustEntered()){
             Logger.log(F("[SWT] IDLE"));
-        }
-        if (pmessage == "takeOff" || pmessage == "landing" || /*controllo distanza sonar*/){
-            setState(STARTING);
         }
         break;
     }
@@ -29,17 +26,12 @@ void SweepingTask::tick(){
             Logger.log(F("[SWT] SWEEPING_FWD"));
         }
         
-        /* update motor pos*/
-
         long dt = elapsedTimeInState();
-        currentPos = (((float) dt)/FWD_TIME)*180;
-        pMotor->setPosition(currentPos);
+        currentPos = (int)(((float)dt / FWD_TIME) * 180);
+        if (currentPos > 180) currentPos = 180; 
+        pMotor->write(currentPos);
 
-        if (pButton->isPressed()){
-            pContext->setStopped();
-            Logger.log(F("[SWT] STOPPED!"));
-            setState(RESETTING);
-        } else if (dt > FWD_TIME){
+        if (dt >= FWD_TIME){
             setState(SWEEPING_BWD);
         }
         break;       
@@ -49,19 +41,12 @@ void SweepingTask::tick(){
             Logger.log(F("[SWT] SWEEPING_BWD"));
         }
 
-        /* update motor pos*/
-        
         long dt = elapsedTimeInState();
-        currentPos = (((float) dt)/BWD_TIME)*180;
-        pMotor->setPosition(currentPos);
-
-        if (pButton->isPressed()){
-            Logger.log(F("[SWT] STOPPED!"));
-            pContext->setStopped();
-            toBeStopped = true;
-        } 
+        currentPos = 180 - (int)(((float)dt / BWD_TIME) * 180);
+        if (currentPos < 0) currentPos = 0;
+        pMotor->write(currentPos);
         
-        if (dt > BWD_TIME){
+        if (dt >= BWD_TIME){
             if (!toBeStopped){
                 setState(SWEEPING_FWD);
             } else {
@@ -75,9 +60,8 @@ void SweepingTask::tick(){
             Logger.log(F("[SWT] STARTING"));
         }
         if (elapsedTimeInState() > START_TIME){
-            pContext->setStarted();
-            pMotor->on();
             currentPos = 0;
+            pMotor->write(currentPos);
             toBeStopped = false;
             setState(SWEEPING_FWD);
         }
@@ -87,16 +71,16 @@ void SweepingTask::tick(){
         if (this->checkAndSetJustEntered()){
             Logger.log(F("[SWT] RESETTING"));
         }
-        pMotor->setPosition(0);
+        pMotor->write(0);
         if (elapsedTimeInState() > RESET_TIME){
-            pMotor->off();
             setState(IDLE);
         }
+        break;
     }
     }
 }
 
-void SweepingTask::setState(int s){
+void SweepingTask::setState(State s){
     state = s;
     stateTimestamp = millis();
     justEntered = true;
