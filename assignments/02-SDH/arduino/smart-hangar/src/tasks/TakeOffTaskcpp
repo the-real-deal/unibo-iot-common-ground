@@ -115,7 +115,7 @@ void TakeOffTask::tick() {
             break;
         }
         
-        //Setto il task come completo
+        //Setto il task come completo --?
         case COMPLETED: {
             if (checkAndSetJustEntered()) {
                 Logger.log(F("[TOT] Take off completed"));
@@ -163,7 +163,8 @@ bool TakeOffTask::shouldStartTakeOff(){
     return false;
 }
 
-//Funzione che gestisce i compiti del display LCD
+//Funzione che gestisce i compiti del display LCD.
+//L'ho fatta durante un attimo di follia, spero vada...
 void TakeOffTask::updateDisplay() {
     unsigned long currentTime = millis();
     
