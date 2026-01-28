@@ -1,0 +1,140 @@
+#include "TakeOffTask.h"
+#include "kernel/Logger.h"
+#include <kernel/MsgService.h>
+
+#define DOOR_OPERATION_TIME 2000
+#define DISPLAY_UPDATE_TIME 8000
+#define DELAY_TIME 1000
+
+TakeOffTask::TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, Pir* pDistance, Sonar* pSonar) {
+    this->pLcd = pLcd;
+    this->pLed = pLed;
+    this->pDoor = pDoor;
+    this->pContext = pContext;
+    this->pDistance = pDistance;
+    this->pSonar = pSonar;
+    setState(IDLE);
+    lastDisplayUpdate = 0;
+}
+
+void TakeOffTask::tick() {
+
+}
+
+
+void TakeOffTask::setState(State newState) {
+    state = newState;
+    stateTimestamp = millis();
+    justEntered = true;
+}
+
+long TakeOffTask::elapsedTimeInState() {
+    return millis() - stateTimestamp;
+}
+
+bool TakeOffTask::checkAndSetJustEntered() {
+    if (justEntered) {
+        justEntered = false;
+        return true;
+    }
+    return false;
+}
+
+void TakeOffTask::log(const String& msg) {
+    Logger.log(msg);
+}
+
+//Funzione che controlla l'arrivo dei messaggi per il decollo
+bool TakeOffTask::shouldStartTakeOff(){
+    if (MsgService.isMsgAvailable()) {
+        Msg* msg = MsgService.receiveMsg();
+        if (msg != NULL) {
+            String content = msg->getContent();
+            delete msg;
+            return content == "takeOff" || content == "TAKING_OFF";
+        }
+    }
+    return false;
+}
+
+//Funzione che gestisce i compiti del display LCD
+void TakeOffTask::updateDisplay() {
+    unsigned long currentTime = millis();
+    
+    // Update display only periodically to avoid excessive LCD writes
+    if (currentTime - lastDisplayUpdate < DISPLAY_UPDATE_TIME) {
+        return;
+    }
+    
+    lastDisplayUpdate = currentTime;
+    
+    switch(pContext->getHangarSystemState()) {
+        case Context::DRONE_INSIDE:
+            pLcd->clear();
+            pLcd->print("DRONE INSIDE", 0, 0);
+            break;
+            
+        case Context::TAKE_OFF:
+            pLcd->clear();
+            pLcd->print("TAKE OFF", 0, 0);
+            break;
+            
+        case Context::DRONE_OUT:
+            pLcd->clear();
+            pLcd->print("DRONE OUT", 0, 0);
+            break;
+            
+        case Context::LANDING:
+            pLcd->clear();
+            pLcd->print("LANDING", 0, 0);
+            break;
+            
+        case Context::ALARM:
+            pLcd->clear();
+            pLcd->print("ALARM", 0, 0);
+            break;
+    }
+}
+
+/*
+     void TakeOffTask::tick() {
+        switch(state) {
+            case IDLE: {
+                if (checkAndSetJustEntered()) { // to log just one time when converts to a new State
+                    Logger.log(F("[TOT] IDLE - Witing to statr take off"));
+                }
+
+                if (pContext->getCanFly()) {
+                    setState(OPENING_DOOR);
+                }
+                break;
+            }
+            
+            case OPENING_DOOR: {
+                if (checkAndSetJustEntered()) {
+                    Logger.log(F("[TOT] Opening door"));
+                    pDoor->open();
+                    pLed->switchOn();
+                }
+                if (elapsedTimeInState() > DELAY_TIME) { 
+                    pSweepingTask->init();
+                }
+                break;
+            }
+            
+            case CLOSING_DOOR: {
+                if (checkAndSetJustEntered()) {
+                    Logger.log(F("[TOT] Closing door"));
+                    pDoor->close();
+                }
+                if (elapsedTimeInState() < DELAY_TIME){
+                    setState(COMPLETED);
+                    setCompleted(); // Discard task
+                }
+                break;
+            }
+        }
+        pDisplayTask->display(pLcd,pContext); // print the context??? maybe just one time
+    }
+
+}*/
