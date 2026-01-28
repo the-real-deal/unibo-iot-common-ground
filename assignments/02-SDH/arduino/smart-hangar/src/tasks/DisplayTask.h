@@ -9,6 +9,7 @@
 class DisplayTask {
 public:
     void display(Lcd* pLcd, Context* pContext);
+    
 private:
     Context* pContext;
     Lcd* pLcd;

@@ -1,4 +1,3 @@
-//Refactoring of TakeOffTask without using innested tasks
 #ifndef __TAKEOFF_TASK__
 #define __TAKEOFF_TASK__
 
@@ -16,7 +15,10 @@
 class TakeOffTask: public Task{
 
 public:
-    TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, Pir* pDistance, Sonar* pSonar);
+    TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, Sonar* pSonar);
+
+    //TO DO: controllare se il distruttore può limitarsi a spegnere tutto
+    ~TakeOffTask();
     void tick();
 
 private:
@@ -44,50 +46,3 @@ private:
 };
 
 #endif
-
-
-
-
-/*
-#ifndef __TAKEOFF_TASK__
-#define __TAKEOFF_TASK__
-
-#include "kernel/Task.h"
-#include "context/Context.h"
-#include "devices/api/Led.h"
-#include "devices/api/Lcd.h"
-#include "devices/api/Door.h"
-#include "SweepingTask.h"
-#include "DisplayTask.h"
-#include "kernel/Config.h"
-#include <Arduino.h>
-
-class TakeOffTask: public Task {
-
-public:
-  TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, Pir* pDistance, Sonar* pSonar);
-  void tick();
-
-private:
-  enum State { IDLE, OPENING_DOOR, CLOSING_DOOR, COMPLETED };
-  State state;
-  
-  void setState(State newState);
-  long elapsedTimeInState(); 
-  bool checkAndSetJustEntered();
-  void log(const String& msg);
-
-  Lcd* pLcd;
-  Led* pLed;
-  Door* pDoor;
-  SweepingTask* pSweepingTask;
-  DisplayTask* pDisplayTask;
-  Pir* pDistance;
-  Sonar* pSonar;
-  Context* pContext;
-  
-  long stateTimestamp;
-  bool justEntered;
-};
-
-#endif*/

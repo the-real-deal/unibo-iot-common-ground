@@ -5,6 +5,15 @@ LedTask::LedTask(Led* l1, Led* l3, Context* pContex){
     setState(IDLE);
 }
 
+LedTask::~LedTask() {
+    if (l1 != NULL) {
+        l1->switchOff();
+    }
+    if (l3 != NULL) {
+        l3->switchOff();
+    }
+}
+
 void LedTask::tick(){
     switch (state){
         case IDLE:

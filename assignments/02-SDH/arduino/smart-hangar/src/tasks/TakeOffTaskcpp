@@ -1,3 +1,12 @@
+/**
+ * Take-off phase: The drone activates the hangar door opening command by sending a message 
+ * through the DRU subsystem. Upon receiving the command, the HD door opens, the LCD displays 
+ * TAKE OFF, and the system waits for the drone to exit. To determine when the drone has left, 
+ * the DDD is used: when the measured distance is greater than D1 for more than T1 seconds, it 
+ * is assumed that the drone has exited, and the HD door is closed. The LCD then displays 
+ * DRONE OUT.
+ */
+
 #include "TakeOffTask.h"
 #include "kernel/Logger.h"
 #include <kernel/MsgService.h>
@@ -5,20 +14,117 @@
 #define DOOR_OPERATION_TIME 2000
 #define DISPLAY_UPDATE_TIME 8000
 #define DELAY_TIME 1000
+#define TIME_THRESHOLD 10000L
+#define DISTANCE_THRESHOLD 8000.0f
+#define TIMEOUT 5000
 
-TakeOffTask::TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, Pir* pDistance, Sonar* pSonar) {
+TakeOffTask::TakeOffTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, Sonar* pSonar) {
     this->pLcd = pLcd;
     this->pLed = pLed;
     this->pDoor = pDoor;
     this->pContext = pContext;
-    this->pDistance = pDistance;
     this->pSonar = pSonar;
+    //Pir tolto, il controllo della distanza è fatto solo dal sonar
+    //Può essere rimesso per il controllo della presenza del drone prima del takeOff
+    //this->pPir = pPir
     setState(IDLE);
     lastDisplayUpdate = 0;
 }
 
-void TakeOffTask::tick() {
+//TO DO: controllare se il distruttore può limitarsi a spegnere tutto
+TakeOffTask::~TakeOffTask(){
+    if (pLed != NULL) {
+        pLed->switchOff();
+    }
+    
+    if (pDoor != NULL && pDoor->isOpen()) {
+        pDoor->close();
+    }
+    
+    if (pLcd != NULL) {
+        pLcd->clear();
+    }
+    
+}
 
+
+void TakeOffTask::tick() {
+    updateDisplay();
+    
+    switch(state) {
+        case IDLE: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[TOT] IDLE - Waiting to start take off"));
+                pLed->switchOff();
+            }
+
+            //Non so se inserire il controllo della presenza del drone
+            if (pContext->getCanFly() && shouldStartTakeOff()) {
+                setState(OPENING_DOOR);
+            }
+            break;
+        }
+        
+        case OPENING_DOOR: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[TOT] Opening door"));
+                pLed->switchOn();
+                pDoor->open();
+            }
+            
+            if (elapsedTimeInState() > DOOR_OPERATION_TIME || pDoor->isOpen()) {
+                setState(DRONE_EXITING);
+            }
+            break;
+        }
+        
+        //Inserito per permettere il controllo della distanza e del tempo
+        //TO DO: da controllare il funzionamento di millis
+        case DRONE_EXITING: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[TOT] Drone exiting"));
+                pContext->setHangarSystemState(Context::HangarSystemState::TAKE_OFF);
+            }
+            
+            float distance = pSonar->getDistance();
+            long timestamp = millis();
+            if (distance > DISTANCE_THRESHOLD && (millis() - timestamp) > TIME_THRESHOLD) { 
+                setState(CLOSING_DOOR);
+            }
+            
+            //Non so se tenere un timeout: se passa tot tempo nello stato di uscita 
+            //senza cambiare stato la porta si chiude
+            /* 
+            if (elapsedTimeInState() > TIMEOUT) {
+                setState(CLOSING_DOOR);
+            }
+            break;
+            */
+        }
+        
+        case CLOSING_DOOR: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[TOT] Closing door"));
+                pDoor->close();
+                pContext->setHangarSystemState(Context::HangarSystemState::DRONE_OUT);
+            }
+            
+            if (elapsedTimeInState() > DOOR_OPERATION_TIME || !pDoor->isOpen()) {
+                setState(COMPLETED);
+            }
+            break;
+        }
+        
+        //Setto il task come completo
+        case COMPLETED: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[TOT] Take off completed"));
+                pLed->switchOff();
+                setCompleted();
+            }
+            break;
+        }
+    }
 }
 
 
@@ -61,7 +167,6 @@ bool TakeOffTask::shouldStartTakeOff(){
 void TakeOffTask::updateDisplay() {
     unsigned long currentTime = millis();
     
-    // Update display only periodically to avoid excessive LCD writes
     if (currentTime - lastDisplayUpdate < DISPLAY_UPDATE_TIME) {
         return;
     }
@@ -95,46 +200,3 @@ void TakeOffTask::updateDisplay() {
             break;
     }
 }
-
-/*
-     void TakeOffTask::tick() {
-        switch(state) {
-            case IDLE: {
-                if (checkAndSetJustEntered()) { // to log just one time when converts to a new State
-                    Logger.log(F("[TOT] IDLE - Witing to statr take off"));
-                }
-
-                if (pContext->getCanFly()) {
-                    setState(OPENING_DOOR);
-                }
-                break;
-            }
-            
-            case OPENING_DOOR: {
-                if (checkAndSetJustEntered()) {
-                    Logger.log(F("[TOT] Opening door"));
-                    pDoor->open();
-                    pLed->switchOn();
-                }
-                if (elapsedTimeInState() > DELAY_TIME) { 
-                    pSweepingTask->init();
-                }
-                break;
-            }
-            
-            case CLOSING_DOOR: {
-                if (checkAndSetJustEntered()) {
-                    Logger.log(F("[TOT] Closing door"));
-                    pDoor->close();
-                }
-                if (elapsedTimeInState() < DELAY_TIME){
-                    setState(COMPLETED);
-                    setCompleted(); // Discard task
-                }
-                break;
-            }
-        }
-        pDisplayTask->display(pLcd,pContext); // print the context??? maybe just one time
-    }
-
-}*/

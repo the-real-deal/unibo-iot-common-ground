@@ -10,6 +10,9 @@
 class LedTask: public Task {
 public:
     LedTask(Led* l1, Led* l3,  Context* pContext);
+
+    //TO DO: controllare se il distruttore può limitarsi a spegnere tutto
+    ~LedTask();
     void tick();
 
 private:

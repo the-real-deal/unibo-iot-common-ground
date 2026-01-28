@@ -11,6 +11,9 @@ class BlinkingTask: public Task {
 
 public:
   BlinkingTask(Led* pLed, Context* pContext); 
+
+  //TO DO: controllare se il distruttore può limitarsi a spegnere tutto
+  ~BlinkingTask();
   void tick();
 
 private:  

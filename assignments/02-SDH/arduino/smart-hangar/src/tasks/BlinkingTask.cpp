@@ -7,7 +7,13 @@ BlinkingTask::BlinkingTask(Led* pLed, Context* pContext):
     pContext(pContext), pLed(pLed){
     setState(IDLE);
 }
-  
+
+BlinkingTask::~BlinkingTask(){
+    if(pLed != NULL){
+        pLed->switchOff();
+    }
+}
+
 void BlinkingTask::tick(){
     switch (state){   
     case IDLE: {
