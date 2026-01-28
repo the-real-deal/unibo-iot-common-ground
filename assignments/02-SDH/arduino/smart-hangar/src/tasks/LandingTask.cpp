@@ -41,7 +41,97 @@ LandingTask::~LandingTask(){
 }
 
 void LandingTask::tick() {
+    updateDisplay();
+    
+    switch(state) {
+        case IDLE: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[LT] IDLE - Waiting for landing request"));
+                pLed->switchOff();
+            }
 
+            if (shouldStartLanding()) {
+                setState(OPENING_DOOR);
+            }
+            break;
+        }
+        
+        case OPENING_DOOR: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[LT] Opening door for landing"));
+                pLed->switchOn();
+                pDoor->open();
+                pContext->setHangarSystemState(Context::HangarSystemState::LANDING);
+            }
+            
+            if (elapsedTimeInState() > DOOR_OPERATION_TIME || pDoor->isOpen()) {
+                setState(WAITING_DRONE);
+            }
+            break;
+        }
+        
+        case WAITING_DRONE: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[LT] Waiting for drone to enter"));
+            }
+            
+            if (pPir->isDetected()) {
+                setState(DRONE_ENTERING);
+            }
+            
+            //Non so se tenere un timeout: se passa tot tempo nello stato di attesa 
+            //senza cambiare stato la porta si chiude
+            if (elapsedTimeInState() > 10000) {
+                Logger.log(F("[LT] Timeout waiting for drone"));
+                setState(CLOSING_DOOR);
+            }
+            break;
+        }
+        
+        case DRONE_ENTERING: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[LT] Drone entering hangar"));
+            }
+            
+            float distance = pSonar->getDistance();
+            long timestamp = millis();
+            if (distance < DISTANCE_THRESHOLD && (millis() - timestamp) > TIME_THRESHOLD) {
+                setState(CLOSING_DOOR);
+            }
+            
+            //Non so se tenere un timeout: se passa tot tempo nello stato di entrata 
+            //senza cambiare stato la porta si chiude
+            /*
+            if (elapsedTimeInState() > 5000) {
+                setState(CLOSING_DOOR);
+            }
+            */
+            break;
+        }
+        
+        case CLOSING_DOOR: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[LT] Closing door"));
+                pDoor->close();
+            }
+            
+            if (elapsedTimeInState() > DOOR_OPERATION_TIME || !pDoor->isOpen()) {
+                setState(COMPLETED);
+            }
+            break;
+        }
+        
+        //Setto il task come completo --?
+        case COMPLETED: {
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[LT] Landing completed"));
+                pLed->switchOff();
+                pContext->setHangarSystemState(Context::HangarSystemState::DRONE_INSIDE);
+                setCompleted();
+            }
+            break;
+        }
+    }
 }
 
 void LandingTask::setState(State newState) {
