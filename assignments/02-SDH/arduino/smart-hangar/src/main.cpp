@@ -1,10 +1,9 @@
 #include <./devices/config/Config.h>
-#include <./tasks/BlinkingTask.h>
-#include <./tasks/DisplayTask.h>
-#include <./tasks/LedTask.h>
-#include <./tasks/SweepingTask.h>
-#include <./tasks/TakeOffTask.h>
-#include <./tasks/LandingTask.h>
+#include <./tasks/api/BlinkingTask.h>
+#include <./tasks/api/LedTask.h>
+#include <./tasks/api/TakeOffTask.h>
+#include <./tasks/api/LandingTask.h>
+#include <./tasks/api/TempMonitoring.h>
 #include <./kernel/Scheduler.h>
 #include <Arduino.h>
 
@@ -25,6 +24,7 @@ Context* context;
 
 TakeOffTask* takeOffTask;
 LandingTask* landingTask;
+//TempMonitoring* tempMonitor;
 
 Scheduler scheduler;
 
@@ -40,6 +40,7 @@ void setup() {
     // Task creation
     takeOffTask = new TakeOffTask(lcd, led, door, context, sonar);
     landingTask = new LandingTask(lcd, led, door, context, pir, sonar);
+    //tempMonitor = new TempMonitoring(lcd, led, context);
     
     // Scheduler setup
     scheduler.init(100);  // 100ms base period
@@ -47,10 +48,11 @@ void setup() {
     // Add tasks (aperiodic, will be activated on demand)
     takeOffTask->init();  // Aperiodic task
     landingTask->init();  // Aperiodic task
+    //tempMonitor->init();
     
     scheduler.addTask(takeOffTask);
     scheduler.addTask(landingTask);
-
+    //scheduler.addTask(tempMonitor);
 
   Serial.begin(9600);  // Initialize serial communication at 9600 baud
 }

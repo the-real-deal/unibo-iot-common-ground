@@ -6,7 +6,7 @@
  * The LCD then displays DRONE INSIDE.
  */
 
-#include "LandingTask.h"
+#include "./tasks/api/LandingTask.h"
 #include <kernel/Logger.h>
 
 #define DOOR_OPERATION_TIME 2000
@@ -57,7 +57,7 @@ void LandingTask::tick() {
         }
         
         case OPENING_DOOR: {
-            if (checkAndSetJustEntered()) {
+            if (checkAndSetJustEntered() && pContext->getCanFly()) {
                 Logger.log(F("[LT] Opening door for landing"));
                 pLed->switchOn();
                 pDoor->open();
@@ -171,7 +171,7 @@ bool LandingTask::shouldStartLanding() {
     return false;
 }
 
-//Funzione che gestisce i compiti del display LCD.
+//Funzione che gestisce i compiti del display LCD --> Non ne sono convinta perchè alarm non dovrebbe stare tra gli stati dell'hangar
 //Copiata e incollata, se quella non funziona, non funziona nemmeno questa
 void LandingTask::updateDisplay() {
     unsigned long currentTime = millis();

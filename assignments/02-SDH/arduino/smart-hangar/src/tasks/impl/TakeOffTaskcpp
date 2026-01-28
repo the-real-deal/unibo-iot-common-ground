@@ -7,7 +7,7 @@
  * DRONE OUT.
  */
 
-#include "TakeOffTask.h"
+#include "./tasks/api/TakeOffTask.h"
 #include "kernel/Logger.h"
 #include <kernel/MsgService.h>
 
@@ -163,7 +163,7 @@ bool TakeOffTask::shouldStartTakeOff(){
     return false;
 }
 
-//Funzione che gestisce i compiti del display LCD.
+//Funzione che gestisce i compiti del display LCD. --> Non ne sono convinta perchè alarm non dovrebbe stare tra gli stati dell'hangar
 //L'ho fatta durante un attimo di follia, spero vada...
 void TakeOffTask::updateDisplay() {
     unsigned long currentTime = millis();
