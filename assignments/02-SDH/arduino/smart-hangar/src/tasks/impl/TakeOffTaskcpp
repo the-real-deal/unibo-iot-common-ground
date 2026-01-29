@@ -141,6 +141,9 @@ void TakeOffTask::setState(State newState) {
     justEntered = true;
 }
 
+/**
+ * Used  to monitor how much time the system is in a certain state
+ */
 long TakeOffTask::elapsedTimeInState() {
     return millis() - stateTimestamp;
 }

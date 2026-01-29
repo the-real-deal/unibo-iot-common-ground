@@ -13,11 +13,12 @@
  */
 
  #include "tasks/api/TempMonitoring.h"
+#include <kernel/Logger.h>
 
- #define TEMP_THRESHOLD_ONE     //this is the Temp1
- #define TEMP_THRESHOLD_TWO     //This is the Temp2
- #define TIME_THRESHOLD_ONE     //This is T3
- #define TIME_THRESHOLD_TWO     //This is T4
+//Constant declared RANDOMLY!!!
+ #define TEMP_THRESHOLD_ONE 30    //this is the Temp1
+ #define TIME_THRESHOLD_ONE 5000  //This is T3
+ #define TIME_THRESHOLD_TWO 10000 //This is T4
  #define DISPLAY_UPDATE_TIME 8000 
 
 TempMonitoring::TempMonitoring(Lcd* plcd, Led* pled, TempSensor* pTsensor, Context* pcontext, Button* pButton){
@@ -30,44 +31,99 @@ TempMonitoring::TempMonitoring(Lcd* plcd, Led* pled, TempSensor* pTsensor, Conte
     setState(NORMAL_STATE);
 }
 
+/**
+ * The function contains the main logic of the task.
+ *      - state = NORMAL_STATE: the system keeps monitoring the tempretature until it reaches a threshold (tem > TEMP_THRESHOLD_ONE) and 
+ *          it stays that way for more than TIME_THRESHOLD_ONE seconds
+ *      - state = PREALARM: the system blocks the possibility of starting new take off or landing, it keeps monitoring the temperature and if it rises 
+ *          the system goes into ALARM otherwise it returns into NORMAL_STATE
+ *      - state = ALARM: the state requires the intervention of a human to push the reset button to return in normal state
+ * Don't know if I should keep a timeout timer: If a certain time elapses without changing state the system actually changes state
+ */
 void TempMonitoring::tick(){
     updateDisplay();
-    monitor();
 
     switch (state)
     {
         case NORMAL_STATE:
-            
+            pContext->setCanFly(true);
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[AS] System in normal state"));
+            }
+
+            float temp = pTsensor->getTemperature();
+            long currentTime = millis();
+
+            if (temp >= TEMP_THRESHOLD_ONE && (millis() - currentTime) >= TIME_THRESHOLD_ONE){
+                pContext->setAlarmSystemState(Context::AlarmSystemState::PREALARM);
+                setState(PREALARM);
+            }
         break;
 
         case PREALARM:
-            
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[AS] System in pre-alarm state"));
+            }
+
+            pContext->setCanFly(false);
+            float temp1 = pTsensor->getTemperature();
+
+            if (temp >= temp1 && elapsedTimeInState() >= TIME_THRESHOLD_TWO){
+                pContext->setAlarmSystemState(Context::AlarmSystemState::ALARM);
+                setState(ALARM);
+            } else {
+                setState(NORMAL_STATE);
+            }
         break;
 
         case ALARM:
-            
+            if (checkAndSetJustEntered()) {
+                Logger.log(F("[AS] System in alarm state"));
+            }
+
+            if(pButton->isPressed()){
+                setState(NORMAL_STATE);
+            }
         break;
     }
 }
 
 void TempMonitoring::setState(State newState){
-
+    state = newState;
+    stateTimestamp = millis();
+    justEntered = true;
 }
 
+/**
+ * Used  to monitor how much time the system is in a certain state
+ */
 long TempMonitoring::elapsedTimeInState(){
-
+    return millis() - stateTimestamp;
 }
 
+/**
+ * Used  to monitor how much time the system is in a certain state
+ */
 bool TempMonitoring::checkAndSetJustEntered(){
-
+    if (justEntered) {
+        justEntered = false;
+        return true;
+    }
+    return false;
 }
 
+/**
+ * Function used to log the messages
+ */
 void TempMonitoring::log(const String& msg){
-
+    Logger.log(msg);
 }
 
-//Funzione che gestisce i compiti del display LCD. --> Non ne sono convinta perchè alarm non dovrebbe stare tra gli stati dell'hangar
-//L'ho fatta durante un attimo di follia, spero vada...
+/**
+ * The function allows to use the LCD functionalities without the LCD task
+ *  - It's duplicated in all of the tasks that uses the LCD so there is the problem of code duplication (a bit of a lot :( )
+ *  - I don't like the ALARM state included among the states of the Hangar because it doesn't follow the logic --> fixing needed
+ */
 void TempMonitoring::updateDisplay(){
     unsigned long currentTime = millis();
 
@@ -105,17 +161,3 @@ void TempMonitoring::updateDisplay(){
     }
 }
 
-/**
- * 
- */
-void TempMonitoring::monitor(){
-
-}
-
-/*
-
-if (temp > TEMP_THRESHOLD_ONE || (millis() - currentTime) > TIME_THRESHOLD_ONE){
-    pContext->setAlarmState(PREALARM);
-    setState(PREALARM);
-}
-*/

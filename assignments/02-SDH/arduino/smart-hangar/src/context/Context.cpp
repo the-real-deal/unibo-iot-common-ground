@@ -46,3 +46,7 @@ void Context::setHangarSystemState(HangarSystemState s){
 void Context::setInit(){
   isInit = !isInit;
 }
+
+void Context::setCanFly(bool canFly){
+  canFly = canFly;
+}

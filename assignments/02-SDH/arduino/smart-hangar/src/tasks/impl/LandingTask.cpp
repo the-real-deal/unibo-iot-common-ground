@@ -151,6 +151,9 @@ void LandingTask::setState(State newState) {
     justEntered = true;
 }
 
+/**
+ * Used  to monitor how much time the system is in a certain state
+ */
 long LandingTask::elapsedTimeInState() {
     return millis() - stateTimestamp;
 }

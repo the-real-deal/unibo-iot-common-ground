@@ -14,6 +14,7 @@ public:
   bool getCanFly();
   bool getIsInit();
   void setInit();
+  void setCanFly(bool canFly);
   HangarSystemState getHangarSystemState();
   void setHangarSystemState(HangarSystemState s);
   AlarmSystemState getAlarmSystemState();

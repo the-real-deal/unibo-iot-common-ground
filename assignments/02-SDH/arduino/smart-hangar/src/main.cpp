@@ -8,23 +8,27 @@
 #include <Arduino.h>
 
 // Define pin constants
-//BUTTATI A CASO PER NON AVERE ERRORI NEL CODICE
+//SETTED RANDOMLY!!!
 #define DOOR_PIN 1
 #define LED_PIN 2
 #define PIR_PIN 3
 #define ECHO_PIN 4
 #define TRIG_PIN 5
+#define BTN_PIN 6
+#define TEMP_PIN 7
 
 Door* door;
 Led* led;
 Lcd* lcd;
 Pir* pir;
 Sonar* sonar;
+Button* button;
+TempSensor* temperature;
 Context* context;
 
 TakeOffTask* takeOffTask;
 LandingTask* landingTask;
-//TempMonitoring* tempMonitor;
+TempMonitoring* tempMonitor;
 
 Scheduler scheduler;
 
@@ -35,12 +39,14 @@ void setup() {
     lcd = new Lcd();
     pir = new Pir(PIR_PIN);
     sonar = new Sonar(ECHO_PIN, TRIG_PIN, 30000);
+    button = new Button(BTN_PIN);
+    temperature = new TempSensor(TEMP_PIN);
     context = new Context();
     
     // Task creation
     takeOffTask = new TakeOffTask(lcd, led, door, context, sonar);
     landingTask = new LandingTask(lcd, led, door, context, pir, sonar);
-    //tempMonitor = new TempMonitoring(lcd, led, temp, context);
+    tempMonitor = new TempMonitoring(lcd, led, temperature, context, button);
     
     // Scheduler setup
     scheduler.init(100);  // 100ms base period
@@ -48,11 +54,11 @@ void setup() {
     // Add tasks (aperiodic, will be activated on demand)
     takeOffTask->init();  // Aperiodic task
     landingTask->init();  // Aperiodic task
-    //tempMonitor->init();
+    tempMonitor->init();
     
     scheduler.addTask(takeOffTask);
     scheduler.addTask(landingTask);
-    //scheduler.addTask(tempMonitor);
+    scheduler.addTask(tempMonitor);
 
   Serial.begin(9600);  // Initialize serial communication at 9600 baud
 }

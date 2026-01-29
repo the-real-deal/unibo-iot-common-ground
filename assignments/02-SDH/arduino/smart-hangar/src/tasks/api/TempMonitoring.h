@@ -24,7 +24,6 @@ private:
     bool checkAndSetJustEntered();
     void log(const String& msg);
     void updateDisplay();
-    void monitor();
 
     Lcd* pLcd; 
     Led* pLed;

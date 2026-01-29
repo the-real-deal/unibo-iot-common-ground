@@ -43,7 +43,6 @@ void LedTask::tick(){
     }
 }
 
-
 void LedTask::setState(ledState s){
     state = s;
     stateTimestamp = millis();
