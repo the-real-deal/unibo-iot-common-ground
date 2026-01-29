@@ -26,6 +26,7 @@ LandingTask::LandingTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, P
     lastDisplayUpdate = 0;
 }
 
+//TO DO: check if the distructor is correct --It was indeed AI generated
 LandingTask::~LandingTask(){
     if (pLed != NULL) {
         pLed->switchOff();
@@ -40,6 +41,23 @@ LandingTask::~LandingTask(){
     }
 }
 
+/**
+ * The function contains the main logic of the task.
+ *      - state = IDLE: if the condition for take off are met the door start opening
+ *              - Don't know if I should include a control to check the drone pesence 
+ *                (it may give problem with landing)      
+ *      - state = OPENING_DOOR: the system awaits in this state for a DOOR_OPERATION_TIME or until the 
+ *         door isOpen before to ensure that the door is open
+ *      - state = WAITING_DRONE state added in the case that the serial send the message for landing but the drone is 
+ *        not yet detected
+ *             - Don't know if I should keep a timeout timer: If a certain time elapses without changing state the door closes
+ *      - state =  DRONE_ENTERING: the drone is entering the hangar. State added to enable the control of time 
+ *         and distance
+ *          - TO DO: check if millis works with TimerOne interrupts
+ *          - Don't know if I should keep a timeout timer: If a certain time elapses without changing state the door closes
+ *       - state = CLOSING_DOOR: the door closes
+ *       - state = COMPLETED: Task setted ad completed             
+ */
 void LandingTask::tick() {
     updateDisplay();
     
@@ -47,7 +65,6 @@ void LandingTask::tick() {
         case IDLE: {
             if (checkAndSetJustEntered()) {
                 Logger.log(F("[LT] IDLE - Waiting for landing request"));
-                pLed->switchOff();
             }
 
             if (shouldStartLanding()) {
@@ -59,7 +76,6 @@ void LandingTask::tick() {
         case OPENING_DOOR: {
             if (checkAndSetJustEntered() && pContext->getCanFly()) {
                 Logger.log(F("[LT] Opening door for landing"));
-                pLed->switchOn();
                 pDoor->open();
                 pContext->setHangarSystemState(Context::HangarSystemState::LANDING);
             }
@@ -79,8 +95,6 @@ void LandingTask::tick() {
                 setState(DRONE_ENTERING);
             }
             
-            //Non so se tenere un timeout: se passa tot tempo nello stato di attesa 
-            //senza cambiare stato la porta si chiude
             if (elapsedTimeInState() > 10000) {
                 Logger.log(F("[LT] Timeout waiting for drone"));
                 setState(CLOSING_DOOR);
@@ -99,8 +113,6 @@ void LandingTask::tick() {
                 setState(CLOSING_DOOR);
             }
             
-            //Non so se tenere un timeout: se passa tot tempo nello stato di entrata 
-            //senza cambiare stato la porta si chiude
             /*
             if (elapsedTimeInState() > 5000) {
                 setState(CLOSING_DOOR);
@@ -121,7 +133,6 @@ void LandingTask::tick() {
             break;
         }
         
-        //Setto il task come completo --?
         case COMPLETED: {
             if (checkAndSetJustEntered()) {
                 Logger.log(F("[LT] Landing completed"));
@@ -144,6 +155,9 @@ long LandingTask::elapsedTimeInState() {
     return millis() - stateTimestamp;
 }
 
+/**
+ * Used  to monitor how much time the system is in a certain state
+ */
 bool LandingTask::checkAndSetJustEntered() {
     if (justEntered) {
         justEntered = false;
@@ -152,11 +166,18 @@ bool LandingTask::checkAndSetJustEntered() {
     return false;
 }
 
+/**
+ * Function used to log the messages
+ */
 void LandingTask::log(const String& msg) {
     Logger.log(msg);
 }
 
-//TO DO: controllare se la condizione sul pir va ad interferire con il task del takeOff
+/**
+ * The function check if the condition for the landing are met (it "monitors" the message exchange)
+ * 
+ *  - TO DO: check if the pir->isDetected() condition interfers with take off task
+ */
 bool LandingTask::shouldStartLanding() {
     if (MsgService.isMsgAvailable()) {
         Msg* msg = MsgService.receiveMsg();
@@ -171,8 +192,11 @@ bool LandingTask::shouldStartLanding() {
     return false;
 }
 
-//Funzione che gestisce i compiti del display LCD --> Non ne sono convinta perchè alarm non dovrebbe stare tra gli stati dell'hangar
-//Copiata e incollata, se quella non funziona, non funziona nemmeno questa
+/**
+ * The function allows to use the LCD functionalities without the LCD task
+ *  - It's duplicated in all of the tasks that uses the LCD so there is the problem of code duplication (a bit of a lot :( )
+ *  - I don't like the ALARM state included among the states of the Hangar because it doesn't follow the logic --> fixing needed
+ */
 void LandingTask::updateDisplay() {
     unsigned long currentTime = millis();
 
