@@ -6,7 +6,7 @@
 /*
 * Button Constructor
 */
-Button::Button(int pin) : pin(pin) {
+Button::Button(int pin) : pin(pin), lastPressedTime(0), justClicked(false){
   pinMode(pin, INPUT_PULLUP);
 }
 
@@ -14,10 +14,11 @@ Button::Button(int pin) : pin(pin) {
 * Check if the button is pressed with bouncing implemented.
 */
 bool Button::isPressed(){
+  int currentState = digitalRead(pin);
   long currentTime = millis();
-  if(currentTime - lastPressedTime <= DEBOUNCING_DELTA_TIME) {
+  if (currentState == LOW && (currentTime - lastPressedTime > DELTA)) {
     lastPressedTime = currentTime;
-    return digitalRead(pin) == HIGH;
+    return true;
   }
   return false;
 }

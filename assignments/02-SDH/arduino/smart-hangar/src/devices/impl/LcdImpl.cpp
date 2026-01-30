@@ -4,7 +4,7 @@
 /*
  * Lcd Constructor
  */
-Lcd::Lcd() : display(0x27, 16, 2) {
+Lcd::Lcd() : display(LCD_I2C_ADDRESS, 16, 2) {
 }
 
 /*

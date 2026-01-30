@@ -13,42 +13,36 @@ TempSensor::TempSensor(int pin) : pin(pin) {
  * Get the temperature from the sensor.
  */ 
 float TempSensor::getTemperature() const {
-  float values[NUM_TEMPERATURE_SAMPLES];
-  float max = MIN_TEMP;
-  float min = MAX_TEMP;
+  float sum = 0.0f;
+  float maxT = MIN_TEMP;
+  float minT = MAX_TEMP;
   
   for (int i = 0; i < NUM_TEMPERATURE_SAMPLES; i++) {
     // Read ADC value from pin and convert to temp:
     const int adcValue = analogRead(pin);
     const float voltage = adcValue * (VCC / ADC_RESOLUTION);
     const float temperature = (voltage - TEMP_SENSOR_OFFSET) * TEMP_SENSOR_SCALE;
-    values[i] = temperature;
+    
+    sum += temperature;
     
     // Update of min and max temp
-    if (temperature < min) {
-      min = temperature;
+    if (temperature < minT) {
+      minT = temperature;
     }
-    if (temperature > max) {
-      max = temperature;
+    if (temperature > maxT) {
+      maxT = temperature;
     }
 
     delay(1); 
   }
 
-  // Calculate average (excluding min and max)
-  float sum = 0.0f;
-  int count = 0;
+  // Calculate trimmed avarage (excluding min and max)
   
-  for (int i = 0; i < NUM_TEMPERATURE_SAMPLES; i++) {
-    if (values[i] > min && values[i] < max) {
-      sum += values[i];
-      count++;
-    }
+
+  
+  if (NUM_TEMPERATURE_SAMPLES > 2) {
+    return (sum - minT - maxT) / (NUM_TEMPERATURE_SAMPLES - 2); //trim and remove extremities
+  } else {
+    return sum / NUM_TEMPERATURE_SAMPLES;
   }
-  
-  if (count == 0) {
-    return values[0];
-  }
-  
-  return sum / count;
 }
