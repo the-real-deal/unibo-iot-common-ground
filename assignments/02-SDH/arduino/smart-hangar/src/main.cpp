@@ -6,6 +6,15 @@
 #include <./tasks/api/TempMonitoring.h>
 #include <./kernel/Scheduler.h>
 #include <Arduino.h>
+#include <kernel/Scheduler.h>
+#include <model/HWPlatform.h>
+
+// #define __TESTING_HW__
+
+Scheduler sched;
+
+HWPlatform* pHWPlatform;
+Context* pContext;
 
 // Define pin constants
 //SETTED RANDOMLY!!!

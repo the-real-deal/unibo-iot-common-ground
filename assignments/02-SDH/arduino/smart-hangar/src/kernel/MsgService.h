@@ -2,27 +2,38 @@
 #define __MSGSERVICE__
 
 #include "Arduino.h"
+using MsgTopic = enum { DRU, SDH, Unknown };
 
-class Msg {
+class Msg 
+{
+private:
+  MsgTopic topic;
   String content;
 
 public:
-  Msg(String content){
+  Msg(MsgTopic topic, String content){
+    this->topic = topic;
     this->content = content;
   }
   
+  MsgTopic getTopic() {
+    return topic;
+  }
+
   String getContent(){
     return content;
   }
 };
 
-class Pattern {
+class Pattern 
+{
+
 public:
   virtual boolean match(const Msg& m) = 0;  
 };
 
-class MsgServiceClass {
-    
+class MsgServiceClass 
+{
 public: 
   
   Msg* currentMsg;
