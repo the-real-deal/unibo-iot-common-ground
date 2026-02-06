@@ -1,18 +1,18 @@
 #ifndef __HANGAR_DOOR_TASK__
 #define __HANGAR_DOOR_TASK__
 
-#include "kernel/Task.h"
-#include "context/Context.h"
+#include "kernel/SyncTask.hpp"
+#include "model/Context.hpp"
 #include "devices/api/Led.h"
 #include "devices/api/Lcd.h"
 #include "devices/api/Door.h"
 #include "devices/api/Pir.h"
 #include "devices/api/Sonar.h"
-#include "kernel/Config.h"
+#include "../../Config.hpp"
 #include "kernel/MsgService.h"
 #include <Arduino.h>
 
-class HangarDoorTask: public Task{
+class HangarDoorTask: public SyncTask{
 
 public:
     HangarDoorTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, Sonar* pSonar);
