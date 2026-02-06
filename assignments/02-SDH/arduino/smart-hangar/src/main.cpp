@@ -1,5 +1,6 @@
 #include <devices/config/Config.h>
 #include <tasks/api/BlinkingTask.hpp>
+#include <tasks/api/HangarMainTask.hpp>
 #include <tasks/api/TempMonitoring.h>
 #include <kernel/Scheduler.hpp>
 #include <Arduino.h>

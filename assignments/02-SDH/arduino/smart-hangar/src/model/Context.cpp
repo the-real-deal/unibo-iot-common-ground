@@ -1,11 +1,9 @@
 #include "Context.hpp"
-
-Context::Context(Context::DroneStates initialDroneState, HangarStates initialHangarState)
-{
-  this->pDroneState = new StateHolder<DroneStates>(initialDroneState);
-  this->pHangarState = new StateHolder<HangarStates>(initialHangarState);
-  new DoorState();
-}
+Context::Context(Context::DroneStates initialDroneState, HangarStates initialHangarState) :
+  pDroneState(new StateHolder<DroneStates>(initialDroneState)), 
+  pHangarState(new StateHolder<HangarStates>(initialHangarState)),
+  pDoorState(new DoorState())
+{ }
 
 Context::DoorState::DoorState()
 {

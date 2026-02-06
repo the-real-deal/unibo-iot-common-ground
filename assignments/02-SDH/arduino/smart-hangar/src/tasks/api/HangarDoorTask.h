@@ -3,13 +3,8 @@
 
 #include "kernel/SyncTask.hpp"
 #include "model/Context.hpp"
-#include "devices/api/Led.h"
-#include "devices/api/Lcd.h"
 #include "devices/api/Door.h"
-#include "devices/api/Pir.h"
-#include "devices/api/Sonar.h"
 #include "../../Config.hpp"
-#include "kernel/MsgService.h"
 #include <Arduino.h>
 
 class HangarDoorTask: public SyncTask{
@@ -32,7 +27,6 @@ private:
     Door* pDoor;
     Context* pContext;
 
-    long stateTimestamp;
     bool justEntered;
 };
 

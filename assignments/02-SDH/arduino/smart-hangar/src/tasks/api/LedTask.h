@@ -2,9 +2,9 @@
 #define __LED_TASK__
 
 #include "devices/api/Led.h"
-#include "kernel/Task.h"
-#include "kernel/Config.h"
-#include "context/Context.h"
+#include "kernel/SyncTask.hpp"
+#include "devices/config/Config.h"
+#include "model/Context.hpp"
 #include <Arduino.h>
 
 class LedTask: public SyncTask {

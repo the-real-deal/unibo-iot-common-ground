@@ -14,24 +14,25 @@ void HangarDoorTask::tick(){
         }
         break;
     case HangarDoorTaskState::OPEN:
-        /* code */
+        if(pContext->pDroneState->getState()==Context::DroneStates::OPERATING || 
+            pContext->pDroneState->getState()==Context::DroneStates::REST ||
+            pContext->pHangarState->getState() == Context::HangarStates::ALARM){
+            setState(CLOSING_DOOR);
+        }
         break;
     case HangarDoorTaskState::OPENING_DOOR:
         openDoor();
         if(pDoor->isOpen()){
-            pContext->;
+            pContext->pDoorState->openDoor();
             setState(OPEN);
         }
         break;
     case HangarDoorTaskState::CLOSING_DOOR:
         closeDoor();
         if(!pDoor->isOpen()){
-            
-            Context::DoorState::closeDoor();
+            pContext->pDoorState->closeDoor();
             setState(CLOSED);
         }
-        break;
-    default:
         break;
     }
 }

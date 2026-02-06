@@ -1,12 +1,12 @@
 #ifndef __DEVICES_CONFIG_PARAMS__
 #define __DEVICES_CONFIG_PARAMS__
 
-#define DELTA 100     // Bedouncing delta time for button
+#define DELTA                   100     // Bedouncing delta time for button
 
-#define LCD_I2C_ADDRESS 0x27
+#define LCD_I2C_ADDRESS         0x27
 
-#define DOOR_OPEN_POS 2250     // Door open position (90 degrees)
-#define DOOR_CLOSE_POS 750     // Door close position (0 degrees)
+#define DOOR_OPEN_POS           2250     // Door open position (90 degrees)
+#define DOOR_CLOSE_POS          750     // Door close position (0 degrees)
 
 #define ADC_RESOLUTION          1024.0  // Resolution of analog to digital conversion
 #define VCC                     5.0     // Voltage
@@ -19,6 +19,12 @@
 
 // Conversion constants
 #define FROM_MS_TO_S            0.001f
+#define FROM_S_TO_MS            1000l
 #define FROM_US_TO_S            0.000001f
 
+#define D1                      1       // Minimum distance for OPERATING state to start, is evaluated in metres
+#define T1                      5       // Minimum second for OPERATING state to start, is evaluated in s
+
+#define D2                      0.5     // Maximum distance for LANDING state to start, is evaluated in metres
+#define T2                      3       // Maximum second for LANDING state to start, is evaluated in s
 #endif
