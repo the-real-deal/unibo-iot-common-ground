@@ -17,7 +17,7 @@ HWPlatform* pHWPlatform;
 Context* pContext;
 
 // Define pin constants
-//SETTED RANDOMLY!!!
+// SETTED RANDOMLY!!!
 #define DOOR_PIN 1
 #define LED_PIN 2
 #define PIR_PIN 3

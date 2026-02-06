@@ -12,7 +12,7 @@
  * When RESET is pressed, it is assumed that all issues have been resolved, and the system returns to the normal state.
  */
 
- #include "tasks/api/TempMonitoring.h"
+#include "tasks/api/TempMonitoring.h"
 #include <kernel/Logger.h>
 
 //Constant declared RANDOMLY!!!
@@ -26,8 +26,7 @@ TempMonitoring::TempMonitoring(Lcd* plcd, Led* pled, TempSensor* pTsensor, Conte
     this->pLed = pLed;
     this->pTsensor = pTsensor;
     this->pContext = pContext;
-    this->pButton= pButton;
-    lastDisplayUpdate = 0;
+    this->pResetButton= pButton;
     setState(NORMAL_STATE);
 }
 
@@ -41,39 +40,37 @@ TempMonitoring::TempMonitoring(Lcd* plcd, Led* pled, TempSensor* pTsensor, Conte
  * Don't know if I should keep a timeout timer: If a certain time elapses without changing state the system actually changes state
  */
 void TempMonitoring::tick(){
-    updateDisplay();
 
     switch (state)
     {
         case NORMAL_STATE:
-            pContext->setCanFly(true);
-            if (checkAndSetJustEntered()) {
-                Logger.log(F("[AS] System in normal state"));
+            const Context::DroneStates droneState = pContext->pDroneState->getState();
+            if (!(droneState == Context::DroneStates::REST ||
+                droneState == Context::DroneStates::TAKING_OFF ||
+                droneState == Context::DroneStates::LANDING)) {
+                return;
             }
 
             float temp = pTsensor->getTemperature();
             long currentTime = millis();
 
             if (temp >= TEMP_THRESHOLD_ONE && (millis() - currentTime) >= TIME_THRESHOLD_ONE){
-                pContext->setAlarmSystemState(Context::AlarmSystemState::PREALARM);
-                setState(PREALARM);
+                setState(PRE_ALARM);
             }
         break;
 
-        case PREALARM:
+        case PRE_ALARM:
             if (checkAndSetJustEntered()) {
-                Logger.log(F("[AS] System in pre-alarm state"));
+                pContext->pHangarState->setState(Context::HangarStates::PRE_ALARM);
             }
 
-            pContext->setCanFly(false);
-            float temp1 = pTsensor->getTemperature();
-
-            if (temp >= temp1 && elapsedTimeInState() >= TIME_THRESHOLD_TWO){
-                pContext->setAlarmSystemState(Context::AlarmSystemState::ALARM);
-                setState(ALARM);
-            } else {
-                setState(NORMAL_STATE);
-            }
+            float temp = pTsensor->getTemperature();
+            // if (temp >= temp1 && elapsedTimeInState() >= TIME_THRESHOLD_TWO){
+            //     pContext->setAlarmSystemState(Context::AlarmSystemState::ALARM);
+            //     setState(ALARM);
+            // } else {
+            //     setState(NORMAL_STATE);
+            // }
         break;
 
         case ALARM:
@@ -81,14 +78,14 @@ void TempMonitoring::tick(){
                 Logger.log(F("[AS] System in alarm state"));
             }
 
-            if(pButton->isPressed()){
+            if(pResetButton->isPressed()){
                 setState(NORMAL_STATE);
             }
         break;
     }
 }
 
-void TempMonitoring::setState(State newState){
+void TempMonitoring::setState(TempMonitoringState newState) {
     state = newState;
     stateTimestamp = millis();
     justEntered = true;
@@ -111,53 +108,3 @@ bool TempMonitoring::checkAndSetJustEntered(){
     }
     return false;
 }
-
-/**
- * Function used to log the messages
- */
-void TempMonitoring::log(const String& msg){
-    Logger.log(msg);
-}
-
-/**
- * The function allows to use the LCD functionalities without the LCD task
- *  - It's duplicated in all of the tasks that uses the LCD so there is the problem of code duplication (a bit of a lot :( )
- *  - I don't like the ALARM state included among the states of the Hangar because it doesn't follow the logic --> fixing needed
- */
-void TempMonitoring::updateDisplay(){
-    unsigned long currentTime = millis();
-
-    if (currentTime - lastDisplayUpdate < DISPLAY_UPDATE_TIME) {
-        return;
-    }
-
-    lastDisplayUpdate = currentTime;
-
-    switch(pContext->getHangarSystemState()) {
-        case Context::DRONE_INSIDE:
-            pLcd->clear();
-            pLcd->print("DRONE INSIDE", 0, 0);
-            break;
-            
-        case Context::TAKE_OFF:
-            pLcd->clear();
-            pLcd->print("TAKE OFF", 0, 0);
-            break;
-            
-        case Context::DRONE_OUT:
-            pLcd->clear();
-            pLcd->print("DRONE OUT", 0, 0);
-            break;
-            
-        case Context::LANDING:
-            pLcd->clear();
-            pLcd->print("LANDING", 0, 0);
-            break;
-            
-        case Context::ALARM:
-            pLcd->clear();
-            pLcd->print("ALARM", 0, 0);
-            break;
-    }
-}
-

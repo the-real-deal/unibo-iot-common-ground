@@ -7,7 +7,7 @@
 #include "context/Context.h"
 #include <Arduino.h>
 
-class LedTask: public Task {
+class LedTask: public SyncTask {
 public:
     LedTask(Led* l1, Led* l3,  Context* pContext);
 

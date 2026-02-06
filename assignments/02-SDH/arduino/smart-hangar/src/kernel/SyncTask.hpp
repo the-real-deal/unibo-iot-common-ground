@@ -1,27 +1,18 @@
 #ifndef __TASK__
 #define __TASK__
 
-class Task {
+class SyncTask {
 
 public:
-  Task(){
+  SyncTask(){
     active = false;
   }
 
   /* periodic */
   virtual void init(int period){
-    myPeriod = period;
-    periodic = true;  
+    myPeriod = period;  
     active = true;
     timeElapsed = 0;
-  }
-
-  /* aperiodic */
-  virtual void init(){
-    timeElapsed = 0;
-    periodic = false;
-    active = true;
-    completed = false;
   }
 
   virtual void tick() = 0;
@@ -45,10 +36,6 @@ public:
     return completed;
   }
 
-  bool isPeriodic(){
-    return periodic;
-  }
-
   bool isActive(){
     return active;
   }
@@ -67,7 +54,6 @@ private:
   int myPeriod;
   int timeElapsed;
   bool active;
-  bool periodic;
   bool completed;
 
 };
