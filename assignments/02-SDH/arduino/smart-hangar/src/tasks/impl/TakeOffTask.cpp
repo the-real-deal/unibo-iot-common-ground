@@ -7,7 +7,6 @@
  * DRONE OUT.
  */
 
-#include "./tasks/api/TakeOffTask.h"
 #include "kernel/Logger.h"
 #include <kernel/MsgService.h>
 

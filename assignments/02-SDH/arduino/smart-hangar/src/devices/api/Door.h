@@ -13,6 +13,7 @@ public:
   void open();
   void close();
   bool isOpen();
+  bool isClosed();
     
 private:
   const int pin;

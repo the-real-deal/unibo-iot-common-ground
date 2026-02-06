@@ -1,13 +1,9 @@
-#include <./devices/config/Config.h>
-#include <./tasks/api/BlinkingTask.h>
-#include <./tasks/api/LedTask.h>
-#include <./tasks/api/TakeOffTask.h>
-#include <./tasks/api/LandingTask.h>
-#include <./tasks/api/TempMonitoring.h>
-#include <./kernel/Scheduler.h>
+#include <devices/config/Config.h>
+#include <tasks/api/BlinkingTask.hpp>
+#include <tasks/api/TempMonitoring.h>
+#include <kernel/Scheduler.hpp>
 #include <Arduino.h>
-#include <kernel/Scheduler.h>
-#include <model/HWPlatform.h>
+#include <model/HWPlatform.hpp>
 
 // #define __TESTING_HW__
 
@@ -35,8 +31,6 @@ Button* button;
 TempSensor* temperature;
 Context* context;
 
-TakeOffTask* takeOffTask;
-LandingTask* landingTask;
 TempMonitoring* tempMonitor;
 
 Scheduler scheduler;
@@ -50,23 +44,17 @@ void setup() {
     sonar = new Sonar(ECHO_PIN, TRIG_PIN, 30000);
     button = new Button(BTN_PIN);
     temperature = new TempSensor(TEMP_PIN);
-    context = new Context();
+    //context = new Context();
     
     // Task creation
-    takeOffTask = new TakeOffTask(lcd, led, door, context, sonar);
-    landingTask = new LandingTask(lcd, led, door, context, pir, sonar);
     tempMonitor = new TempMonitoring(lcd, led, temperature, context, button);
     
     // Scheduler setup
     scheduler.init(100);  // 100ms base period
     
     // Add tasks (aperiodic, will be activated on demand)
-    takeOffTask->init();  // Aperiodic task
-    landingTask->init();  // Aperiodic task
-    tempMonitor->init();
+    //tempMonitor->init();
     
-    scheduler.addTask(takeOffTask);
-    scheduler.addTask(landingTask);
     scheduler.addTask(tempMonitor);
 
   Serial.begin(9600);  // Initialize serial communication at 9600 baud

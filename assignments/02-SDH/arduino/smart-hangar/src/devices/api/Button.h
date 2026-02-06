@@ -13,7 +13,6 @@ public:
     
 private:
   const int pin;
-  // Debounce resources.
   long lastPressedTime;
   bool justClicked; 
 };

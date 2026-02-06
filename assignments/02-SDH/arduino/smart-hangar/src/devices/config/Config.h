@@ -1,7 +1,7 @@
 #ifndef __DEVICES_CONFIG_PARAMS__
 #define __DEVICES_CONFIG_PARAMS__
 
-#define DEBOUNCING_DELTA_TIME   100     // Bedouncing delta time for button
+#define DELTA 100     // Bedouncing delta time for button
 
 #define LCD_I2C_ADDRESS 0x27
 

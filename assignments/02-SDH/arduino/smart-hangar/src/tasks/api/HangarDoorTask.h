@@ -15,31 +15,25 @@
 class HangarDoorTask: public SyncTask{
 
 public:
-    HangarDoorTask(Lcd* pLcd, Led* pLed, Door* pDoor, Context* pContext, Sonar* pSonar);
+    HangarDoorTask(Door* pDoor, Context* pContext);
 
     void tick();
 
 private:
-    enum State { CLOSED, OPENING_DOOR, OPEN, CLOSING_DOOR };
-    State state;
+    enum HangarDoorTaskState { CLOSED, OPENING_DOOR, OPEN, CLOSING_DOOR } state;
 
     void openDoor();
     void closeDoor();
-    void setState(State newState);
+    void setState(HangarDoorTaskState newState);
+
     long elapsedTimeInState();
     bool checkAndSetJustEntered();
 
-    Lcd* pLcd;
-    Led* pLed;
     Door* pDoor;
-    Pir* pDistance;
-    Sonar* pSonar;
-
     Context* pContext;
 
     long stateTimestamp;
     bool justEntered;
-    unsigned long lastDisplayUpdate;
 };
 
 #endif
