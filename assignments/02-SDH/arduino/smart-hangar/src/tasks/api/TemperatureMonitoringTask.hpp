@@ -8,15 +8,15 @@
 #include "model/Context.hpp"
 #include "kernel/SyncTask.hpp"
 
-class TempMonitoring: public SyncTask {
+class TemperatureMonitoringTask: public SyncTask {
 public:
-    TempMonitoring(Lcd* plcd, Led* pled, TempSensor* pTsensor, Context* pcontext, Button* pButton);
+    TemperatureMonitoringTask(Lcd* plcd, Led* pled, TempSensor* pTsensor, Context* pcontext, Button* pButton);
     void tick();
 
 private:
-    enum TempMonitoringState { NORMAL_STATE, PRE_ALARM, ALARM } state;
+    enum TemperatureMonitoringTaskStates { NORMAL_STATE, PRE_ALARM, ALARM } state;
 
-    void setState(TempMonitoringState newState);
+    void setState(TemperatureMonitoringTaskStates newState);
     long elapsedTimeInState();
     bool checkAndSetJustEntered();
 

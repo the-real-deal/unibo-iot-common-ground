@@ -32,7 +32,9 @@ Button* button;
 TempSensor* temperature;
 Context* context;
 
-TempMonitoring* tempMonitor;
+TakeOffTask* takeOffTask;
+LandingTask* landingTask;
+TemperatureMonitoringTask* tempMonitor;
 
 Scheduler scheduler;
 
@@ -48,7 +50,9 @@ void setup() {
     //context = new Context();
     
     // Task creation
-    tempMonitor = new TempMonitoring(lcd, led, temperature, context, button);
+    takeOffTask = new TakeOffTask(lcd, led, door, context, sonar);
+    landingTask = new LandingTask(lcd, led, door, context, pir, sonar);
+    tempMonitor = new TemperatureMonitoringTask(lcd, led, temperature, context, button);
     
     // Scheduler setup
     scheduler.init(100);  // 100ms base period

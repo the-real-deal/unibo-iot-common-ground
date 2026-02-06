@@ -15,7 +15,6 @@ class HWPlatform {
 
 public:
   HWPlatform();
-  void test();
 
   Button* getResetButton();
   Led** getLeds();

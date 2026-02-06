@@ -31,8 +31,7 @@ public:
     private:
       StateHolder<bool>* pDoorState;
   };
-
-  DoorState* pDoorState; 
+  DoorState *pDoorState;
 };
 
 #endif

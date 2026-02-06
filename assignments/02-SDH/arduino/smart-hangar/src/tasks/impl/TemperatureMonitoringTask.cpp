@@ -12,21 +12,17 @@
  * When RESET is pressed, it is assumed that all issues have been resolved, and the system returns to the normal state.
  */
 
-#include "tasks/api/TempMonitoring.h"
-#include <kernel/Logger.h>
+#include "tasks/api/TemperatureMonitoringTask.hpp"
 
-//Constant declared RANDOMLY!!!
- #define TEMP_THRESHOLD_ONE 30    //this is the Temp1
- #define TIME_THRESHOLD_ONE 5000  //This is T3
- #define TIME_THRESHOLD_TWO 10000 //This is T4
- #define DISPLAY_UPDATE_TIME 8000 
+// Constant declared RANDOMLY!!!
+ #define TEMP1  30    
+ #define TEMP2  5000  
+ #define T3     10000l 
+ #define T4     8000l 
 
-TempMonitoring::TempMonitoring(Lcd* plcd, Led* pled, TempSensor* pTsensor, Context* pcontext, Button* pButton){
-    this->pLcd = pLcd;
-    this->pLed = pLed;
-    this->pTsensor = pTsensor;
-    this->pContext = pContext;
-    this->pResetButton= pButton;
+TemperatureMonitoringTask::TemperatureMonitoringTask(Lcd* plcd, Led* pLed, TempSensor* pTsensor, Context* pContext, Button* pButton) 
+    : pLcd(plcd), pLed(pLed), pTsensor(pTsensor), pResetButton(pButton), pContext(pContext)
+{
     setState(NORMAL_STATE);
 }
 
@@ -39,22 +35,24 @@ TempMonitoring::TempMonitoring(Lcd* plcd, Led* pled, TempSensor* pTsensor, Conte
  *      - state = ALARM: the state requires the intervention of a human to push the reset button to return in normal state
  * Don't know if I should keep a timeout timer: If a certain time elapses without changing state the system actually changes state
  */
-void TempMonitoring::tick(){
-
+void TemperatureMonitoringTask::tick(){
     switch (state)
     {
         case NORMAL_STATE:
+            if (checkAndSetJustEntered()) {
+                pContext->pHangarState->setState(Context::HangarStates::NORMAL);
+                pLed->switchOff();
+            }
+
             const Context::DroneStates droneState = pContext->pDroneState->getState();
             if (!(droneState == Context::DroneStates::REST ||
                 droneState == Context::DroneStates::TAKING_OFF ||
                 droneState == Context::DroneStates::LANDING)) {
-                return;
+                    return;
             }
 
             float temp = pTsensor->getTemperature();
-            long currentTime = millis();
-
-            if (temp >= TEMP_THRESHOLD_ONE && (millis() - currentTime) >= TIME_THRESHOLD_ONE){
+            if (temp >= TEMP1 && elapsedTimeInState() >= T3){
                 setState(PRE_ALARM);
             }
         break;
@@ -65,43 +63,49 @@ void TempMonitoring::tick(){
             }
 
             float temp = pTsensor->getTemperature();
-            // if (temp >= temp1 && elapsedTimeInState() >= TIME_THRESHOLD_TWO){
-            //     pContext->setAlarmSystemState(Context::AlarmSystemState::ALARM);
-            //     setState(ALARM);
-            // } else {
-            //     setState(NORMAL_STATE);
-            // }
+            if (temp < TEMP1) {
+                setState(NORMAL_STATE);
+                return;
+            }
+
+            if (temp >= TEMP2 && elapsedTimeInState() >= T4) {
+                setState(ALARM);
+            }
         break;
 
         case ALARM:
+            bool shouldNotifyDrone = false;
             if (checkAndSetJustEntered()) {
-                Logger.log(F("[AS] System in alarm state"));
+                shouldNotifyDrone = true;
+                pLed->switchOn();
+                // TODO: display("ALARM");
+            }
+
+            Context::DroneStates droneState = pContext->pDroneState->getState();
+            if (droneState == Context::DroneStates::OPERATING && shouldNotifyDrone) {
+                // TODO: Serial Comm "SH:ALARM"
+                shouldNotifyDrone = false;
             }
 
             if(pResetButton->isPressed()){
                 setState(NORMAL_STATE);
+                return;
             }
         break;
     }
 }
 
-void TempMonitoring::setState(TempMonitoringState newState) {
+void TemperatureMonitoringTask::setState(TemperatureMonitoringTaskStates newState) {
     state = newState;
     stateTimestamp = millis();
     justEntered = true;
 }
 
-/**
- * Used  to monitor how much time the system is in a certain state
- */
-long TempMonitoring::elapsedTimeInState(){
+long TemperatureMonitoringTask::elapsedTimeInState(){
     return millis() - stateTimestamp;
 }
 
-/**
- * Used  to monitor how much time the system is in a certain state
- */
-bool TempMonitoring::checkAndSetJustEntered(){
+bool TemperatureMonitoringTask::checkAndSetJustEntered(){
     if (justEntered) {
         justEntered = false;
         return true;
