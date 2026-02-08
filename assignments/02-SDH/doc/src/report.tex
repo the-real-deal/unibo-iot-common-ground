@@ -220,7 +220,7 @@ Considering all of that, we defined the following tasks:
     \item \texttt{HangarMainTask}
 \end{enumerate}
 
-In order to orchestrate the progress of tasks as time goes on, a \textbf{scheduler} is mandatory. Following the Round Robin scheduling technique, a period of time (\textit{called "quantum"}) is assigned at each task. During this period of time the task can use the CPU. If the task finishes its job before the ending of its quantum, it should leave the system. Otherwise, it goes back into the queue of tasks to be executed.
+In order to orchestrate the progress of tasks as time goes on, a \textbf{scheduler} is mandatory. Following the Round Robin scheduling technique, a period of time (\textit{called "quantum"}) is assigned to each task. During this period of time the task can use the CPU. If the task finishes its job before the ending of its quantum, it should leave the system. Otherwise, it goes back into the queue of tasks to be executed.
 It's up to the scheduler to choose the order of tasks to execute, regardless of their priority.
 
 The tricky challenge is to choose a quantum of time \textbf{not too small} to make the system unresponsive and loose events and \textbf{not too big} to incur in overrun exceptions. 
