@@ -15,6 +15,7 @@ Msg* MsgServiceClass::receiveMsg(){
     Msg* msg = currentMsg;
     msgAvailable = false;
     currentMsg = NULL;
+    topic = "";
     content = "";
     return msg;  
   } else {
@@ -42,14 +43,19 @@ void serialEvent() {
   if (!Serial.available()) {
     return;
   }
+  bool separatorSurpassed = false;
   /* reading the content */
   while (Serial.available()) {
     char ch = (char) Serial.read();
-    if (ch != ':' && topic == "") {
+    if (ch != ':' && !separatorSurpassed) {
       topic += ch;
       continue;
-    }
-    if (ch == '\n'){
+    } else if (ch == ':') {
+      separatorSurpassed = true;
+      continue;
+    } else if (ch != '\n') {
+      content += ch;   
+    } else {
       MsgTopic decodedTopic = MsgTopic::Unknown;
       if (topic.equalsIgnoreCase("SDH")) {
         decodedTopic = MsgTopic::SDH;
@@ -58,8 +64,6 @@ void serialEvent() {
       }
       MsgService.currentMsg = new Msg(decodedTopic, content);
       MsgService.msgAvailable = true;      
-    } else {
-      content += ch;      
     }
   }
 }

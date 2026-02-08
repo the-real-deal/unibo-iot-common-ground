@@ -21,7 +21,7 @@ void Door::open(){
 /*
 * Close the door.
 */
-void Door::close(){
+void Door::close() {
   motor.write(DOOR_CLOSE_POS);
   state = false;
 }
@@ -29,6 +29,10 @@ void Door::close(){
 /*
 * Check if the door is open.
 */
-bool Door::isOpen(){
+bool Door::isOpen() {
   return state;
+}
+
+bool Door::isClosed() {
+  return !isOpen();
 }

@@ -16,8 +16,6 @@ public:
     void tick();
 
 private:
-    void openDoor();
-    void closeDoor();
     void setState(HangarDoorTaskStates newState);
 
     Door* pDoor;

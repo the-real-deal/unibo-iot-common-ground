@@ -11,8 +11,8 @@ import it.unibo.sdh.impl.model.SerialCommunicationChannel;
 
 public class CommunicationChannelUtils {
 
-    public static final String DRONE_PREFIX = "DU"; // Drone Unit
-    public static final String HANGAR_PREFIX = "SH"; // Smart Hangar
+    public static final String DRONE_PREFIX = "DRU"; // Drone Remote Unit
+    public static final String HANGAR_PREFIX = "SDH"; // Smart Drone Hangar
     public static final String DEFAULT_SEPARATOR = ":";
 
     private static final Logger logger = LoggerFactory.getLogger(CommunicationChannelUtils.class); 

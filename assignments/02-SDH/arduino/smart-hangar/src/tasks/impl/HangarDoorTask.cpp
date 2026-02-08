@@ -17,7 +17,7 @@ void HangarDoorTask::tick(){
         }
         break;
     case HangarDoorTaskStates::OPENING_DOOR:
-        openDoor();
+        pDoor->open();
         if(pDoor->isOpen()){
             setState(OPEN);
         }
@@ -31,21 +31,12 @@ void HangarDoorTask::tick(){
         }
         break;
     case HangarDoorTaskStates::CLOSING_DOOR:
-        closeDoor();
-        if(!pDoor->isOpen()){
+        pDoor->close();
+        if(pDoor->isClosed()){
             setState(CLOSED);
         }
         break;
     }
-}
-void HangarDoorTask::openDoor()
-{
-    setState(OPEN);
-}
-
-void HangarDoorTask::closeDoor()
-{
-    setState(CLOSED);
 }
 
 void HangarDoorTask::setState(HangarDoorTaskStates newState)

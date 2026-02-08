@@ -11,15 +11,15 @@ HangarMainTask::HangarMainTask(Lcd* pLcd, Led* pLed, Pir* DPD, Sonar* DDD, TempS
     setState(INSIDE);
 }
 
-bool isFarEnough(float dist){
+bool isFarEnough(float dist) {
     return dist >= D1;
 }
 
-bool isNearEnough(float dist){
+bool isNearEnough(float dist) {
     return dist <= D2;
 }
 
-void HangarMainTask::tick(){
+void HangarMainTask::tick() {
     const HangarMainTaskStates currentState = this->pTaskState->getState();
     switch (currentState)
     {
@@ -29,8 +29,14 @@ void HangarMainTask::tick(){
                 pLcd->print("DRONE INSIDE");
                 pContext->pDroneState->setState(Context::DroneStates::REST);
             }
-            // MsgService.receiveMsg();
-            if(true && pContext->pHangarState->getState() == Context::HangarStates::NORMAL) { //serial command to do
+            Msg *pIncomingMsg = MsgService.receiveMsg();
+            if (pIncomingMsg == NULL) {
+                // if no message received, exit the function;
+                return;
+            }
+            // for the sake of simplicity, let's assume that the incoming messages are relative to the drone
+            // (in order to avoid checking for msg.getTopic() correspondance)
+            if(pIncomingMsg->getContent() == "TAKING_OFF" && pContext->pHangarState->getState() == Context::HangarStates::NORMAL) {
                 setState(TAKING_OFF);
                 pContext->pDroneState->setState(Context::DroneStates::TAKING_OFF);
                 pLcd->print("TAKING OFF");
@@ -47,8 +53,7 @@ void HangarMainTask::tick(){
             float currentTemp = pTempS->getTemperature();
             DDD->setTemperature(currentTemp);
             float dist = DDD->getDistance();
-            if(pContext->pDoorState->isDoorOpen() 
-                && elapsedTimeInState() >= T1*FROM_S_TO_MS && isFarEnough(dist)) {
+            if(pContext->pDoorState->isDoorOpen() && elapsedTimeInState() >= T1*FROM_S_TO_MS && isFarEnough(dist)) {
                 // Taking off succeded!
                 Msg msg(MsgTopic::DRU, "TAKING_OFF", "OK");
                 MsgService.sendMsg(msg.getFormattedMsg());
@@ -61,9 +66,14 @@ void HangarMainTask::tick(){
                 pContext->pDroneState->setState(Context::DroneStates::OPERATING);
                 pLcd->print("DRONE OUT");
             }
-            Msg incomingMsg = *MsgService.receiveMsg();
-            // incomingMsg.
-            if(true && pContext->pHangarState->getState() == Context::HangarStates::NORMAL && DPD->isDetected()) {
+            Msg *pIncomingMsg = MsgService.receiveMsg();
+            if (pIncomingMsg == NULL) {
+                // if no message received, exit the function;
+                return;
+            }
+            // for the sake of simplicity, let's assume that the incoming messages are relative to the drone
+            // (in order to avoid checking for msg.getTopic() correspondance)
+            if(pIncomingMsg->getContent() == "LANDING" && pContext->pHangarState->getState() == Context::HangarStates::NORMAL && DPD->isDetected()) {
                 setState(LANDING);
                 pContext->pDroneState->setState(Context::DroneStates::LANDING);
                 pLcd->print("LANDING");
