@@ -11,6 +11,10 @@
 \usepackage[runin]{abstract}
 \usepackage{titling}
 \usepackage{booktabs}
+% Source - https://stackoverflow.com/a/2739710
+% Posted by Mica, modified by community. See post 'Timeline' for change history
+% Retrieved 2026-02-08, License - CC BY-SA 3.0
+\usepackage{pdfpages}
 \usepackage{fancyhdr}
 \usepackage{helvet}
 \usepackage{csquotes}
@@ -26,14 +30,14 @@
 % Variables
 % ----------
 
-\title{\textbf{{\LARGE Assignment \#02 — Smart Drone Hangar}} \\ {\ Embedded Systems and Internet of Things Course}} % Full title of your tech report
+\title{\textbf{{\LARGE Assignment \#02 — Smart Drone Hangar}} \\ {\ Course: Embedded Systems and Internet of Things}} % Full title of your tech report
 \runningtitle{Ass. \#02 — SDH} % Short title
 \author{Nicholas Magi \\ \texttt{0001113915} \and Rebecca Scarcelli \\ \texttt{0001118585} \and Elettra Ventura \\ \texttt{0001117272}} % Full list of authors
 \runningauthor{N. Magi, R. Scarcelli, E. Ventura} % Short list of authors
 \affiliation{University of Bologna, Cesena Campus} % Affiliation e.g. University or Company
 \department{Department of Computer Science and Engineering} % Department or Office
 \theyear{2026} % year of the tech report
-\mydate{January 3, 2026} %the date
+\mydate{February 5, 2026} %the date
 
 
 % ----------
@@ -158,7 +162,7 @@ The deliverable consists in a zipped folder \texttt{assignment-02.zip} including
 \begin{itemize}
     \item \texttt{drone-hangar}, including the source code of the Arduino-based subsystem
     \item \texttt{drone-remote-unit}, including the source code of the PC-based part
-    \item \texttt{doc}, including:  a brief \textbf{report} describing the solution, in particular the diagram of the FSMs and the  representation of the schema/breadboard – using tools such as TinkerCad or Fritzing , and a \textbf{short video} (or the link to a video on the UNIBO OneDrive cloud) demonstrating the system. 
+    \item \texttt{doc}, including: a brief \textbf{report} describing the solution, in particular the diagram of the FSMs and the  representation of the schema/breadboard – using tools such as TinkerCad or Fritzing , and a \textbf{short video} (or the link to a video on the UNIBO OneDrive cloud) demonstrating the system. 
 \end{itemize}
 
 
@@ -166,7 +170,20 @@ The deliverable consists in a zipped folder \texttt{assignment-02.zip} including
 
 \subsection{How to run the program}
 
-\subsection{Finite-State Machines}
+\subsection{Task-based architecture}
+When looking at the assignment description, our first focus was to try to define the tasks hidden in it — in order to decompose and modularize the system. Much attention was put on the Smart Drone Hangar subsystem, since it is designed to be implemented using a \textbf{task-based architecture}.
+
+From a theoretical point of view, we can recall that a task is defined as a \textit{single well-defined unit of work/job to be done}, and that the behaviour of each task can be represented by a \textbf{finite-state machine}. \\
+A \textbf{state machine} is no other than a general model of a system with discrete dynamics that at \textit{each reaction maps valuation of the inputs to valuations of the outputs, where the map may depend on its current state}. \\
+A \textbf{finite-state machine} is a state machine whose set of possible states is finite (\textit{i.e. has a finite number of elements}).
+
+\subsubsection{UML State Diagram of the Finite State Machines}
+% Source - https://stackoverflow.com/a/2739710
+% Posted by Mica, modified by community. See post 'Timeline' for change history
+% Retrieved 2026-02-08, License - CC BY-SA 3.0
+
+\includepdf[pages=-,scale=.9]{assets/FSM-SDH.pdf}
+
 Starting from the general problem, we considered two subsystems: the Smart Hangar and the temperature monitoring system embedded in it. They both share two global variables: \texttt{isAlarm} and \texttt{canFly}. They determine whether the temperature monitoring system is in \texttt{ALARM} state and whether the drone can begin new take off or landing operations, respectevely.
 
 \subsubsection{Smart Hangar states}

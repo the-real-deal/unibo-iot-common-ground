@@ -1,6 +1,9 @@
 #ifndef __SONAR__
 #define __SONAR__
+
 #include "Arduino.h"
+#include "devices/config/config.hpp"
+#include "config.hpp"
 
 constexpr float NO_OBJ_DETECTED = -1.0f;
 

@@ -23,6 +23,7 @@ class HangarMainTask: public SyncTask
         void tick();
     private:
         void setState(HangarMainTaskStates newState);    
+        const long SAMPLING_INTERVAL = 1L;
         
         Lcd* pLcd;
         Led* pLed;

@@ -21,6 +21,8 @@ bool isNearEnough(float dist) {
 
 void HangarMainTask::tick() {
     const HangarMainTaskStates currentState = this->pTaskState->getState();
+    static float counter = 0.0f;
+    static long lastSampleTime = -1;
     switch (currentState)
     {
         case HangarMainTaskStates::INSIDE: {
@@ -36,24 +38,41 @@ void HangarMainTask::tick() {
             }
             // for the sake of simplicity, let's assume that the incoming messages are relative to the drone
             // (in order to avoid checking for msg.getTopic() correspondance)
-            if(pIncomingMsg->getContent() == "TAKING_OFF" && pContext->pHangarState->getState() == Context::HangarStates::NORMAL) {
+            if (pIncomingMsg->getContent() != "TAKING_OFF") {
+                return;
+            }
+            if (pContext->pHangarState->getState() == Context::HangarStates::NORMAL) {
                 setState(TAKING_OFF);
                 pContext->pDroneState->setState(Context::DroneStates::TAKING_OFF);
                 pLcd->print("TAKING OFF");
                 pLed->switchOff();
+                counter = 0.0f;
             }
             else {
                 // Taking off not allowed!
                 Msg msg(MsgTopic::DRU, "TAKING_OFF", "KO");
                 MsgService.sendMsg(msg.getFormattedMsg());
             }
+            delete pIncomingMsg;
             break;
         }
         case HangarMainTaskStates::TAKING_OFF: {
+            if (checkAndSetJustEntered()) {
+                lastSampleTime = millis();
+            }
             float currentTemp = pTempS->getTemperature();
             DDD->setTemperature(currentTemp);
             float dist = DDD->getDistance();
-            if(pContext->pDoorState->isDoorOpen() && elapsedTimeInState() >= T1*FROM_S_TO_MS && isFarEnough(dist)) {
+            long now = millis();
+            if (now - lastSampleTime < SAMPLING_INTERVAL) {
+                return;
+            }
+            if (isFarEnough(dist)) {
+                counter += 1.0f;
+            } else {
+                counter = 0.0f;
+            }
+            if (pContext->pDoorState->isDoorOpen() && counter >= T1 * FROM_S_TO_MS && isFarEnough(dist)) {
                 // Taking off succeded!
                 Msg msg(MsgTopic::DRU, "TAKING_OFF", "OK");
                 MsgService.sendMsg(msg.getFormattedMsg());
@@ -73,7 +92,10 @@ void HangarMainTask::tick() {
             }
             // for the sake of simplicity, let's assume that the incoming messages are relative to the drone
             // (in order to avoid checking for msg.getTopic() correspondance)
-            if(pIncomingMsg->getContent() == "LANDING" && pContext->pHangarState->getState() == Context::HangarStates::NORMAL && DPD->isDetected()) {
+            if (pIncomingMsg->getContent() != "LANDING") {
+                return;
+            }
+            if (pContext->pHangarState->getState() == Context::HangarStates::NORMAL && DPD->isDetected()) {
                 setState(LANDING);
                 pContext->pDroneState->setState(Context::DroneStates::LANDING);
                 pLcd->print("LANDING");
@@ -83,6 +105,7 @@ void HangarMainTask::tick() {
                 Msg msg(MsgTopic::DRU, "LANDING", "KO");
                 MsgService.sendMsg(msg.getFormattedMsg());
             }
+            delete pIncomingMsg;
             break;
         }
         case HangarMainTaskStates::LANDING: {
@@ -92,7 +115,16 @@ void HangarMainTask::tick() {
             float dist = DDD->getDistance();
             Msg msg(MsgTopic::DRU, "LANDING", String(dist));
             MsgService.sendMsg(msg.getFormattedMsg());
-            if(elapsedTimeInState() >= T2 * FROM_S_TO_MS && isNearEnough(dist) && pContext->pDoorState->isDoorOpen()) {
+            long now = millis();
+            if (now - lastSampleTime < SAMPLING_INTERVAL) {
+                return;
+            }
+            if (isNearEnough(dist)) {
+                counter += 1.0f;
+            } else {
+                counter = 0.0f;
+            }
+            if (counter >= T2 * FROM_S_TO_MS && isNearEnough(dist) && pContext->pDoorState->isDoorOpen()) {
                 setState(INSIDE);
                 Msg msg(MsgTopic::DRU, "LANDING", "OK");
                 MsgService.sendMsg(msg.getFormattedMsg());

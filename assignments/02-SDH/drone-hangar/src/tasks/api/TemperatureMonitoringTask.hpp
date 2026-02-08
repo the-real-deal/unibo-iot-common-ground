@@ -11,12 +11,12 @@
 #include "kernel/MsgService.hpp"
 #include "config.hpp"
 
-enum TemperatureMonitoringTaskStates { NORMAL_STATE, PRE_ALARM, ALARM };
+enum TemperatureMonitoringTaskStates { NORMAL_STATE, FIRST_SAMPLING, SECOND_SAMPLING, ALARM };
 class TemperatureMonitoringTask: public SyncTask {
 public:
     TemperatureMonitoringTask(Lcd* plcd, Led* pled, TempSensor* pTsensor, Button* pButton, Context* pcontext);
     void tick();
-
+    const long SAMPLING_INTERVAL = 1L;
 private:
     void setState(TemperatureMonitoringTaskStates newState);
     

@@ -7,6 +7,8 @@ TemperatureMonitoringTask::TemperatureMonitoringTask(Lcd* pLcd, Led* pLed, TempS
 }
 
 void TemperatureMonitoringTask::tick(){
+    static float counter = 0.0f;
+    static long lastSampleTime = -1;
     TemperatureMonitoringTaskStates currentTaskState = pTaskState->getState();
     switch (currentTaskState)
     {
@@ -15,33 +17,60 @@ void TemperatureMonitoringTask::tick(){
                 pContext->pHangarState->setState(Context::HangarStates::NORMAL);
                 pLed->switchOff();
             }
-
             const Context::DroneStates droneState = pContext->pDroneState->getState();
-            if (!(droneState == Context::DroneStates::REST ||
+            if (droneState == Context::DroneStates::REST ||
                 droneState == Context::DroneStates::TAKING_OFF ||
-                droneState == Context::DroneStates::LANDING)) {
-                    return;
-            }
-
-            float temp = pTsensor->getTemperature();
-            if (temp >= TEMP1 && elapsedTimeInState() >= T3){
-                setState(PRE_ALARM);
+                droneState == Context::DroneStates::LANDING) {
+                    counter = 0.0f;
+                    setState(FIRST_SAMPLING);
             }
             break;
         }
-        case PRE_ALARM: {
+        case FIRST_SAMPLING: {
             if (checkAndSetJustEntered()) {
-                pContext->pHangarState->setState(Context::HangarStates::PRE_ALARM);
+                lastSampleTime = millis();
             }
-
-            float temp = pTsensor->getTemperature();
-            if (temp < TEMP1) {
-                setState(NORMAL_STATE);
+                
+            long now = millis();
+            if (now - lastSampleTime < SAMPLING_INTERVAL) {
                 return;
             }
-
-            if (temp >= TEMP2 && elapsedTimeInState() >= T4) {
-                setState(ALARM);
+            float temp = pTsensor->getTemperature();
+            lastSampleTime = millis();
+            if (temp > TEMP1) {
+                counter += 1.0f;
+            } else {
+                counter = 0;
+            }
+            if (temp > TEMP1 && counter > T3) {
+                counter = 0;
+                pContext->pHangarState->setState(Context::HangarStates::PRE_ALARM);
+                setState(SECOND_SAMPLING);
+            }
+            break;
+        }
+        case SECOND_SAMPLING: {
+            if (checkAndSetJustEntered()) {
+                lastSampleTime = millis();
+            }
+                
+            long now = millis();
+            if (now - lastSampleTime < SAMPLING_INTERVAL) {
+                return;
+            }
+            float temp = pTsensor->getTemperature();
+            lastSampleTime = millis();
+            if (temp < TEMP1) {
+                
+            }
+            if (temp > TEMP2) {
+                counter += 1.0f;
+            } else {
+                counter = 0;
+            }
+            if (temp > TEMP2 && counter > T4) {
+                pContext->pHangarState->setState(Context::HangarStates::PRE_ALARM);
+                setState(SECOND_SAMPLING);
             }
             break;
         }
