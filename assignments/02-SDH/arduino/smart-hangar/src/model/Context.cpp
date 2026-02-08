@@ -1,4 +1,5 @@
-#include "Context.hpp"
+#include "model/Context.hpp"
+
 Context::Context(Context::DroneStates initialDroneState, HangarStates initialHangarState) :
   pDroneState(new StateHolder<DroneStates>(initialDroneState)), 
   pHangarState(new StateHolder<HangarStates>(initialHangarState)),

@@ -1,35 +1,36 @@
 #ifndef __HANGAR_MAIN_TASK__
 #define __HANGAR_MAIN_TASK__
 
+#include "Arduino.h"
 #include "kernel/SyncTask.hpp"
+#include "kernel/MsgService.hpp"
 #include "model/Context.hpp"
-#include "devices/api/Lcd.h"
-#include "devices/api/Led.h"
-#include "devices/api/Pir.h"
-#include "devices/api/Sonar.h"
-#include "devices/api/TempSensor.h"
-#include "devices/config/Config.h"
-#include <Arduino.h>
+#include "model/StateHolder.hpp"
+#include "devices/api/Lcd.hpp"
+#include "devices/api/Led.hpp"
+#include "devices/api/Pir.hpp"
+#include "devices/api/Sonar.hpp"
+#include "devices/api/TempSensor.hpp"
+#include "devices/config/config.hpp"
+#include "config.hpp"
+
+enum HangarMainTaskStates {INSIDE, TAKING_OFF, OPERATING, LANDING};
 
 class HangarMainTask: public SyncTask
 {
-public:
-    HangarMainTask(Lcd* pLcd, Led* pLed1, Pir* DPD, Sonar* DDD, TempSensor* pTempS, Context* pContext);
-    void tick();
-private:
-    enum HangarStates {INSIDE, TAKING_OFF, OPERATING, LANDING} state;
-
-    void setState(HangarStates newState);
-
-    long elapsedTimeInState();
-    bool checkAndSetJustEntered();
-
-    Led* pLed1;
-    Lcd* pLcd;
-    Pir* DPD;
-    Sonar* DDD;
-    TempSensor* pTempS;
-    Context* pContext;
+    public:
+        HangarMainTask(Lcd* pLcd, Led* pLed, Pir* DPD, Sonar* DDD, TempSensor* pTempS, Context* pContext);
+        void tick();
+    private:
+        void setState(HangarMainTaskStates newState);    
+        
+        Lcd* pLcd;
+        Led* pLed;
+        Pir* DPD;
+        Sonar* DDD;
+        TempSensor* pTempS;
+        Context* pContext;
+        StateHolder<HangarMainTaskStates>* pTaskState; 
 };  
 
 

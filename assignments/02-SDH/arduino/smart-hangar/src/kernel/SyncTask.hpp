@@ -1,6 +1,8 @@
 #ifndef __TASK__
 #define __TASK__
 
+#include "Arduino.h"
+
 class SyncTask {
 
 public:
@@ -27,19 +29,6 @@ public:
     }
   }
 
-  void setCompleted(){
-    completed = true;
-    active = false;
-  }
-
-  bool isCompleted(){
-    return completed;
-  }
-
-  bool isActive(){
-    return active;
-  }
-
   int getPeriod(){
     return myPeriod;
   }
@@ -48,14 +37,32 @@ public:
     timeElapsed = 0;
     this->active = active;
   }
+
+  virtual bool isActive() {
+    return this->active;
+  }
+
+  virtual long elapsedTimeInState() {
+    return millis() - stateTimestamp;
+  }
+
+  virtual bool checkAndSetJustEntered() {
+    bool bak = justEntered;
+    if (justEntered){
+      justEntered = false;
+    }
+    return bak;
+  }
   
-private:
+protected:
 
   int myPeriod;
   int timeElapsed;
+
+  long stateTimestamp;
   bool active;
   bool completed;
-
+  bool justEntered;
 };
 
 #endif

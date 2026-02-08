@@ -15,9 +15,9 @@ public:
 
 private:
   float getSoundSpeed() const;
-  float temperature;
   const int echoPin, trigPin;
   const long timeOut;
+  float temperature;
 };
 
 #endif

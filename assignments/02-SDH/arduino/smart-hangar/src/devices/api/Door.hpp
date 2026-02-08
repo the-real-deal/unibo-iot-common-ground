@@ -2,7 +2,7 @@
 #define __DOOR__
 
 #include "Arduino.h"
-#include "ServoTimer2.h"
+#include "ServoTimer2.hpp"
 
 /* Door Class:
 *  Interface for a door represented by a servo motor connected to a specified pin.

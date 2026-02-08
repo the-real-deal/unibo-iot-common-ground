@@ -1,5 +1,5 @@
-#include "devices/api/TempSensor.h"
-#include "devices/config/Config.h"
+#include "devices/api/TempSensor.hpp"
+#include "devices/config/config.hpp"
 #include "Arduino.h"
 
 /*

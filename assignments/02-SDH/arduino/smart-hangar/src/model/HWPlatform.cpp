@@ -1,13 +1,4 @@
-#include "HWPlatform.hpp"
-#include "Arduino.h"
-#include "config.hpp"
-#include "devices/api/Button.h"
-#include "devices/api/Door.h"
-#include "devices/api/Lcd.h"
-#include "devices/api/Led.h"
-#include "devices/api/Pir.h"
-#include "devices/api/Sonar.h"
-#include "devices/api/TempSensor.h"
+#include "model/HWPlatform.hpp"
 
 void wakeUp(){}
 

@@ -1,5 +1,5 @@
-#include "devices/api/Lcd.h"
-#include "devices/config/Config.h"
+#include "devices/api/Lcd.hpp"
+#include "devices/config/config.hpp"
 #include "Arduino.h"
 
 /*

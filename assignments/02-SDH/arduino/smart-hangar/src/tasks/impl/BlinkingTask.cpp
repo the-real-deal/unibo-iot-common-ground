@@ -1,6 +1,3 @@
-#include "kernel/Logger.h"
-#include "model/Context.hpp"
-#include <Arduino.h>
 #include "tasks/api/BlinkingTask.hpp"
 
 BlinkingTask::BlinkingTask(Led* pLed, Context* pContext): 
@@ -9,7 +6,8 @@ BlinkingTask::BlinkingTask(Led* pLed, Context* pContext):
 }
 
 void BlinkingTask::tick(){
-    switch (state){   
+    BlinkingTaskStates currentTaskState = this->pTaskState->getState();
+    switch (currentTaskState) {   
     case OFF: {
         if (this->checkAndSetJustEntered()){
             pLed->switchOff();
@@ -30,20 +28,8 @@ void BlinkingTask::tick(){
     }
 }
 
-long BlinkingTask::elapsedTimeInState(){
-    return millis() - stateTimestamp;
-}
-
-void BlinkingTask::setState(const BlinkingTaskState state) {
+void BlinkingTask::setState(const BlinkingTaskStates state) {
     this->justEntered = true;
-    this->state = state;
+    this->pTaskState->setState(state);
     this->stateTimestamp = millis();
-}
-
-bool BlinkingTask::checkAndSetJustEntered() {
-    bool bak = justEntered;
-    if (justEntered){
-      justEntered = false;
-    }
-    return bak;
 }

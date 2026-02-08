@@ -1,38 +1,56 @@
-#include "tasks/api/HangarDoorTask.h"
+#include "tasks/api/HangarDoorTask.hpp"
 
-HangarDoorTask::HangarDoorTask(Door* Door, Context* Context) : pDoor(Door), pContext(Context){
+HangarDoorTask::HangarDoorTask(Door* Door, Context* Context) : 
+    pDoor(Door), pContext(Context), pTaskState(new StateHolder<HangarDoorTaskStates>(CLOSED)) {
     setState(CLOSED);
 }
 
 void HangarDoorTask::tick(){
-    HangarDoorTaskState currentState = this->state;
-    switch (currentState)
+    HangarDoorTaskStates currentTaskState = this->pTaskState->getState();
+    switch (currentTaskState)
     {
-    case HangarDoorTaskState::CLOSED:
-        if(true && pContext->pHangarState->getState() == Context::HangarStates::NORMAL){ // true = to be serial nfretok
+    case HangarDoorTaskStates::CLOSED:
+        pContext->pDoorState->closeDoor();
+        if((pContext->pDroneState->getState() == Context::DroneStates::TAKING_OFF || pContext->pDroneState->getState() == Context::DroneStates::LANDING) 
+            && pContext->pHangarState->getState() == Context::HangarStates::NORMAL) {
             setState(OPENING_DOOR);
         }
         break;
-    case HangarDoorTaskState::OPEN:
-        if(pContext->pDroneState->getState()==Context::DroneStates::OPERATING || 
-            pContext->pDroneState->getState()==Context::DroneStates::REST ||
-            pContext->pHangarState->getState() == Context::HangarStates::ALARM){
-            setState(CLOSING_DOOR);
-        }
-        break;
-    case HangarDoorTaskState::OPENING_DOOR:
+    case HangarDoorTaskStates::OPENING_DOOR:
         openDoor();
         if(pDoor->isOpen()){
-            pContext->pDoorState->openDoor();
             setState(OPEN);
         }
         break;
-    case HangarDoorTaskState::CLOSING_DOOR:
+    case HangarDoorTaskStates::OPEN:
+        pContext->pDoorState->openDoor();
+        if(pContext->pDroneState->getState() == Context::DroneStates::OPERATING || 
+            pContext->pDroneState->getState() == Context::DroneStates::REST ||
+            pContext->pHangarState->getState() == Context::HangarStates::ALARM) {
+            setState(CLOSING_DOOR);
+        }
+        break;
+    case HangarDoorTaskStates::CLOSING_DOOR:
         closeDoor();
         if(!pDoor->isOpen()){
-            pContext->pDoorState->closeDoor();
             setState(CLOSED);
         }
         break;
     }
+}
+void HangarDoorTask::openDoor()
+{
+    setState(OPEN);
+}
+
+void HangarDoorTask::closeDoor()
+{
+    setState(CLOSED);
+}
+
+void HangarDoorTask::setState(HangarDoorTaskStates newState)
+{
+    this->pTaskState->setState(newState);
+    this->stateTimestamp = millis();
+    this->justEntered = true;
 }

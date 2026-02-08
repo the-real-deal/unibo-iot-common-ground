@@ -1,13 +1,15 @@
 #ifndef __HW_PLATFORM__
 #define __HW_PLATFORM__
 
-#include "devices/api/Button.h"
-#include "devices/api/Door.h"
-#include "devices/api/Lcd.h"
-#include "devices/api/Led.h"
-#include "devices/api/Pir.h"
-#include "devices/api/Sonar.h"
-#include "devices/api/TempSensor.h"
+#include "Arduino.h"
+#include "config.hpp"
+#include "devices/api/Button.hpp"
+#include "devices/api/Door.hpp"
+#include "devices/api/Lcd.hpp"
+#include "devices/api/Led.hpp"
+#include "devices/api/Pir.hpp"
+#include "devices/api/Sonar.hpp"
+#include "devices/api/TempSensor.hpp"
 
 #define LEDS_COUNT 3
 

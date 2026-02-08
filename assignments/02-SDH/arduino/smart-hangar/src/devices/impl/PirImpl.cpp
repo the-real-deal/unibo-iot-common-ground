@@ -1,4 +1,4 @@
-#include "devices/api/Pir.h"
+#include "devices/api/Pir.hpp"
 #include "Arduino.h"
 
 /*

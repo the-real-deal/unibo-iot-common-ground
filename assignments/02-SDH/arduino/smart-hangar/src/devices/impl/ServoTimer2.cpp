@@ -5,7 +5,7 @@ extern "C" {
   // #include "WConstants.h"
 }
 #include <Arduino.h>
-#include "devices/api/ServoTimer2.h"
+#include "devices/api/ServoTimer2.hpp"
 static void initISR();   
 static void writeChan(uint8_t chan, int pulsewidth);
 

@@ -3,9 +3,11 @@
 
 #include "kernel/SyncTask.hpp"
 #include "model/Context.hpp"
-#include "devices/api/Led.h"
+#include "model/StateHolder.hpp"
+#include "devices/api/Led.hpp"
 #include "Arduino.h"
 
+enum BlinkingTaskStates { OFF, ON };
 class BlinkingTask: public SyncTask {
 
 public:
@@ -13,17 +15,11 @@ public:
   void tick();
 
 private:  
-  Led* pLed;
-  enum BlinkingTaskState { OFF, ON } state;
-  void setState(BlinkingTaskState state);
-  long elapsedTimeInState();
+  void setState(BlinkingTaskStates state);
   
-  bool checkAndSetJustEntered();
-  
-  long stateTimestamp;
-  bool justEntered;
-
+  StateHolder<BlinkingTaskStates>* pTaskState;
   Context* pContext;
+  Led* pLed;
 };
 
 #endif
