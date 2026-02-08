@@ -10,6 +10,8 @@
 \usepackage[english]{babel}
 \usepackage[runin]{abstract}
 \usepackage{titling}
+\usepackage{listings}
+\usepackage{xcolor}
 \usepackage{booktabs}
 % Source - https://stackoverflow.com/a/2739710
 % Posted by Mica, modified by community. See post 'Timeline' for change history
@@ -26,12 +28,39 @@
 
 \input{preamble.tex}
 
+% Define colors for syntax highlighting
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Configure listings style
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+
 % ----------
 % Variables
 % ----------
 
 \title{\textbf{{\LARGE Assignment \#02 — Smart Drone Hangar}} \\ {\ Course: Embedded Systems and Internet of Things}} % Full title of your tech report
-\runningtitle{Ass. \#02 — SDH} % Short title
+\runningtitle{Assignment \#02 — SDH} % Short title
 \author{Nicholas Magi \\ \texttt{0001113915} \and Rebecca Scarcelli \\ \texttt{0001118585} \and Elettra Ventura \\ \texttt{0001117272}} % Full list of authors
 \runningauthor{N. Magi, R. Scarcelli, E. Ventura} % Short list of authors
 \affiliation{University of Bologna, Cesena Campus} % Affiliation e.g. University or Company
@@ -165,49 +194,131 @@ The deliverable consists in a zipped folder \texttt{assignment-02.zip} including
     \item \texttt{doc}, including: a brief \textbf{report} describing the solution, in particular the diagram of the FSMs and the  representation of the schema/breadboard – using tools such as TinkerCad or Fritzing , and a \textbf{short video} (or the link to a video on the UNIBO OneDrive cloud) demonstrating the system. 
 \end{itemize}
 
-
+\section{Arduino UNO Circuit}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{assets/imgs/ass02-SDH Circuit.png}
+    \caption{Screenshot of the circuit made with TinkerCad}
+    \label{fig:placeholder2}
+\end{figure}
 \section{Smart Drone Hangar}
-
-\subsection{How to run the program}
 
 \subsection{Task-based architecture}
 When looking at the assignment description, our first focus was to try to define the tasks hidden in it — in order to decompose and modularize the system. Much attention was put on the Smart Drone Hangar subsystem, since it is designed to be implemented using a \textbf{task-based architecture}.
 
-From a theoretical point of view, we can recall that a task is defined as a \textit{single well-defined unit of work/job to be done}, and that the behaviour of each task can be represented by a \textbf{finite-state machine}. \\
-A \textbf{state machine} is no other than a general model of a system with discrete dynamics that at \textit{each reaction maps valuation of the inputs to valuations of the outputs, where the map may depend on its current state}. \\
+From a theoretical point of view, we can recall that a task is defined as a \textit{single well-defined unit of work/job to be done}, and that the behaviour of each task can be represented by a \textbf{finite-state machine}. 
+
+A \textbf{state machine} is no other than a general model of a system with discrete dynamics that at \textit{each reaction maps valuation of the inputs to valuations of the outputs, where the map may depend on its current state}. 
+
 A \textbf{finite-state machine} is a state machine whose set of possible states is finite (\textit{i.e. has a finite number of elements}).
 
-\subsubsection{UML State Diagram of the Finite State Machines}
+Considering all of that, we defined the following tasks:
+\begin{enumerate}
+    \item \texttt{BlinkingLedTask}
+    \item \texttt{HangarDoorTask}
+    \item \texttt{TemperatureMonitoringTask}
+    \item \texttt{HangarMainTask}
+\end{enumerate}
+
+In order to orchestrate the progress of tasks as time goes on, a \textbf{scheduler} is mandatory. Following the Round Robin scheduling technique, a period of time (\textit{called "quantum"}) is assigned at each task. During this period of time the task can use the CPU. If the task finishes its job before the ending of its quantum, it should leave the system. Otherwise, it goes back into the queue of tasks to be executed.
+It's up to the scheduler to choose the order of tasks to execute, regardless of their priority.
+
+The tricky challenge is to choose a quantum of time \textbf{not too small} to make the system unresponsive and loose events and \textbf{not too big} to incur in overrun exceptions. 
+\subsubsection{BlinkingLedTask}
+\paragraph{Hardware needed}
+\begin{itemize}
+    \item 1x LED
+\end{itemize}
+\paragraph{Quantum}
+0.5 seconds
+\paragraph{Goal}
+The meaning of this task — as the name suggests — is to handle the blinking of LED \texttt{L2} during take-offs and landings of the drone.
+It needs to read the state of the drone in order to decide whether to start blinking or not.
+
+\subsubsection{HangarDoorTask}
+\paragraph{Hardware needed}
+\begin{itemize}
+    \item 1x Servo motor
+\end{itemize}
+\paragraph{Quantum}
+0.5 seconds
+\paragraph{Goal}
+The task that opens and closes the hangar door (represented by the Servo motor). It reads the drone state in order to start opening the door, and the hangar state to understand wheter the system is in alarm and thus close the door. It is responsible for changing the \textbf{isDoorOpen}, one of the shared variables used to let tasks communicate.
+
+\subsubsection{TemperatureMonitoringTask}
+\paragraph{Hardware needed}
+\begin{itemize}
+    \item 1x Temperature sensor
+    \item 1x Button (Reset button)
+    \item 1x LED
+    \item 1x LCD
+\end{itemize}
+\paragraph{Quantum}
+0.5 seconds
+\paragraph{Goal}
+It reads the drone state and understands in what moments it should check if the heat inside the hangar exceeds some thresholds. It is responsible for changing the \textbf{hangar state}, one of the three shared variables used to let tasks communicate.
+
+\subsubsection{HangarMainTask}
+\paragraph{Hardware needed}
+\begin{itemize}
+    \item 1x LED
+    \item 1x Sonar (Drone Distance Detector)
+    \item 1x Pir (Drone Presence Detector)
+    \item 1x LCD 
+\end{itemize}
+\paragraph{Quantum}
+0.5 seconds
+\paragraph{Goal}
+The most complex task of all. It relates directly to the drone, understanding its position during time (inside or outside). It is responsible for changing the \textbf{drone state}, one of the three shared variables used to let tasks communicate.
+
+\subsubsection{UML State Diagram of the tasks FSMs}
 % Source - https://stackoverflow.com/a/2739710
 % Posted by Mica, modified by community. See post 'Timeline' for change history
 % Retrieved 2026-02-08, License - CC BY-SA 3.0
 
 \includepdf[pages=-,scale=.9]{assets/FSM-SDH.pdf}
 
-Starting from the general problem, we considered two subsystems: the Smart Hangar and the temperature monitoring system embedded in it. They both share two global variables: \texttt{isAlarm} and \texttt{canFly}. They determine whether the temperature monitoring system is in \texttt{ALARM} state and whether the drone can begin new take off or landing operations, respectevely.
-
-\subsubsection{Smart Hangar states}
-We designed all the states of the Smart Hangar according to the position of the drone relative to it.
-\begin{enumerate}
-    \item \texttt{DRONE INSIDE} \\
-    The starting point of the Smart Hangar system.
-    \item \texttt{TAKE OFF} \\
-    When the DRU (Drone Remote Unit) communicates the hangar it wants to take off, the hangar opens the door and waits for the drone to exit.
-    \item \texttt{DRONE OUT} \\
-    When the drone is operating outside the hangar and is distant enough from it, the hangar closes the door.
-    \item \texttt{LANDING} \\
-    Once the flying drone wants to land, it sends a message via DRU to the hangar. At that point, the hangar opens the door and waits for the drone to land.
-\end{enumerate}
-
-At any point in time during the execution of the system, the hangar can enter the \texttt{ALARM} state: in this state new take offs and landings are suspended, while the drone is allowed to finish its current take off/landing.
-
-\subsubsection{Temperature monitoring system states}
-
 \section{Drone Remote Unit}
 
-\subsection{How to run the program}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{assets/imgs/ass02-SDH Circuit.png}
+    \caption{Screenshot of the GUI}
+    \label{fig:placeholder1}
+\end{figure}
 
-\label{sec:conc}
+\subsection{How to run the program}
+In order to start and work properly, the application needs \textbf{Arduino to be connected to serial port}. Default port is set to \texttt{/dev/cu.usbmodem1201}.
+
+To run the application, simply type in your terminal:
+
+\begin{itemize}
+    \item on UNIX OS:
+\begin{lstlisting}[language=Bash]
+./gradlew run
+\end{lstlisting}
+
+    \item on Windows OS:
+\begin{lstlisting}[language=Bash]
+./gradlew.bat run
+\end{lstlisting}
+\end{itemize}
+
+\subsubsection{Setting the Serial Port}
+
+To change the default serial port value, specify the new port as argument to gradlew with the command:
+
+\begin{itemize}
+    \item on UNIX OS:
+\begin{lstlisting}[language=Bash]
+./gradlew run --args="my/serial/port"
+\end{lstlisting}
+
+    \item on Windows OS:
+\begin{lstlisting}[language=Bash]
+./gradlew.bat run --args="my/serial/port"
+\end{lstlisting}
+\end{itemize}
 
 % Uncomment following to add an acknowledgement section
 % \section*{Acknowledgements}
@@ -221,6 +332,7 @@ At any point in time during the execution of the system, the hangar can enter th
 % Uncomment the following and add your references into biblio.bib file
 % \bibliography{./biblio.bib}
 % \bibliographystyle{abbrv}
+
 
 \end{document}
 
