@@ -5,7 +5,6 @@ import java.util.Objects;
 import it.unibo.sdh.api.model.EventListener;
 import it.unibo.sdh.api.model.StateHolder;
 import it.unibo.sdh.impl.controller.DashboardController;
-import it.unibo.sdh.impl.model.drone.DroneStates;
 
 public class HangarListener implements EventListener<StateHolder<HangarStates>> {
 
@@ -27,16 +26,9 @@ public class HangarListener implements EventListener<StateHolder<HangarStates>> 
                 controller.enableActionButtons();
                 controller.clearHangarInAlarmNotification();
                 break;
-            case PRE_ALARM:
-                controller.disableActionButtons();
-                break;
             case ALARM:
                 controller.disableActionButtons();
-                controller.getDroneState().ifPresent(state -> {
-                    if (state.first().equals(DroneStates.OPERATING)) {
-                        controller.notifyHangarInAlarm();
-                    }
-                });
+                controller.notifyHangarInAlarm();
                 break;
             default:
                 break;

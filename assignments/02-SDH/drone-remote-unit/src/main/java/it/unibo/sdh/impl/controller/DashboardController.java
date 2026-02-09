@@ -9,11 +9,11 @@ import it.unibo.sdh.api.model.CommunicationChannel;
 import it.unibo.sdh.api.model.MessageEncoder;
 import it.unibo.sdh.api.model.StateHolder;
 import it.unibo.sdh.impl.model.MessageEncoderImpl;
+import it.unibo.sdh.impl.model.MonitoringStateAgent;
+import it.unibo.sdh.impl.model.SerialCommunicationChannel;
 import it.unibo.sdh.impl.model.StateHolderImpl;
 import it.unibo.sdh.impl.model.drone.DroneListener;
 import it.unibo.sdh.impl.model.drone.DroneStates;
-import it.unibo.sdh.impl.model.drone.FetchDroneStateAgent;
-import it.unibo.sdh.impl.model.hangar.FetchHangarStateAgent;
 import it.unibo.sdh.impl.model.hangar.HangarListener;
 import it.unibo.sdh.impl.model.hangar.HangarStates;
 import it.unibo.sdh.impl.view.DashboardView;
@@ -23,23 +23,17 @@ import it.unibo.sdh.utils.Pair;
 public class DashboardController {
 
     private final static Logger logger = LoggerFactory.getLogger(DashboardController.class);
-    
-    private CommunicationChannel channel;
+    private SerialCommunicationChannel channel;
     private MessageEncoder encoder;
-    
     private StateHolder<HangarStates> hangar;
-    private FetchHangarStateAgent hangarAgent;
-    
     private StateHolder<Pair<DroneStates, Optional<String>>> drone;
-    private FetchDroneStateAgent droneAgent;
-    
     private DashboardView view;
 
     public DashboardController(final String arduinoSerialPort, final DashboardView view) {
         
         CommunicationChannelUtils.tryToConnect(arduinoSerialPort)
             .ifPresentOrElse(channel -> {
-                this.channel = channel;
+                this.channel = (SerialCommunicationChannel)channel;
                 logger.atInfo().log("Arduino connected!");
             }, () -> {
                 logger.atError().log("Couldn't find Arduino. Exiting...");
@@ -49,16 +43,16 @@ public class DashboardController {
         this.encoder = new MessageEncoderImpl();
         this.view = view;
 
-        this.hangar = new StateHolderImpl<>();
-        this.hangarAgent = new FetchHangarStateAgent(channel, hangar);
-        this.hangarAgent.subscribe(new HangarListener(this));
-        
+        final var monitoringAgent = new MonitoringStateAgent();
+
+        monitoringAgent.subscribeHangarListener(new HangarListener(this));
+        monitoringAgent.subscribeDroneListener(new DroneListener(this));
+        this.hangar = new StateHolderImpl<>(HangarStates.NORMAL);
+        monitoringAgent.publishHangarEvent(hangar);
         this.drone = new StateHolderImpl<>(new Pair<>(DroneStates.REST, Optional.empty()));
-        this.droneAgent = new FetchDroneStateAgent(channel, drone);
-        this.droneAgent.subscribe(new DroneListener(this));
-       
-        this.hangarAgent.start();
-        this.droneAgent.start();
+        monitoringAgent.publishDroneEvent(drone);
+        
+        this.channel.subscribe(monitoringAgent);
     }
 
     public void requestTakingOff() {
@@ -86,14 +80,6 @@ public class DashboardController {
     public void disableActionButtons() {
         view.disableActionButtons();
     }
-
-    public Optional<HangarStates> getHangarState() {
-        return hangar.getState();
-    }
-
-    public Optional<Pair<DroneStates, Optional<String>>> getDroneState() {
-        return drone.getState();
-    }
     
     public void displayDroneState(final String state) {
         view.displayDroneState(state);
@@ -113,5 +99,9 @@ public class DashboardController {
 
     public void clearHangarInAlarmNotification() {
         view.clearHangarInAlarmNotification();
+    }
+
+    public void clearDroneDistanceDisplay() {
+        view.clearDroneDistanceDisplay();
     }
 }

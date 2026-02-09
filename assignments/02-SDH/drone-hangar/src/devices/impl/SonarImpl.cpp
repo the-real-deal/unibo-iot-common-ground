@@ -36,21 +36,14 @@ float Sonar::getSoundSpeed() const {
 * Get distance measurement from the sonar sensor.
 */
 float Sonar::getDistance() {
+  pinMode(trigPin, OUTPUT);  // Clear the trigger
   digitalWrite(trigPin, LOW);
-  delayMicroseconds(3);
+  delayMicroseconds(2);
+  // Sets the trigger pin to HIGH state for 10 microseconds
   digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);  
+  delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  
-  const float tUS = pulseIn(echoPin, HIGH, timeOut);
-  
-  if (tUS == 0.0f) {
-    return NO_OBJ_DETECTED;  
-  }
-  
-  const float t = (tUS * FROM_US_TO_S) / 2.0f;  // time (in seconds) for one way:
-  // The US starts from the sensor and comes back after "hitting" the object so it covers the distance twice.
-  const float distance = t * getSoundSpeed(); //in meters! hope it's ok
-  
-  return distance;
+  pinMode(echoPin, INPUT);
+  // Reads the echo pin, and returns the sound wave travel time in microseconds
+  return 0.01723 * pulseIn(echoPin, HIGH);
 }

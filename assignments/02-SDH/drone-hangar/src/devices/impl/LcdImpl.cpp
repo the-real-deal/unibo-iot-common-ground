@@ -2,6 +2,8 @@
 #include "devices/config/config.hpp"
 #include "Arduino.h"
 
+String msg;
+
 /*
  * Lcd Constructor
  */
@@ -28,16 +30,22 @@ void Lcd::init() {
 /*
  * Clear the LCD display.
  */
-void Lcd::clear() {
+void Lcd::clear(bool restore) {
   display.clear();
+  if (restore) {
+    print(msg);
+  }
 }
 
 /*
  * Print text on the LCD display.
  */
-void Lcd::print(const String& text) {
+void Lcd::print(const String& text, bool saveMsg) {
   display.clear();
   display.setCursor(0, 0);
+  if (saveMsg) {
+    msg = text;
+  }
   display.print(text);
 }
 

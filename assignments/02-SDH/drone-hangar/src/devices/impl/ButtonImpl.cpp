@@ -16,7 +16,7 @@ Button::Button(int pin) : pin(pin), lastPressedTime(0), justClicked(false){
 bool Button::isPressed(){
   int currentState = digitalRead(pin);
   long currentTime = millis();
-  if (currentState == LOW && (currentTime - lastPressedTime > DELTA)) {
+  if (currentState == HIGH && (currentTime - lastPressedTime > DELTA)) {
     lastPressedTime = currentTime;
     return true;
   }

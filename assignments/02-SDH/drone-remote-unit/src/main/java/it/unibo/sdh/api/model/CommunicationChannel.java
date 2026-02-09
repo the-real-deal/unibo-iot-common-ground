@@ -19,7 +19,9 @@ public interface CommunicationChannel {
      *
      * @return an {@code Optional} containing the received message, or {@code Optional.empty()} if none is available or the channel is closed
      */
-    Optional<String> receiveMessage();
+    boolean receiveMessage();
+
+    public Optional<String> readMessage();
 
     /**
      * Checks if the communication channel is available.

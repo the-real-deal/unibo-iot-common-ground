@@ -16,7 +16,7 @@ public:
   bool isClosed();
     
 private:
-  const int pin;
+  int pin;
   bool state;
   ServoTimer2 motor;
 };

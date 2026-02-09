@@ -24,7 +24,7 @@ Msg* MsgServiceClass::receiveMsg(){
 }
 
 void MsgServiceClass::init(){
-  Serial.begin(115200);
+  Serial.begin(9600);
   // longest message content: "TAKING_OFF" -> 10 chars, 8 bytes each
   content.reserve(80);
   // possible topics: DU; SH -> 2 chars, 8 bytes each

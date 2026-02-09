@@ -8,9 +8,10 @@ HWPlatform::HWPlatform(){
   pLeds[1] = new Led(L2_PIN);
   pLeds[2] = new Led(L3_PIN);
   pServoDoor = new Door(DOOR_PIN);
-  // pDistanceDetector = new Sonar(mi servono i pin);
+  pDistanceDetector = new Sonar(DDD_ECHO_PIN, DDD_TRIG_PIN, 1 * FROM_S_TO_MS);
   pPresenceDetector = new Pir(DPD_PIN);
   pOperatorLCD = new Lcd();
+  pOperatorLCD->init();
   pTempSensor = new TempSensor(TEMP_SENSOR_PIN);
 }
 

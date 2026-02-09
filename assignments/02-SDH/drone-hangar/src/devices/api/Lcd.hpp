@@ -12,8 +12,8 @@ public:
   Lcd();
   ~Lcd();
   void init();
-  void clear();
-  void print(const String& text);
+  void clear(bool restore = false);
+  void print(const String& text, bool saveMsg = false);
   void print(const String& text, int row, int col);
     
 private:

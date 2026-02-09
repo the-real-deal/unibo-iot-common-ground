@@ -124,8 +124,6 @@ public class DashboardView extends JFrame {
 				logger.atError().log("Cannot display GUI: controller not setup yet.");
 				System.exit(-1);
 			}
-			controller.getDroneState().ifPresent(state -> this.droneStateDisplay.setText(state.first().name()));
-			controller.getHangarState().ifPresent(state -> this.hangarStateDisplay.setText(state.name()));
 			this.pack();
 			this.setVisible(true);
 		});
@@ -164,5 +162,9 @@ public class DashboardView extends JFrame {
 
 	public void clearHangarInAlarmNotification() {
 		this.hangarInAlarmNotification.setVisible(false);
+	}
+
+	public void clearDroneDistanceDisplay() {
+		this.distanceDisplay.setText("");
 	}
 }

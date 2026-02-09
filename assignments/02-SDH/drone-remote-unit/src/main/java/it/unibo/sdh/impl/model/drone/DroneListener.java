@@ -3,6 +3,9 @@ package it.unibo.sdh.impl.model.drone;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.unibo.sdh.api.model.EventListener;
 import it.unibo.sdh.api.model.StateHolder;
 import it.unibo.sdh.impl.controller.DashboardController;
@@ -24,11 +27,12 @@ public class DroneListener implements EventListener<StateHolder<Pair<DroneStates
         }
         final var newState = data.getState().get();
         controller.displayDroneState(newState.first().name());
-        newState.second().ifPresent(value -> {
+        newState.second().ifPresentOrElse(value -> {
             if (StringUtils.isNumeric(value)) {
                 controller.displayDroneDistance(Double.valueOf(value));
             }
+        }, () -> {
+            controller.clearDroneDistanceDisplay();
         });
     }
-
 }
