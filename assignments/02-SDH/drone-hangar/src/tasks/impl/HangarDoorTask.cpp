@@ -10,9 +10,9 @@ void HangarDoorTask::tick(){
     switch (currentTaskState)
     {
     case HangarDoorTaskStates::CLOSED:
-        pContext->pDoorState->closeDoor();
-        if((pContext->pDroneState->getState() == Context::DroneStates::TAKING_OFF || pContext->pDroneState->getState() == Context::DroneStates::LANDING) 
-            && pContext->pHangarState->getState() == Context::HangarStates::NORMAL) {
+        pContext->pSharedDoorState->closeDoor();
+        if((pContext->pSharedDroneState->getState() == Context::DroneStates::TAKING_OFF || pContext->pSharedDroneState->getState() == Context::DroneStates::LANDING) 
+            && pContext->pSharedHangarState->getState() == Context::HangarStates::NORMAL) {
             setState(OPENING_DOOR);
         }
         break;
@@ -23,10 +23,10 @@ void HangarDoorTask::tick(){
         }
         break;
     case HangarDoorTaskStates::OPEN:
-        pContext->pDoorState->openDoor();
-        if(pContext->pDroneState->getState() == Context::DroneStates::OPERATING || 
-            pContext->pDroneState->getState() == Context::DroneStates::REST ||
-            pContext->pHangarState->getState() == Context::HangarStates::ALARM) {
+        pContext->pSharedDoorState->openDoor();
+        if(pContext->pSharedDroneState->getState() == Context::DroneStates::OPERATING || 
+            pContext->pSharedDroneState->getState() == Context::DroneStates::REST ||
+            pContext->pSharedHangarState->getState() == Context::HangarStates::ALARM) {
             setState(CLOSING_DOOR);
         }
         break;

@@ -28,7 +28,7 @@ void HangarMainTask::tick() {
             if(checkAndSetJustEntered()) {
                 pLed->switchOn();
                 pLcd->print("DRONE INSIDE", true);
-                pContext->pDroneState->setState(Context::DroneStates::REST);
+                pContext->pSharedDroneState->setState(Context::DroneStates::REST);
             }
             Msg *pIncomingMsg = MsgService.receiveMsg();
             if (pIncomingMsg == NULL) {
@@ -40,9 +40,9 @@ void HangarMainTask::tick() {
             if (pIncomingMsg->getContent() != "TAKING_OFF") {
                 return;
             }
-            if (pContext->pHangarState->getState() == Context::HangarStates::NORMAL) {
+            if (pContext->pSharedHangarState->getState() == Context::HangarStates::NORMAL) {
                 setState(TAKING_OFF);
-                pContext->pDroneState->setState(Context::DroneStates::TAKING_OFF);
+                pContext->pSharedDroneState->setState(Context::DroneStates::TAKING_OFF);
                 pLcd->print("TAKING OFF", true);
                 pLed->switchOff();
             }
@@ -66,7 +66,7 @@ void HangarMainTask::tick() {
             }
             unsigned long now = millis();
             float elapsed = (now - lastSampleTime) * FROM_MS_TO_S;
-            if (pContext->pDoorState->isDoorOpen() && elapsed >= T1 && isFarEnough(dist)) {
+            if (pContext->pSharedDoorState->isDoorOpen() && elapsed >= T1 && isFarEnough(dist)) {
                 // Taking off succeded!
                 Msg msg(MsgTopic::DRU, "TAKING_OFF", "OK");
                 MsgService.sendMsg(msg.getFormattedMsg());
@@ -76,7 +76,7 @@ void HangarMainTask::tick() {
         }
         case HangarMainTaskStates::OPERATING: {
             if(checkAndSetJustEntered()) {
-                pContext->pDroneState->setState(Context::DroneStates::OPERATING);
+                pContext->pSharedDroneState->setState(Context::DroneStates::OPERATING);
                 pLcd->print("DRONE OUT", true);
             }
             Msg *pIncomingMsg = MsgService.receiveMsg();
@@ -89,9 +89,9 @@ void HangarMainTask::tick() {
             if (pIncomingMsg->getContent() != "LANDING") {
                 return;
             }
-            if (pContext->pHangarState->getState() == Context::HangarStates::NORMAL && DPD->isDetected()) {
+            if (pContext->pSharedHangarState->getState() == Context::HangarStates::NORMAL && DPD->isDetected()) {
                 setState(LANDING);
-                pContext->pDroneState->setState(Context::DroneStates::LANDING);
+                pContext->pSharedDroneState->setState(Context::DroneStates::LANDING);
                 pLcd->print("LANDING", true);
             }
             else {
@@ -114,7 +114,7 @@ void HangarMainTask::tick() {
             }
             unsigned long now = millis();
             float elapsed = (now - lastSampleTime) * FROM_MS_TO_S;
-            if (elapsed >= T2 && isNearEnough(dist) && pContext->pDoorState->isDoorOpen()) {
+            if (elapsed >= T2 && isNearEnough(dist) && pContext->pSharedDoorState->isDoorOpen()) {
                 setState(INSIDE);
                 Msg msg(MsgTopic::DRU, "LANDING", "OK");
                 MsgService.sendMsg(msg.getFormattedMsg());

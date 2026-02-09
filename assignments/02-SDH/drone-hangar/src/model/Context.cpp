@@ -1,9 +1,9 @@
 #include "model/Context.hpp"
 
 Context::Context(Context::DroneStates initialDroneState, HangarStates initialHangarState) :
-  pDroneState(new StateHolder<DroneStates>(initialDroneState)), 
-  pHangarState(new StateHolder<HangarStates>(initialHangarState)),
-  pDoorState(new DoorState())
+  pSharedDroneState(new StateHolder<DroneStates>(initialDroneState)), 
+  pSharedHangarState(new StateHolder<HangarStates>(initialHangarState)),
+  pSharedDoorState(new DoorState())
 { }
 
 Context::DoorState::DoorState()

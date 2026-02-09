@@ -3,9 +3,6 @@ package it.unibo.sdh.impl.model.drone;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import it.unibo.sdh.api.model.EventListener;
 import it.unibo.sdh.api.model.StateHolder;
 import it.unibo.sdh.impl.controller.DashboardController;

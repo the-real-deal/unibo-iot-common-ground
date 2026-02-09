@@ -13,10 +13,10 @@ void TemperatureMonitoringTask::tick(){
     {
         case NORMAL_STATE: {
             if (checkAndSetJustEntered()) {
-                pContext->pHangarState->setState(Context::HangarStates::NORMAL);
+                pContext->pSharedHangarState->setState(Context::HangarStates::NORMAL);
                 pLed->switchOff();
             }
-            const Context::DroneStates droneState = pContext->pDroneState->getState();
+            const Context::DroneStates droneState = pContext->pSharedDroneState->getState();
             if (droneState != Context::DroneStates::OPERATING) {
                 setState(FIRST_SAMPLING);
             }
@@ -32,12 +32,12 @@ void TemperatureMonitoringTask::tick(){
             }
             unsigned long now = millis();
             float elapsed = (now - lastSampleTime) * FROM_MS_TO_S;
-            if (pContext->pDroneState->getState() != Context::DroneStates::OPERATING && temp >= TEMP1 && elapsed >= T3) {
-                pContext->pHangarState->setState(Context::HangarStates::PRE_ALARM);
+            if (pContext->pSharedDroneState->getState() != Context::DroneStates::OPERATING && temp >= TEMP1 && elapsed >= T3) {
+                pContext->pSharedHangarState->setState(Context::HangarStates::PRE_ALARM);
                 setState(SECOND_SAMPLING);
                 return;
             }
-            if (pContext->pDroneState->getState() == Context::DroneStates::OPERATING) {
+            if (pContext->pSharedDroneState->getState() == Context::DroneStates::OPERATING) {
                 setState(NORMAL_STATE);
                 return;
             }
@@ -58,7 +58,7 @@ void TemperatureMonitoringTask::tick(){
             unsigned long now = millis();
             float elapsed = (now - lastSampleTime) * FROM_MS_TO_S;
             if (temp >= TEMP2 && elapsed >= T4) {
-                pContext->pHangarState->setState(Context::HangarStates::PRE_ALARM);
+                pContext->pSharedHangarState->setState(Context::HangarStates::PRE_ALARM);
                 setState(ALARM);
             }
             break;
@@ -71,7 +71,7 @@ void TemperatureMonitoringTask::tick(){
                 this->pLcd->print("ALARM");
             }
 
-            Context::DroneStates droneState = pContext->pDroneState->getState();
+            Context::DroneStates droneState = pContext->pSharedDroneState->getState();
             if (droneState == Context::DroneStates::OPERATING && shouldNotifyDrone) {
                 Msg msg(MsgTopic::SDH, "ALARM");
                 MsgService.sendMsg(msg.getFormattedMsg());

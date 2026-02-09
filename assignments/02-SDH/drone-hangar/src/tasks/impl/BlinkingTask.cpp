@@ -12,8 +12,8 @@ void BlinkingTask::tick(){
         if (this->checkAndSetJustEntered()){
             pLed->switchOff();
         }
-        if (pContext->pDroneState->getState() == Context::DroneStates::TAKING_OFF || 
-            pContext->pDroneState->getState() == Context::DroneStates::LANDING) {
+        if (pContext->pSharedDroneState->getState() == Context::DroneStates::TAKING_OFF || 
+            pContext->pSharedDroneState->getState() == Context::DroneStates::LANDING) {
             setState(ON);
         }
         break;

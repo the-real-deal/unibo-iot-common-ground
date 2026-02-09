@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import it.unibo.sdh.api.model.CommunicationChannel;
 import it.unibo.sdh.api.model.MessageEncoder;
 import it.unibo.sdh.api.model.StateHolder;
 import it.unibo.sdh.impl.model.MessageEncoderImpl;

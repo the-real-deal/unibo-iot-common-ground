@@ -31,9 +31,9 @@ public:
   };
   
   // Shared variables among tasks: the ones you can see in the FSM diagram of the project.
-  StateHolder<DroneStates>* pDroneState;
-  StateHolder<HangarStates>* pHangarState;
-  DoorState *pDoorState;
+  StateHolder<DroneStates>* pSharedDroneState;
+  StateHolder<HangarStates>* pSharedHangarState;
+  DoorState *pSharedDoorState;
 };
 
 #endif
