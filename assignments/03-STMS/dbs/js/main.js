@@ -58,10 +58,12 @@ function updateUI() {
 }
 
 function toggleMode() {
-    mode = (mode === "AUTOMATIC") ? "MANUAL" : "AUTOMATIC";
-    updateUI();
-
-    console.log("Mode changed to:", mode);
+    if(mode != "NOT_AVAILABE" && mode != "UNCONNECTED"){
+        mode = (mode === "AUTOMATIC") ? "MANUAL" : "AUTOMATIC";
+        updateUI();
+        
+        console.log("Mode changed to:", mode);
+    }
 }
 
 function updateValveValue() {
