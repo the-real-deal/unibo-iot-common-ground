@@ -1,7 +1,7 @@
 #include "tasks/api/BlinkingTask.hpp"
 
 BlinkingTask::BlinkingTask(Led* pLed, Context* pContext): 
-    pContext(pContext), pLed(pLed) {
+    pTaskState(new StateHolder<BlinkingTaskStates>(OFF)),  pContext(pContext), pLed(pLed) {
     setState(OFF);
 }
 
