@@ -28,6 +28,7 @@ public class HttpAgent extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         final var msgChannel = vertx.eventBus();
+        // Event bus registrations
         msgChannel.consumer("tank.waterlevel", msg -> {
             final var content = String.valueOf(msg.body());
             final var sender = content.split(":")[0];
@@ -62,6 +63,7 @@ public class HttpAgent extends AbstractVerticle {
             logger.atInfo().log("tank.valveopening updated internal state with: ".concat(value));
         });
 
+        // HTTP Endpoints setup
         final var server = vertx.createHttpServer();
         final var router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
@@ -137,7 +139,7 @@ public class HttpAgent extends AbstractVerticle {
                         .end(res.getAsString());
                 logger.atInfo().log("POST /api/valve-opening -> Updated to " + newMode);
             } else {
-                response.setStatusCode(400).end("Missing 'opening' property");
+                response.setStatusCode(400).end("Missing 'status' property");
             }
         });
 
