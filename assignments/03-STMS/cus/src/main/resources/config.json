@@ -10,7 +10,7 @@
         "brokerAddress": "tcp://localhost:manca-porta",
         "clientID": "tcp://localhost:manca-porta",
         "topic": "tank/level",
-        "port": 1234
+        "port": 20000
     },
     "http": {
         "port": 8080

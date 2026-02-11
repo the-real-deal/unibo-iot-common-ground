@@ -23,23 +23,27 @@ public class SerialAgent extends AbstractVerticle implements SerialPortEventList
     private String senderID;
 
     public SerialAgent(
-        final String portName, 
-        final int baudRate, 
-        final Context sharedData) throws SerialPortException {
+            final String portName,
+            final int baudRate,
+            final Context sharedData) {
+        try {
+            this.port = new SerialPort(portName);
+            this.port.openPort();
+            this.port.setParams(
+                    baudRate,
+                    SerialPort.DATABITS_8,
+                    SerialPort.STOPBITS_1,
+                    SerialPort.PARITY_NONE);
+            this.port.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
+            this.port.addEventListener(this);
+        } catch (SerialPortException e) {
+            logger.error("Could not open serial port!");
+        }
         this.currentMessage = new StringBuffer("");
-        this.port = new SerialPort(portName);
-        this.port.openPort();
-        this.port.setParams(
-                baudRate,
-                SerialPort.DATABITS_8,
-                SerialPort.STOPBITS_1,
-                SerialPort.PARITY_NONE);
-        this.port.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
-        this.port.addEventListener(this);
         this.senderID = SerialAgent.class.getName();
     }
 
-    public SerialAgent(final String portName, final Context sharedData) throws SerialPortException {
+    public SerialAgent(final String portName, final Context sharedData) {
         this(portName, SerialPort.BAUDRATE_9600, sharedData);
     }
 
@@ -50,23 +54,23 @@ public class SerialAgent extends AbstractVerticle implements SerialPortEventList
             try {
                 final var rawMessage = port.readString(serialPortEvent.getEventValue());
                 currentMessage.append(rawMessage);
-            } catch (final SerialPortException ex) { }
+            } catch (final SerialPortException ex) {
+            }
             boolean goAhead = true;
             while (goAhead) {
                 final var finalMessage = currentMessage.toString();
                 final var indexOfNewLine = finalMessage.indexOf("\n");
                 if (indexOfNewLine >= 0) {
                     final var msg = finalMessage.substring(0, indexOfNewLine);
+                    logger.atInfo().log("SERIAL-READ: " + msg);
                     if (msg.contains("VALVE")) {
                         msgChannel.publish(
-                            "tank.valveopening", 
-                            senderID + ":" + msg.split(":")[1]
-                        );
+                                "tank.valveopening",
+                                senderID + ":" + msg.split(":")[1]);
                     } else if (msg.contains("MODE")) {
                         msgChannel.publish(
-                            "system.inputmode", 
-                            senderID + ":" + msg.split(":")[1]
-                        );
+                                "system.inputmode",
+                                senderID + ":" + msg.split(":")[1]);
                     }
                     currentMessage = new StringBuffer("");
                     if (indexOfNewLine + 1 < finalMessage.length()) {
@@ -90,8 +94,9 @@ public class SerialAgent extends AbstractVerticle implements SerialPortEventList
             synchronized (port) {
                 port.writeBytes(bytes);
             }
-            logger.atInfo().log("|DRU -> SDH| " + message);
-        } catch (final SerialPortException ex) { }
+            logger.atInfo().log("SERIAL-SEND: " + message);
+        } catch (final SerialPortException ex) {
+        }
     }
 
     @Override
@@ -101,7 +106,8 @@ public class SerialAgent extends AbstractVerticle implements SerialPortEventList
                 port.removeEventListener();
                 port.closePort();
             }
-        } catch (final Exception ex) { }
+        } catch (final Exception ex) {
+        }
     }
 
     @Override
