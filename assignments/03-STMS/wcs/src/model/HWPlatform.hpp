@@ -7,8 +7,6 @@
 #include "devices/api/Valve.hpp"
 #include "devices/api/Lcd.hpp"
 
-#define LEDS_COUNT 3
-
 class HWPlatform
 {
 
