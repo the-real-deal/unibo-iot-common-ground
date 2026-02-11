@@ -63,7 +63,7 @@ public final class AppLauncher {
                     sysProps.get("T2").getAsLong(),
                     sysProps.get("L1").getAsDouble(),
                     sysProps.get("L2").getAsDouble(),
-                    sharedData)).onSuccess(aid -> {
+                    sharedData.getCopy())).onSuccess(aid -> {
                     logger.info("Deployed CoreAgent");
                 });
 
@@ -71,19 +71,19 @@ public final class AppLauncher {
                     mqttProps.get("clientID").getAsString(),
                     mqttProps.get("topic").getAsString(),
                     mqttProps.get("port").getAsInt(),
-                    sharedData)).onSuccess(aid -> {
+                    sharedData.getCopy())).onSuccess(aid -> {
                     logger.info("Deployed MqttAgent");
                 });
 
                 vertx.deployVerticle(new HttpAgent(
                     httpsProps.get("port").getAsInt(), 
-                    sharedData)).onSuccess(aid -> {
+                    sharedData.getCopy())).onSuccess(aid -> {
                     logger.info("Deployed HttpAgent");
                 });
 
                 vertx.deployVerticle(new SerialAgent(
                     serialProps.get("port").getAsString(), 
-                    sharedData)).onSuccess(aid -> {
+                    sharedData.getCopy())).onSuccess(aid -> {
                     logger.info("Deployed SerialAgent");
                 });
             })
