@@ -1,0 +1,21 @@
+{
+    "sysParams": {
+        "L1": -1, 
+        "L2": -1, 
+        "T1": -1, 
+        "T2": -1,
+        "F": -1
+    },
+    "mqtt": {
+        "brokerAddress": "tcp://localhost:manca-porta",
+        "clientID": "tcp://localhost:manca-porta",
+        "topic": "tank/level",
+        "port": 1234
+    },
+    "http": {
+        "port": 8080
+    },
+    "serial": {
+        "port": "/dev/arduino-port"
+    }
+}
