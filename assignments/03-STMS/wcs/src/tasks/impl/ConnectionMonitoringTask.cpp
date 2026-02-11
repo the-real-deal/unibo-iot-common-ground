@@ -9,12 +9,12 @@ ConnectionMonitoringTask::ConnectionMonitoringTask(Context *pContext) :
 void ConnectionMonitoringTask::tick()
 {
     ConnectionMonitoringTaskStates currentTaskState = pTaskState->getState();
-    switch(currentTaskState) 
+    switch (currentTaskState) 
     {
         case RUNNING: {
-            pContext->pGlobalSystemState->setState(Serial.available() ? 
-                Context::SystemStates::AVAILABLE : 
-                Context::SystemStates::NOT_AVAILABLE);
+            // pContext->pGlobalSystemState->setState(Serial.available() > 0 || MsgService.isMsgAvailable() ? 
+            //     Context::SystemStates::AVAILABLE : 
+            //     Context::SystemStates::NOT_AVAILABLE);
             break;
         }
 

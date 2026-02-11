@@ -16,6 +16,6 @@
         "port": 8080
     },
     "serial": {
-        "port": "/dev/arduino-port"
+        "port": "/dev/cu.usbmodem1201"
     }
 }

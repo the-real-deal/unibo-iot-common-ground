@@ -31,7 +31,7 @@ const API = {
             }
             
             const data = await response.json();
-            console.log('[CUS] getWaterLevels:', data.count, 'points');
+            console.log('[CUS] getWaterLevels:', data, 'points');
             return data;
             
         } catch (error) {

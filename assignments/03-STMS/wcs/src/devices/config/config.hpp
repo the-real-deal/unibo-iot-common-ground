@@ -5,12 +5,12 @@
 
 #define LCD_I2C_ADDRESS         0x27
 
-#define VALVE_OPEN_POS          2250     // Door open position (90 degrees)
-#define VALVE_CLOSE_POS         750       // Door close position (0 degrees)
+#define VALVE_OPEN_POS          2250        // Door open position (90 degrees)
+#define VALVE_CLOSE_POS         750         // Door close position (0 degrees)
 
-#define ADC_RESOLUTION          1024.0  // Resolution of analog to digital conversion
-#define VCC                     5.0     // Voltage
+#define ADC_RESOLUTION          1024.0      // Resolution of analog to digital conversion
+#define VCC                     5.0         // Voltage
 
-#define SCALE                   1024/4  // SCALE for pot
+#define SCALE                   1024/100    // SCALE for pot
 
 #endif

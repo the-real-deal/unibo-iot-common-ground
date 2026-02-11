@@ -6,6 +6,7 @@
 #include "devices/api/Button.hpp"
 #include "devices/api/Valve.hpp"
 #include "devices/api/Lcd.hpp"
+#include "devices/api/Pot.hpp"
 
 class HWPlatform
 {
@@ -15,12 +16,12 @@ public:
   Button *getModeToggleButton();
   Valve *getValve();
   Lcd *getOperatorLCD();
-  // TODO: missing pot!
+  Pot *getPotentiometer();
 private:
   Button *pModeToggleButton;
   Valve *pServoValve;
   Lcd *pOperatorLCD;
-  // TODO: missing pot!
+  Pot *pPot;
 };
 
 #endif

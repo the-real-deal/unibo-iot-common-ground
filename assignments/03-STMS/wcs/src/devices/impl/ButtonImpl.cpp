@@ -7,7 +7,7 @@
 * Button Constructor
 */
 Button::Button(int pin) : pin(pin), lastPressedTime(0), justClicked(false){
-  pinMode(pin, INPUT_PULLUP);
+  pinMode(pin, INPUT);
 }
 
 /*

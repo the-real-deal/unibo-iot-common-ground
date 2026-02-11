@@ -2,6 +2,7 @@
 #define __CONN_TASK__
 
 #include "kernel/SyncTask.hpp"
+#include "kernel/MsgService.hpp"
 #include "model/Context.hpp"
 #include "model/StateHolder.hpp"
 #include "Arduino.h"
@@ -16,8 +17,8 @@ public:
 private:  
   void setState(ConnectionMonitoringTaskStates state);
   
-  StateHolder<ConnectionMonitoringTaskStates>* pTaskState;
   Context* pContext;
+  StateHolder<ConnectionMonitoringTaskStates>* pTaskState;
 };
 
 #endif
