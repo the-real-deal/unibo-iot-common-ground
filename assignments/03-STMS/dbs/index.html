@@ -13,11 +13,11 @@
     <main>
         <section>
             <h2>System Status</h2>
-            <div id="status">AUTOMATIC</div>
+            <div id="status"></div>
         </section>
         <section>
             <h2>Valve Control</h2>
-            <p>Current opening: <span id="valve">0</span>%</p>
+            <p>Current opening: <span id="valve">0%</span></p>
             
             <div id="manual-control">
             <input type="range" id="valve-slider" min="0" max="100" value="0" oninput="updateValveValue()">
@@ -35,5 +35,7 @@
     </footer>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="js/main.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/main.js"></script>
 </html>

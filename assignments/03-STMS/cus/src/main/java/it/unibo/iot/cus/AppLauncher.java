@@ -45,7 +45,7 @@ public final class AppLauncher {
         final var vertx = Vertx.vertx();
         final var sharedData = new Context(
             new WaterLevelSampleData(0),
-            InputMode.AUTOMATIC,
+            InputMode.MANUAL,
             0);
 
         final var mqttProps = loadedConf.get("mqtt").getAsJsonObject();

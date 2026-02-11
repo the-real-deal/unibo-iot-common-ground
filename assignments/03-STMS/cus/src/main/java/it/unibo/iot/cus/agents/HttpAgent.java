@@ -84,7 +84,7 @@ public class HttpAgent extends AbstractVerticle {
             res.addProperty(
                     "status",
                     this.sharedData.getInputMode().name());
-            final var output = res.getAsString();
+            final var output = res.toString();
             response.end(output);
             logger.atInfo().log("GET /api/status -> ".concat(output));
         });
@@ -99,7 +99,7 @@ public class HttpAgent extends AbstractVerticle {
             res.addProperty(
                     "timestampMS",
                     this.sharedData.getLastWaterLevelSample().timestampMs());
-            final var output = res.getAsString();
+            final var output = res.toString();
             response.end(output);
             logger.atInfo().log("GET /api/water-level -> ".concat(output));
         });
@@ -109,7 +109,7 @@ public class HttpAgent extends AbstractVerticle {
             response.putHeader("content-type", "application/json");
             final var res = new JsonObject();
             res.addProperty("opening", this.sharedData.getValveOpeningPercentage());
-            final var output = res.getAsString();
+            final var output = res.toString();
             response.end(output);
             logger.atInfo().log("GET /api/valve-opening -> ".concat(output));
         });
@@ -126,7 +126,7 @@ public class HttpAgent extends AbstractVerticle {
                 msgChannel.publish("tank.valveopening", this.senderID.concat(":" + String.valueOf(newOpening)));
                 response.setStatusCode(200)
                         .putHeader("content-type", "application/json")
-                        .end(res.getAsString());
+                        .end(res.toString());
                 logger.atInfo().log("POST /api/valve-opening -> Updated to " + newOpening);
             } else {
                 response.setStatusCode(400).end("Missing 'opening' property");
@@ -145,7 +145,7 @@ public class HttpAgent extends AbstractVerticle {
                 msgChannel.publish("system.inputmode", this.senderID.concat(":" + newMode.name()));
                 response.setStatusCode(200)
                         .putHeader("content-type", "application/json")
-                        .end(res.getAsString());
+                        .end(res.toString());
                 logger.atInfo().log("POST /api/valve-opening -> Updated to " + newMode);
             } else {
                 response.setStatusCode(400).end("Missing 'status' property");

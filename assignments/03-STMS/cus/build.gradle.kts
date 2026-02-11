@@ -51,7 +51,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass.set("it.mypckg.sampleapp.AppLauncher")
+    mainClass.set("it.unibo.iot.cus.AppLauncher")
 }
 
 tasks.withType<Test>().configureEach {
