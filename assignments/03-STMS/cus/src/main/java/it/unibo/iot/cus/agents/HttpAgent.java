@@ -1,9 +1,11 @@
 package it.unibo.iot.cus.agents;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import it.unibo.iot.cus.model.Context;
 import it.unibo.iot.cus.model.InputMode;
 import it.unibo.iot.cus.model.WaterLevelSampleData;
@@ -23,6 +25,7 @@ public class HttpAgent extends AbstractVerticle {
         this.port = port;
         this.sharedData = sharedData;
         this.senderID = HttpAgent.class.getName();
+		logger.atInfo().log("new agent created.");
     }
 
     @Override
@@ -67,7 +70,13 @@ public class HttpAgent extends AbstractVerticle {
         final var server = vertx.createHttpServer();
         final var router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
-
+        // Enable CORS with specific settings
+        router.route().handler(CorsHandler.create("*")
+            .allowedMethod(HttpMethod.GET)
+            .allowedMethod(HttpMethod.POST)
+            .allowedHeader("Content-Type")
+            // .allowedHeader("Authorization") // TODO: uncomment if needed
+        );
         router.get("/api/status").handler(ctx -> {
             HttpServerResponse response = ctx.response();
             response.putHeader("content-type", "application/json");

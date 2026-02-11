@@ -20,6 +20,7 @@ public class CoreAgent extends AbstractVerticle {
         this.L1 = l1; this.L2 = l2;
         this.sharedData = sharedData.getCopy();
         this.senderID = CoreAgent.class.getName();
+		logger.atInfo().log("new agent created.");
     }
 
     @Override
@@ -28,11 +29,11 @@ public class CoreAgent extends AbstractVerticle {
         msgChannel.consumer("tank.waterlevel", msg -> {
             final var content = String.valueOf(msg.body());
             final var sender = content.split(":")[0];
-            // avoid echo
+            // avoid echo (here not needed)
             if (sender.equals(this.senderID)) {
                 return;
             }
-            restartTMSConnectionTimer();
+            restartTMSConnectionTimeoutTimer();
             final var waterLevel = Double.valueOf(content.split(":")[1]);
             this.sharedData.setLastWaterLevelSample(new WaterLevelSampleData(waterLevel));
             logger.atInfo().log("tank.waterlevel updated internal state with: ".concat(content));
@@ -82,12 +83,12 @@ public class CoreAgent extends AbstractVerticle {
             logger.atInfo().log("tank.valveopening updated internal state with: ".concat(value));
         });
         
-        restartTMSConnectionTimer();
+        restartTMSConnectionTimeoutTimer();
         restartThresholdTimer();
         restartEmptyingTimer();
     }
     
-    private void restartTMSConnectionTimer() {
+    private void restartTMSConnectionTimeoutTimer() {
         // Checks connection with TMS
         vertx.setTimer(T2, (timerID) -> {
             this.sharedData.setInputMode(InputMode.UNCONNECTED);
