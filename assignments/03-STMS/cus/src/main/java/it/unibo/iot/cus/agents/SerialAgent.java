@@ -41,6 +41,7 @@ public class SerialAgent extends AbstractVerticle implements SerialPortEventList
         }
         this.currentMessage = new StringBuffer("");
         this.senderID = SerialAgent.class.getName();
+        this.sharedData = sharedData;
     }
 
     public SerialAgent(final String portName, final Context sharedData) {

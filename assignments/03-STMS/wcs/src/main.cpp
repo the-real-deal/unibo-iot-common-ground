@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <kernel/MsgService.hpp>
 
 // put function declarations here:
 int myFunction(int, int);

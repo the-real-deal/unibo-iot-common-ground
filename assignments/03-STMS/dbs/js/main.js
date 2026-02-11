@@ -102,7 +102,7 @@ function updateChart(waterData) {
         waterChart.data.labels.shift();
         waterChart.data.datasets[0].data.shift();
     }
-    waterChart.update();
+    waterChart.update('none');
 }
 
 function updateUI() {
