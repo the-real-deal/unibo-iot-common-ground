@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import it.unibo.iot.cus.agents.CoreAgent;
 import it.unibo.iot.cus.agents.HttpAgent;
