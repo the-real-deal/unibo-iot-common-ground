@@ -4,7 +4,7 @@
 enum DataSenderTaskStates { OFFLINE, ONLINE };
 class DataSenderTask: public SyncTask {
 public:
-  DataSenderTask(Lcd* pLcd, Context* pContext); 
+  DataSenderTask(Context* pContext); 
   void tick();
 
 private:  

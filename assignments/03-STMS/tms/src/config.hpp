@@ -12,4 +12,10 @@
 #define FROM_S_TO_MS        1000l
 #define FROM_US_TO_S        0.000001f
 
+#define MQTT_SERVER "localhost"
+#define MQTT_PORT 8883
+#define TIMEOUT_MQTT_RECONNECTION 5000
+#define MQTT_MSG_BUFFER_SIZE 50
+#define MQTT_TOPIC "tank/water-level"
+
 #endif

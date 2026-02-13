@@ -6,7 +6,6 @@ HWSampleWaterLevelTask::HWSampleWaterLevelTask(Sonar* pSonar, Context* pContext)
 
 void HWSampleWaterLevelTask::tick()
 {
-    pWaterLevel = pSonar->getDistance();
-    pContext->waterLevel = pWaterLevel;
+    pContext->waterLevel = pSonar->getDistance();
 }
 

@@ -1,6 +1,6 @@
 #include "tasks/api/DataSenderTask.hpp"
 
-DataSenderTask::DataSenderTask( Context *pContext) :
+DataSenderTask::DataSenderTask(Context *pContext) :
     pTaskState(new StateHolder<DataSenderTaskStates>(OFFLINE)),
     pContext(pContext)
 {
@@ -35,7 +35,7 @@ void DataSenderTask::tick()
     }
 }
 
-void SerialReaderTask::setState(SerialReaderTaskStates state)
+void DataSenderTask::setState(DataSenderTaskStates state)
 {
     this->justEntered = true;
     this->pTaskState->setState(state);

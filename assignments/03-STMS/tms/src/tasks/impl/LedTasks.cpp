@@ -38,7 +38,7 @@ void LedsTask::tick()
     }
 }
 
-void LedTaskStates::setState(LedsTaskStates state)
+void LedsTask::setState(LedsTaskStates state)
 {
     this->justEntered = true;
     this->pTaskState->setState(state);
