@@ -2,18 +2,19 @@
 #define __POT__
 
 #include "Arduino.h"
+#include "devices/api/AbstractDevice.hpp"
+#include "devices/config/config.hpp"
+#include "events/EventPublisher.hpp"
+#include "events/PotEvent.hpp"
 
-/* POtentiometer Class:
+/* Potentiometer Class:
  *  Interface for a potentiometer connected to an analog pin.
  */
-class Pot
+class Pot: public AbstractDevice, public EventPublisher 
 {
 public:
-  Pot(int pin);
+  Pot(uint8_t pin, EventQueue *queue);
   float getValue();
-
-private:
-  const int pin;
 };
 
 #endif

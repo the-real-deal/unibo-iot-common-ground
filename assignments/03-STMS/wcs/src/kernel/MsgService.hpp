@@ -2,56 +2,15 @@
 #define __MSGSERVICE__
 
 #include "Arduino.h"
-enum class MsgTopic { VALVE, MODE, Unknown };
+#include "kernel/Msg.hpp"
+#include "events/EventPublisher.hpp"
+#include "events/EventQueue.hpp"
+#include "events/SerialEvent.hpp"
 
-class Msg 
-{
-private:
-  MsgTopic topic;
-  String content;
-  String value;
-
-public:
-  Msg(MsgTopic topic, String content):
-    topic(topic), content(content), value("") {
-  }
-
-  Msg(MsgTopic topic, String content, String value):
-    topic(topic), content(content), value(value) {
-  }
-  
-  MsgTopic getTopic() {
-    return topic;
-  }
-
-  String getContent(){
-    return content;
-  }
-
-  String getValue(){
-    return value;
-  }
-
-  String getFormattedMsg() {
-    String topicStr;
-    switch(topic) {
-        case MsgTopic::VALVE: topicStr = "VALVE"; break;
-        case MsgTopic::MODE: topicStr = "MODE"; break;
-        default: topicStr = "Unknown"; break;
-    }
-
-    String out = topicStr + ":" + content;
-    if (value != "") {
-      out += ":" + value;
-    }
-    return out;
-  }
-};
-
-class MsgServiceClass 
+class MsgServiceClass: public EventPublisher
 {
 public: 
-  
+  MsgServiceClass(EventQueue *queue);
   Msg* currentMsg;
   bool msgAvailable;
 
@@ -62,7 +21,5 @@ public:
 
   void sendMsg(const String& msg);
 };
-
-extern MsgServiceClass MsgService;
 
 #endif

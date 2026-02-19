@@ -1,11 +1,9 @@
 #include "devices/api/Pot.hpp"
-#include "Arduino.h"
-#include "devices/config/config.hpp"
 
 /*
  * Pot Constructor
  */
-Pot::Pot(int pin) : pin(pin)
+Pot::Pot(uint8_t pin, EventQueue *queue) : AbstractDevice(pin), EventPublisher(queue)
 {
   pinMode(pin, INPUT);
 }

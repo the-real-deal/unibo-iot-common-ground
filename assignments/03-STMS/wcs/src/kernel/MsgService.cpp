@@ -1,10 +1,14 @@
-#include "Arduino.h"
-#include "MsgService.hpp"
+#include "kernel/MsgService.hpp"
 
-String content;
-String topic;
+static String content;
+static String topic;
+static MsgServiceClass *instance = nullptr;
 
-MsgServiceClass MsgService;
+MsgServiceClass::MsgServiceClass(EventQueue * queue) : EventPublisher(queue) 
+{
+  instance = this;
+  this->init();
+}
 
 bool MsgServiceClass::isMsgAvailable(){
   return msgAvailable;
@@ -25,9 +29,7 @@ Msg* MsgServiceClass::receiveMsg(){
 
 void MsgServiceClass::init(){
   Serial.begin(9600);
-  // longest message content: "TAKING_OFF" -> 10 chars, 8 bytes each
   content.reserve(80);
-  // possible topics: DU; SH -> 2 chars, 8 bytes each
   topic.reserve(16);
   topic = "";
   content = "";
@@ -36,11 +38,26 @@ void MsgServiceClass::init(){
 }
 
 void MsgServiceClass::sendMsg(const String& msg){
-  Serial.println(msg);  
+  if (!Serial) {
+    publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
+    return;
+  }
+  int availableBytes = Serial.availableForWrite();
+  if (availableBytes < (int)msg.length()) 
+  {
+    publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
+    return;
+  }
+  Serial.println(msg);
+  // waits to send data
+  Serial.flush();  
 }
 
 void serialEvent() {
-  if (!Serial.available()) {
+  if (instance == nullptr) return;
+
+  if (Serial.available() <= 0) {
+    instance->publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
     return;
   }
   bool separatorSurpassed = false;
@@ -62,8 +79,11 @@ void serialEvent() {
       } else if (topic.equalsIgnoreCase("MODE")) {
         decodedTopic = MsgTopic::MODE;
       }
-      MsgService.currentMsg = new Msg(decodedTopic, content);
-      MsgService.msgAvailable = true;      
+      instance->publish(
+        new SerialEvent(new Msg(decodedTopic, content))
+      );
+      instance->currentMsg = new Msg(decodedTopic, content);
+      instance->msgAvailable = true;      
     }
   }
 }

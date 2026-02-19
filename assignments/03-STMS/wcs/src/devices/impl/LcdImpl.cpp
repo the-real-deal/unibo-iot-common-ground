@@ -1,13 +1,14 @@
 #include "devices/api/Lcd.hpp"
-#include "devices/config/config.hpp"
-#include "Arduino.h"
 
 String msg;
 
 /*
  * Lcd Constructor
  */
-Lcd::Lcd() : display(LCD_I2C_ADDRESS, 16, 2) {
+Lcd::Lcd() : 
+  AbstractDevice(LCD_I2C_ADDRESS), display(LCD_I2C_ADDRESS, 16, 2) 
+{ 
+  init();
 }
 
 /*

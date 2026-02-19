@@ -1,14 +1,19 @@
 #include "devices/api/Valve.hpp"
-#include "Arduino.h"
-#include "devices/config/config.hpp"
 
 /*
 * Door Constructor
 */
-Valve::Valve(int pin) : pin(pin) {
+Valve::Valve(uint8_t pin) : AbstractDevice(pin) {
   motor.attach(pin);
 }
 
-void Valve::setOpening(int angle) {
-  motor.write(constrain(angle, VALVE_CLOSE_POS, VALVE_OPEN_POS));
+void Valve::setOpening(float angle, long min, long max) {
+  int newOpening = map(
+    (long)constrain(angle, min, max), 
+    min, 
+    max, 
+    VALVE_CLOSE_POS, 
+    VALVE_OPEN_POS
+  );
+  motor.write(newOpening);
 }

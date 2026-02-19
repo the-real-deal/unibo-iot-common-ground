@@ -1,18 +1,15 @@
-#include "model/HWPlatform.hpp"
 #include "HWPlatform.hpp"
 
-void wakeUp() {}
+Button *HWPlatform::getModeToggleButton() { return get<Button *>(); }
+Valve *HWPlatform::getValve() { return get<Valve *>(); }
+Lcd *HWPlatform::getOperatorLCD() { return get<Lcd *>(); }
+Pot *HWPlatform::getPotentiometer() { return get<Pot *>(); }
 
-HWPlatform::HWPlatform()
+void HWPlatform::add(AbstractDevice *device)
 {
-  pPot = new Pot(POTENTIOMETER_PIN);
-  pModeToggleButton = new Button(BUTTON_PIN);
-  pServoValve = new Valve(VALVE_PIN);
-  pOperatorLCD = new Lcd();
-  pOperatorLCD->init();
+    if (lastDevice >= NUM_DEVICES || device == nullptr)
+    {
+      return;
+    }
+    devices[lastDevice++] = device;
 }
-
-Button *HWPlatform::getModeToggleButton() { return this->pModeToggleButton; }
-Valve *HWPlatform::getValve() { return this->pServoValve; }
-Lcd *HWPlatform::getOperatorLCD() { return this->pOperatorLCD; }
-Pot *HWPlatform::getPotentiometer() { return this->pPot; }

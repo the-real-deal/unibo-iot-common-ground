@@ -3,11 +3,13 @@
 
 #include "Arduino.h"
 #include "LiquidCrystal_I2C.h"
+#include "devices/api/AbstractDevice.hpp"
+#include "devices/config/config.hpp"
 
 /* Lcd Class:
  *  Interface for an LCD display connected via I2C.
  */
-class Lcd
+class Lcd: public AbstractDevice
 {
 public:
   Lcd();
