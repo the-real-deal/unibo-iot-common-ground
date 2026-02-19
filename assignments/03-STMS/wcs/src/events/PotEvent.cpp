@@ -1,3 +1,3 @@
-#include "PotEvent.hpp"
+#include "events/PotEvent.hpp"
 
 PotEvent::PotEvent(float value) : Event(value) {}

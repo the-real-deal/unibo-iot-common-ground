@@ -1,3 +1,3 @@
-#include "ButtonEvent.hpp"
+#include "events/ButtonEvent.hpp"
 
 ButtonEvent::ButtonEvent(bool value) : Event(value) { }

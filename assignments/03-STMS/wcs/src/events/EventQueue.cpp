@@ -1,4 +1,4 @@
-#include "EventQueue.hpp"
+#include "events/EventQueue.hpp"
 
 EventQueue::EventQueue() : queue(new LinkedList<IEvent*>()) { }
 void EventQueue::enqueue(IEvent *evt) { queue->unshift(evt); }

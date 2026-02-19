@@ -15,7 +15,7 @@ class AsyncFSM
 {
 public:
     AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue);
-    void processEvent();
+    void checkAndProcessEvent();
 private:
     Lcd *lcd;
     Pot *potentiometer;

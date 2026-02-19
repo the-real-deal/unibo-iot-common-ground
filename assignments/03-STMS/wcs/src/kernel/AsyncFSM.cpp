@@ -39,13 +39,20 @@ void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
     return;
 }
 
-void AsyncFSM::processEvent()
+void AsyncFSM::checkAndProcessEvent()
 {
+    noInterrupts();
+    bool isEmpty = queue->isEmpty();
+    interrupts();
     // Exit early if no events occurred
-    if (queue->isEmpty())
+    if (isEmpty) 
+    {
         return;
-
+    }
+    noInterrupts();
     IEvent *evt = queue->dequeue();
+    interrupts();
+
     SystemState currentSystemState = this->state->getState();
 
     SerialEvent *serialEvt = static_cast<SerialEvent *>(evt);

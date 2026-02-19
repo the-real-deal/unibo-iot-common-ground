@@ -25,5 +25,5 @@ void setup() {
 }
 
 void loop() {
-  asyncFSM->processEvent();
+  asyncFSM->checkAndProcessEvent();
 }
