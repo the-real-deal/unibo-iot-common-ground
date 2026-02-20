@@ -8,8 +8,8 @@
 
 AsyncFSM* asyncFSM;
 HWPlatform* pHWPlatform;
-EventQueue *sharedQueue;
-MsgServiceClass *msgService;
+EventQueue* sharedQueue;
+MsgServiceClass* msgService;
 
 void setup() {
   sharedQueue = new EventQueue();
@@ -26,5 +26,5 @@ void setup() {
 
 void loop() {
   asyncFSM->checkAndProcessEvent();
-  delay(500);
+  delay(100);
 }
