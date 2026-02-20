@@ -16,37 +16,17 @@ class HWPlatform
 {
 
 public:
-  HWPlatform(EventQueue *queue) : lastDevice(0)
-  {
-    add(new Pot(POTENTIOMETER_PIN, queue));
-    add(new Button(BUTTON_PIN, queue));
-    add(new Valve(VALVE_PIN));
-    add(new Lcd());
-  }
+  HWPlatform(EventQueue *queue);
   Button *getModeToggleButton();
   Valve *getValve();
   Lcd *getOperatorLCD();
   Pot *getPotentiometer();
 
 private:
-  int lastDevice;
-  AbstractDevice *devices[NUM_DEVICES];
-
-  void add(AbstractDevice *device);
-
-  template <typename T>
-  T get()
-  {
-    for (int i = 0; i <= lastDevice; i++)
-    {
-      T target = static_cast<T>(devices[i]);
-      if (target != nullptr)
-      {
-        return target;
-      }
-    }
-    return nullptr;
-  }
+  Button *pButton;
+  Valve *pValve;
+  Lcd *pLcd;
+  Pot *pPot;
 };
 
 #endif

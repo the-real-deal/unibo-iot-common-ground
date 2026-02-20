@@ -5,7 +5,6 @@
 #include "model/StateHolder.hpp"
 #include "events/EventQueue.hpp"
 #include "events/ButtonEvent.hpp"
-#include "events/PotEvent.hpp"
 #include "events/SerialEvent.hpp"
 #include "devices/config/config.hpp"
 

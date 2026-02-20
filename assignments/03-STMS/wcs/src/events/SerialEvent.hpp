@@ -8,7 +8,8 @@
 class SerialEvent: public Event<Msg*> 
 { 
 public:
-    SerialEvent(Msg* value);
+    SerialEvent(Msg* value);    
     ~SerialEvent() override { delete this->value; }
+    EventType getType() const override;
 }; 
 #endif

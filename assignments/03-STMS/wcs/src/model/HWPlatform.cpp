@@ -1,15 +1,15 @@
 #include "HWPlatform.hpp"
 
-Button *HWPlatform::getModeToggleButton() { return get<Button *>(); }
-Valve *HWPlatform::getValve() { return get<Valve *>(); }
-Lcd *HWPlatform::getOperatorLCD() { return get<Lcd *>(); }
-Pot *HWPlatform::getPotentiometer() { return get<Pot *>(); }
-
-void HWPlatform::add(AbstractDevice *device)
+HWPlatform::HWPlatform(EventQueue *queue) : 
+    pButton(new Button(BUTTON_PIN, queue)),
+    pValve(new Valve(VALVE_PIN)),
+    pLcd(new Lcd()),
+    pPot(new Pot(POTENTIOMETER_PIN, queue))
 {
-    if (lastDevice >= NUM_DEVICES || device == nullptr)
-    {
-      return;
-    }
-    devices[lastDevice++] = device;
+    pLcd->init();
 }
+
+Button *HWPlatform::getModeToggleButton() { return pButton; }
+Valve *HWPlatform::getValve() { return pValve; }
+Lcd *HWPlatform::getOperatorLCD() { return pLcd; }
+Pot *HWPlatform::getPotentiometer() { return pPot; }

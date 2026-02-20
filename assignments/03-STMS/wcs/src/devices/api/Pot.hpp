@@ -5,7 +5,6 @@
 #include "devices/api/AbstractDevice.hpp"
 #include "devices/config/config.hpp"
 #include "events/EventPublisher.hpp"
-#include "events/PotEvent.hpp"
 
 /* Potentiometer Class:
  *  Interface for a potentiometer connected to an analog pin.

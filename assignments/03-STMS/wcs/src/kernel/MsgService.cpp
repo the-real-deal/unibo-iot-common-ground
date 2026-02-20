@@ -4,7 +4,7 @@ static String content;
 static String topic;
 static MsgServiceClass *instance = nullptr;
 
-MsgServiceClass::MsgServiceClass(EventQueue * queue) : EventPublisher(queue) 
+MsgServiceClass::MsgServiceClass(EventQueue* queue) : EventPublisher(queue) 
 {
   instance = this;
   this->init();

@@ -41,23 +41,25 @@ void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
 
 void AsyncFSM::checkAndProcessEvent()
 {
+    Serial.println("checking");
     noInterrupts();
     bool isEmpty = queue->isEmpty();
     interrupts();
     // Exit early if no events occurred
     if (isEmpty) 
     {
+        Serial.println("no");
         return;
     }
     noInterrupts();
     IEvent *evt = queue->dequeue();
     interrupts();
-
     SystemState currentSystemState = this->state->getState();
 
-    SerialEvent *serialEvt = static_cast<SerialEvent *>(evt);
-    if (serialEvt != nullptr)
+    if (evt->getType() == EventType::SERIAL_EVT) 
     {
+        SerialEvent *serialEvt = static_cast<SerialEvent *>(evt);
+        Serial.println("serial event!" + serialEvt->getValue()->getFormattedMsg());
         handleSerialEvt(serialEvt);
         delete serialEvt;
         return;
@@ -72,11 +74,9 @@ void AsyncFSM::checkAndProcessEvent()
     }
     case SystemState::AUTOMATIC:
     {
-        ButtonEvent *btnEvt = static_cast<ButtonEvent *>(evt);
-        if (btnEvt != nullptr)
+        if (evt->getType() == EventType::BUTTON_EVT) 
         {
             this->state->setState(SystemState::MANUAL);
-            delete btnEvt;
         }
         break;
     }
@@ -86,11 +86,9 @@ void AsyncFSM::checkAndProcessEvent()
         this->valve->setOpening(
             map(rawOpening, POT_MIN, POT_MAX, 0, 100),
             0L, 100L);
-        ButtonEvent *btnEvt = static_cast<ButtonEvent *>(evt);
-        if (btnEvt != nullptr)
+        if (evt->getType() == EventType::BUTTON_EVT) 
         {
-            this->state->setState(SystemState::AUTOMATIC);
-            delete btnEvt;
+            this->state->setState(SystemState::MANUAL);
         }
         break;
     }

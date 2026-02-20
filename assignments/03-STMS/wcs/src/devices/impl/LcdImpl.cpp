@@ -6,10 +6,7 @@ String msg;
  * Lcd Constructor
  */
 Lcd::Lcd() : 
-  AbstractDevice(LCD_I2C_ADDRESS), display(LCD_I2C_ADDRESS, 16, 2) 
-{ 
-  init();
-}
+  AbstractDevice(LCD_I2C_ADDRESS), display(LCD_I2C_ADDRESS, 16, 2) { }
 
 /*
  * Lcd Destructor

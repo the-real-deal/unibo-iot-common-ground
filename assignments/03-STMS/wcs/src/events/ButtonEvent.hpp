@@ -7,5 +7,6 @@ class ButtonEvent: public Event<bool>
 {
 public:
     ButtonEvent(bool value);
+    EventType getType() const override;
 }; 
 #endif
