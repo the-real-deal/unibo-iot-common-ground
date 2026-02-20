@@ -1,5 +1,7 @@
 #include "AsyncFSM.hpp"
 
+#define DEBUG
+
 AsyncFSM::AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue)
     : state(new StateHolder<SystemState>(UNCONNECTED)),
     lcd(lcd),
@@ -123,16 +125,15 @@ void AsyncFSM::checkAndProcessEvent()
 
 void AsyncFSM::displayState()
 {
-    if (state->getState() == SystemState::AUTOMATIC)
+    String msg = "UNCONNECTED";
+    switch (state->getState())
     {
-        lcd->print("AUTOMATIC");
+        case SystemState::AUTOMATIC: { msg = "AUTOMATIC"; break; }
+        case SystemState::MANUAL: { msg = "MANUAL"; break; }
+        default: break;
     }
-    else if (state->getState() == SystemState::MANUAL)
-    {
-        lcd->print("MANUAL");
-    }
-    else
-    {
-        lcd->print("UNCONNECTED");
-    }
+    lcd->print(msg);
+    #ifdef DEBUG
+    log(msg);
+    #endif
 }
