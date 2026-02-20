@@ -1,19 +1,23 @@
 #include "AsyncFSM.hpp"
 
 AsyncFSM::AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue)
-    : lcd(lcd),
-      potentiometer(pot),
-      valve(valve),
-      state(new StateHolder<SystemState>(UNCONNECTED)),
-      queue(queue)
+    : state(new StateHolder<SystemState>(UNCONNECTED)),
+    lcd(lcd),
+    potentiometer(pot),
+    valve(valve),
+    queue(queue)
 {
     displayState();
 }
 
+void log(String msg) { Serial.println(msg); }
+
 void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
 {
     Msg *receivedMsg = serialEvt->getValue();
-    if (receivedMsg->getTopic() == MsgTopic::MODE)
+    switch (receivedMsg->getTopic())
+    {
+    case MsgTopic::MODE: 
     {
         // new mode received from CUS,
         // decoding which mode was received
@@ -21,77 +25,97 @@ void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
         {
             this->state->setState(SystemState::MANUAL);
             // nothing else to do
-            return;
-        }
-        if (receivedMsg->getContent().equals("UNCONNECTED"))
+
+        } else if (receivedMsg->getContent().equals("UNCONNECTED"))
         {
             this->state->setState(SystemState::UNCONNECTED);
-            // nothing else to do
-            return;
+            // nothing else to do   
+        } 
+        else if (receivedMsg->getContent().equals("AUTOMATIC"))
+        {
+            // AUTOMATIC mode received
+            this->state->setState(SystemState::AUTOMATIC);
+        } 
+        else 
+        {
+            log("unexpected mode received!");
         }
-        // AUTOMATIC mode received, do nothing (as we are already
-        // in that mode)
-        return;
+        break;
     }
-    // we received something about the valve
-    // assuming the opening value arrives already in percentage between [0.0, 1.0]
-    this->valve->setOpening(receivedMsg->getContent().toFloat() * 100.0, 0L, 100L);
-    return;
+    case MsgTopic::VALVE: 
+    {
+        if (this->state->getState() == SystemState::AUTOMATIC) 
+        {
+            // we received something about the valve
+            // assuming the opening value arrives already in percentage between [0.0, 1.0]
+            this->valve->setOpening(receivedMsg->getContent().toFloat() * 100.0, 0L, 100L);
+        }
+        break;
+    }
+    default: 
+    {
+        log("Unexpected msg topic received!");
+        break;
+    }
+    }
+}
+
+void AsyncFSM::handleButtonEvt(ButtonEvent *buttonEvt)
+{
+    SystemState currentSystemState = this->state->getState();
+    switch (currentSystemState)
+    {
+        case SystemState::UNCONNECTED:
+        {
+            /* do nothing */
+            break;
+        }
+        case SystemState::AUTOMATIC:
+        {
+            this->state->setState(SystemState::MANUAL);
+            break;
+        }
+        case SystemState::MANUAL:
+        {
+            this->state->setState(SystemState::AUTOMATIC);
+            break;
+        }
+    }
 }
 
 void AsyncFSM::checkAndProcessEvent()
 {
-    Serial.println("checking");
     noInterrupts();
     bool isEmpty = queue->isEmpty();
     interrupts();
+    
     // Exit early if no events occurred
-    if (isEmpty) 
-    {
-        Serial.println("no");
-        return;
-    }
+    if (isEmpty) { return; }
+    
     noInterrupts();
     IEvent *evt = queue->dequeue();
     interrupts();
-    SystemState currentSystemState = this->state->getState();
 
-    if (evt->getType() == EventType::SERIAL_EVT) 
+    switch (evt->getType())
+    {
+    case EventType::SERIAL_EVT: 
     {
         SerialEvent *serialEvt = static_cast<SerialEvent *>(evt);
-        Serial.println("serial event!" + serialEvt->getValue()->getFormattedMsg());
+        log("serial event!");
         handleSerialEvt(serialEvt);
         delete serialEvt;
-        return;
-    }
-
-    switch (currentSystemState)
-    {
-    case SystemState::UNCONNECTED:
-    {
-        /* code */
         break;
     }
-    case SystemState::AUTOMATIC:
+    case EventType::BUTTON_EVT:
     {
-        if (evt->getType() == EventType::BUTTON_EVT) 
-        {
-            this->state->setState(SystemState::MANUAL);
-        }
-        break;
+        ButtonEvent *buttonEvt = static_cast<ButtonEvent *>(evt);
+        log("button event!");
+        handleButtonEvt(buttonEvt);
+        delete buttonEvt;
     }
-    case SystemState::MANUAL:
-    {
-        float rawOpening = this->potentiometer->getValue();
-        this->valve->setOpening(
-            map(rawOpening, POT_MIN, POT_MAX, 0, 100),
-            0L, 100L);
-        if (evt->getType() == EventType::BUTTON_EVT) 
-        {
-            this->state->setState(SystemState::MANUAL);
-        }
+    default:
+        log("unexpected event received!");
         break;
-    }
     }
 
     displayState();

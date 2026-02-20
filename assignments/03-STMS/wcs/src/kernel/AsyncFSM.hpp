@@ -15,15 +15,16 @@ class AsyncFSM
 public:
     AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue);
     void checkAndProcessEvent();
+    StateHolder<SystemState> *state;
 private:
     Lcd *lcd;
     Pot *potentiometer;
     Valve *valve;
-    StateHolder<SystemState> *state;
     EventQueue *queue;
     void displayState();
 
     void handleSerialEvt(SerialEvent *serialEvt);
+    void handleButtonEvt(ButtonEvent *buttonEvt);
 };
 
 #endif

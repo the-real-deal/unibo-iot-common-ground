@@ -26,5 +26,9 @@ void setup() {
 
 void loop() {
   asyncFSM->checkAndProcessEvent();
-  delay(100);
+  if (asyncFSM->state->getState() == SystemState::MANUAL) 
+  {
+    float rawOpening = pHWPlatform->getPotentiometer()->getValue();
+    pHWPlatform->getValve()->setOpening(map(rawOpening, POT_MIN, POT_MAX, 0, 100), 0L, 100L);
+  }
 }
