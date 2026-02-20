@@ -38,18 +38,15 @@ void MsgServiceClass::init(){
 }
 
 void MsgServiceClass::sendMsg(const String& msg){
-  if (!Serial) {
-    noInterrupts();
+  if (!Serial) 
+  {
     publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
-    interrupts();
     return;
   }
   int availableBytes = Serial.availableForWrite();
   if (availableBytes < (int)msg.length()) 
   {
-    noInterrupts();
     publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
-    interrupts();
     return;
   }
   Serial.println(msg);
@@ -60,10 +57,9 @@ void MsgServiceClass::sendMsg(const String& msg){
 void serialEvent() {
   if (instance == nullptr) return;
 
-  if (Serial.available() <= 0) {
-    noInterrupts();
+  if (Serial.available() <= 0) 
+  {
     instance->publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
-    interrupts();
     return;
   }
   bool separatorSurpassed = false;
@@ -85,11 +81,9 @@ void serialEvent() {
       } else if (topic.equalsIgnoreCase("MODE")) {
         decodedTopic = MsgTopic::MODE;
       }
-      noInterrupts();
       instance->publish(
         new SerialEvent(new Msg(decodedTopic, content))
       );
-      interrupts();
       instance->currentMsg = new Msg(decodedTopic, content);
       instance->msgAvailable = true;      
     }

@@ -17,7 +17,8 @@ void log(String msg) { Serial.println(msg); }
 void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
 {
     Msg *receivedMsg = serialEvt->getValue();
-    switch (receivedMsg->getTopic())
+    MsgTopic msgTopic = receivedMsg->getTopic();
+    switch (msgTopic)
     {
     case MsgTopic::MODE: 
     {
@@ -114,6 +115,7 @@ void AsyncFSM::checkAndProcessEvent()
         log("button event!");
         handleButtonEvt(buttonEvt);
         delete buttonEvt;
+        break;
     }
     default:
         log("unexpected event received!");
