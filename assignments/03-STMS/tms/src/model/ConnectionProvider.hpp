@@ -12,8 +12,8 @@ private:
     MqttClient _mqttClient;
 public:
     void init();
-    wl_status_t wifiConnect();
-    wl_status_t wifiIsConnected();
+    bool wifiConnect();
+    bool wifiIsConnected();
     bool mqttConnect();
     bool mqttIsConnected();
     void mqttSendMsg();

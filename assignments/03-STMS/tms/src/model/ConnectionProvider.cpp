@@ -4,14 +4,16 @@ void ConnectionProvider::init()
 {
 }
 
-wl_status_t ConnectionProvider::wifiConnect()
+bool ConnectionProvider::wifiConnect()
 {
-    return wl_status_t();
+    // wl_status_t::WL_CONNECTED
+    return true;
 }
 
-wl_status_t ConnectionProvider::wifiIsConnected()
+bool ConnectionProvider::wifiIsConnected()
 {
-    return wl_status_t();
+    // wl_status_t::WL_CONNECTED
+    return true;
 }
 
 bool ConnectionProvider::mqttConnect()
