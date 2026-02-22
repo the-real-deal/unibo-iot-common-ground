@@ -4,15 +4,19 @@
 #include "Arduino.h"
 #include "config.hpp"
 #include "devices/api/Sonar.hpp"
+#include "devices/api/Led.hpp"
 
 class HWPlatform
 {
-
 public:
   HWPlatform();
   Sonar *getTankSonar();
+  Led *getOKLed();
+  Led *getKOLed();
 private:
-  Sonar *getTankSonar();
+  Sonar *pTankSonar;
+  Led *pOKLed;
+  Led *pKOLed;
 };
 
 #endif

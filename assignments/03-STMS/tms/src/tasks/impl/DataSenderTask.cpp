@@ -23,7 +23,7 @@ void DataSenderTask::tick()
     }
     case ONLINE:
     {
-        //mqtt send
+        connectionProvider.mqttSendMsg(pContext->waterLevel);
         if (!(pContext->isNetworkOk && pContext->canSendData))
         {
             setState(OFFLINE);

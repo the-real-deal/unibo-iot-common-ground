@@ -11,6 +11,7 @@ public:
   void switchOn();
   void switchOff();
   bool isOn();
+  bool isOff();
     
 private:
   const int pin;

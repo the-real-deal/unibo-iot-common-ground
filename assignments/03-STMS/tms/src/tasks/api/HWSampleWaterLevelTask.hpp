@@ -9,15 +9,11 @@
 
 class HWSampleWaterLevelTask : public SyncTask
 {
-
 public:
     HWSampleWaterLevelTask(Sonar* pSonar, Context* pContext);
     void tick();
-
 private: 
-
     Sonar *pSonar;
-    StateHolder<float> *pWaterLevel;
     Context *pContext;
 };
 #endif

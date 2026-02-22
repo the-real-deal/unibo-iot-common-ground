@@ -45,12 +45,12 @@ public final class AppLauncher {
         final var vertx = Vertx.vertx();
         final var sharedData = new Context(
             new WaterLevelSampleData(0),
-            InputMode.MANUAL,
+            InputMode.UNCONNECTED,
             0);
 
         final var mqttProps = loadedConf.get("mqtt").getAsJsonObject();
-        final var httpsProps = loadedConf.get("http").getAsJsonObject();
-        final var sysProps = loadedConf.get("sysParams").getAsJsonObject();
+        final var httpProps = loadedConf.get("http-server").getAsJsonObject();
+        final var sysProps = loadedConf.get("sys-params").getAsJsonObject();
         final var serialProps = loadedConf.get("serial").getAsJsonObject();
         
         // Deployment stage
@@ -76,7 +76,7 @@ public final class AppLauncher {
                 });
 
                 vertx.deployVerticle(new HttpAgent(
-                    httpsProps.get("port").getAsInt(), 
+                    httpProps.get("port").getAsInt(), 
                     sharedData.getCopy())).onSuccess(aid -> {
                     logger.info("Deployed HttpAgent");
                 });

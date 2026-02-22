@@ -37,6 +37,10 @@ public class Context {
     public void setValveOpeningPercentage(final double valveOpeningPercentage) {
         this.valveOpeningPercentage = valveOpeningPercentage;
     }
+
+    public boolean isSystemInAutomaticMode() {
+        return this.inputMode.equals(InputMode.AUTOMATIC);
+    }
     
     public Context getCopy() {
         return new Context(lastWaterLevelSample, inputMode, valveOpeningPercentage);

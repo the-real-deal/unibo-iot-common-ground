@@ -40,7 +40,7 @@ public class CoreAgent extends AbstractVerticle {
             
             // if not in AUTOMATIC mode, the valve is controlled by an operator -
             // so the following logic should not be applied
-            if (!sharedData.getInputMode().equals(InputMode.AUTOMATIC)) {
+            if (!sharedData.isSystemInAutomaticMode()) {
                 return;
             }
 
@@ -99,6 +99,9 @@ public class CoreAgent extends AbstractVerticle {
     private void restartThresholdTimer() {
         // Sets the valve opening at 50% after T1 seconds
         vertx.setTimer(T1, (timerID) -> {
+            if (!this.sharedData.isSystemInAutomaticMode()) {
+                return;
+            }
             this.sharedData.setValveOpeningPercentage(0.5);
             vertx.eventBus().publish("tank.valveopening", this.senderID.concat(":" + String.valueOf(this.sharedData.getValveOpeningPercentage())));
         });
@@ -107,6 +110,9 @@ public class CoreAgent extends AbstractVerticle {
     private void restartEmptyingTimer() {
         // Sets the valve opening at 100% after T2 seconds
         vertx.setTimer(T2, (timerID) -> {
+            if (!this.sharedData.isSystemInAutomaticMode()) {
+                return;
+            }
             this.sharedData.setValveOpeningPercentage(1.0);
             vertx.eventBus().publish("tank.valveopening", this.senderID.concat(":" + String.valueOf(this.sharedData.getValveOpeningPercentage())));
         });

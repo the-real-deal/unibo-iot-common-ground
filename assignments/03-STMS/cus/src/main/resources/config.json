@@ -1,18 +1,17 @@
 {
-    "sysParams": {
+    "sys-params": {
         "L1": -1, 
         "L2": -1, 
         "T1": -1, 
-        "T2": -1,
-        "F": -1
+        "T2": -1
     },
     "mqtt": {
         "brokerAddress": "tcp://localhost:manca-porta",
         "clientID": "tcp://localhost:manca-porta",
-        "topic": "tank/level",
+        "topic": "tank/water-level",
         "port": 20000
     },
-    "http": {
+    "http-server": {
         "port": 8080
     },
     "serial": {

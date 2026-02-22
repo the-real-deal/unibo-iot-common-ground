@@ -9,7 +9,7 @@ class Logger
 public:
     Logger();
     ~Logger();
-    void log(String level = "", String msg);
+    void log(String msg, String level = "");
 };
 
 extern Logger logger;

@@ -1,5 +1,4 @@
 #include "devices/api/Led.hpp"
-#include "Arduino.h"
 
 /*
  * Led Constructor
@@ -30,4 +29,12 @@ void Led::switchOff(){
  */
 bool Led::isOn(){
   return state;
+}
+
+/*
+ * Check if the LED is off.
+ */
+bool Led::isOff()
+{
+  return !isOn();
 }

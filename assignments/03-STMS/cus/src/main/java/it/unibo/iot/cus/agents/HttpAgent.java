@@ -52,7 +52,7 @@ public class HttpAgent extends AbstractVerticle {
             }
             final var value = content.split(":")[1];
             this.sharedData.setInputMode(InputMode.valueOf(value));
-            logger.atInfo().log("system.inputmode updated internal state with: ".concat(value));
+            logger.atInfo().log(msg.address() + " updated internal state with: " + value);
         });
         msgChannel.consumer("tank.valveopening", msg -> {
             final var content = String.valueOf(msg.body());
@@ -63,7 +63,7 @@ public class HttpAgent extends AbstractVerticle {
             }
             final var value = content.split(":")[1];
             this.sharedData.setValveOpeningPercentage(Double.valueOf(value));
-            logger.atInfo().log("tank.valveopening updated internal state with: ".concat(value));
+            logger.atInfo().log(msg.address() + " updated internal state with: " + value);
         });
 
         // HTTP Endpoints setup

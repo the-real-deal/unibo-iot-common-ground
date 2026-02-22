@@ -1,8 +1,7 @@
 #include "tasks/api/ConnectionMonitoringTask.hpp"
-#include "model/ConnectionProvider.hpp"
 
 ConnectionMonitoringTask::ConnectionMonitoringTask(Context *pContext) :
-    pTaskState(new StateHolder<ConnectionState> (WIFI_CONNECTING)),   
+    pTaskState(new StateHolder<ConnectionState>(WIFI_CONNECTING)),   
     pContext(pContext)
 {
     this->setState(WIFI_CONNECTING);
@@ -29,7 +28,7 @@ void ConnectionMonitoringTask::tick()
             this->setState(WIFI_CONNECTING);
             return;
         }
-        if(pContext->canSendData)
+        if (pContext->canSendData)
         {
             this->setState(CONNECTION_ENABLED);
         }
@@ -42,7 +41,7 @@ void ConnectionMonitoringTask::tick()
         {
             this->setState(WIFI_CONNECTING);
         }
-        if(!pContext->canSendData)
+        if (!pContext->canSendData)
         {
             this->setState(SERVER_CONNECTING);
         }

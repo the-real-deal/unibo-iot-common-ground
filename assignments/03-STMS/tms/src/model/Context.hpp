@@ -9,6 +9,7 @@
 class Context {
 
 public:
+  // Shared variables among tasks: the ones you can see in the FSM diagram of the project.
   bool canSendData;
   float waterLevel;
   bool isNetworkOk;
@@ -19,10 +20,6 @@ public:
     float waterLevel, 
     bool isNetworkOk);
   
-  // Shared variables among tasks: the ones you can see in the FSM diagram of the project.
-  StateHolder<float>* pGlobalOpeningLevel;
-  StateHolder<bool>* pGlobalNetworkOk;
-  StateHolder<bool>* pGlobalCanSendData;
 };
 
 #endif

@@ -1,11 +1,12 @@
 #include "tasks/api/LedsTask.hpp"
 
-LedsTask::LedsTask(Context *pContext, Led* pOkLed, Led* pKoLed) : 
+LedsTask::LedsTask(Context *pContext, Led* pOkLed, Led* pKoLed) :
+    pTaskState(new StateHolder<LedsTaskStates>(PING)),
     pContext(pContext),
     pKoLed(pKoLed),
     pOkLed(pOkLed)
 {
-    setState(OK);
+    setState(PING);
 }
 
 void LedsTask::tick()
@@ -14,23 +15,23 @@ void LedsTask::tick()
     
     switch (currentTaskState)
     {
-        case OK: 
+        case PING:
         {
             if (!pContext->isNetworkOk) 
             {
                 pKoLed->switchOn();
                 pOkLed->switchOff();
-                setState(KO);
+                setState(PONG);
             }
             break;
         }
-        case KO: 
+        case PONG:
         {
             if (pContext->isNetworkOk && pContext->canSendData) 
             {
                 pOkLed->switchOn();
                 pKoLed->switchOff();
-                setState(OK);
+                setState(PING);
             }
             break;
         }

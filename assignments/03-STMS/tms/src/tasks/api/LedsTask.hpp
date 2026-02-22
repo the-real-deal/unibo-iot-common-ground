@@ -9,8 +9,8 @@
 
 enum LedsTaskStates
 {
-    OK,
-    KO
+    PING,
+    PONG
 };
 
 class LedsTask : public SyncTask
