@@ -11,68 +11,46 @@ void ConnectionMonitoringTask::init(int period)
 
 void ConnectionMonitoringTask::tick()
 {
-
-    pContext->pGlobalNetworkOk->setState(WiFi.status() == WL_CONNECTED); 
-    
-    client.setServer(mqtt_server, SERVER_PORT);
-    while (true)
+    ConnectionState currentState = pTaskState->getState();
+    switch (currentState)
     {
-        switch (state)
+    case WIFI_CONNECTING:
+        pContext->isNetworkOk = (WiFi.begin()==WL_CONNECTED);
+        if (pContext->isNetworkOk)
         {
-        case WIFI_CONNECTING:
-            if (WiFi.status() == WL_CONNECTED)
-            {
-                state = WIFI_CONNECTED;
-            }
-            else
-            {
-                vTaskDelay(500 / portTICK_PERIOD_MS);
-            }
-            break;
-
-        case WIFI_CONNECTED:
-            state = MQTT_SERVER_CONNECTING;
-            break;
-
-        case MQTT_SERVER_CONNECTING:
-            if (client.connect("ESP32_Tank_Client"))
-            {
-                state = MQTT_SERVER_CONNECTED;
-                ledGreen->switchOn();
-                ledRed->switchOff();
-            }
-            else
-            {
-                state = NET_ERROR;
-            }
-            break;
-
-        case MQTT_SERVER_CONNECTED:
-            if (!client.connected())
-            {
-                state = MQTT_SERVER_CONNECTING;
-                break;
-            }
-            client.loop();
-
-            float level;
-            if (pContext->popDistance(&level))
-            {
-                char msg[50];
-                snprintf(msg, sizeof(msg), "{\"level\": %.2f}", level);
-                client.publish("tank/level", msg);
-            }
-            vTaskDelay(50 / portTICK_PERIOD_MS);
-            break;
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-            break;
-
-        case NET_ERROR:
-            ledRed->switchOn();
-            ledGreen->switchOff();
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
-            state = WIFI_CONNECTING;
-            break;
+            pTaskState->setState(SERVER_CONNECTING);
         }
+        else
+        {
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+        }
+        break;
+
+    case SERVER_CONNECTING:
+        pContext->isNetworkOk = (WiFi.begin()==WL_CONNECTED);
+        //pContext->canSendData = mqttClient.connect(broker,port);
+        if (!pContext->isNetworkOk)
+        {
+            pTaskState->setState(WIFI_CONNECTING);
+            return;
+        }
+        if(pContext->canSendData)
+        {
+            pTaskState->setState(CONNECTION_ENABLED);
+        }
+        break;
+
+    case CONNECTION_ENABLED:
+        pContext->isNetworkOk = (WiFi.begin()==WL_CONNECTED);
+        pContext->canSendData = mqttClient.connected();
+        if (!pContext->isNetworkOk)
+        {
+            pTaskState->setState(WIFI_CONNECTING);
+        }
+        if(!pContext->canSendData)
+        {
+            pTaskState->setState(SERVER_CONNECTING);
+        }
+        break;
     }
 }

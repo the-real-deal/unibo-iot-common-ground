@@ -4,6 +4,12 @@
 #include "WiFi.h"
 #include "PubSubClient.h"
 
+enum ConnectionState {
+    WIFI_CONNECTING,
+    SERVER_CONNECTING,
+    CONNECTION_ENABLED
+};
+
 class ConnectionMonitoringTask: public SyncTask 
 {
     public:
@@ -12,5 +18,8 @@ class ConnectionMonitoringTask: public SyncTask
     ConnectionMonitoringTask(Context *pContext);
 
     private:
+    void setState(ConnectionState state);
+
+    StateHolder<ConnectionState> *pTaskState;
     Context *pContext;
 };
