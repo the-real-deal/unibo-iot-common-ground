@@ -1,19 +1,42 @@
 #include "tasks/api/ConnectionMonitoringTask.hpp"
 
-void ConnectionMonitoringTask::init(int period) 
+void ConnectionMonitoringTask::init(int period)
 {
     SyncTask::init(period);
-    WiFi.begin("NickolausenMoPho", "password");
-    WiFi.setHostname("TMS - Tank Monitoring Subsystem");
-    WiFi.mode(WIFI_STA);
     WiFi.disconnect();
+    WiFi.setHostname("TMS - Tank Monitoring Subsystem");
+    WiFi.begin("NickolausenMoPho", "password");
+    WiFi.mode(WIFI_STA);
+    // logger.log();
 }
 
+ConnectionMonitoringTask::ConnectionMonitoringTask(Context *pContext)
+{
+}
 void ConnectionMonitoringTask::tick()
 {
+    // attempt to connect to Wifi network:
+    Serial.print("Attempting to connect to WPA SSID: ");
+    Serial.println(ssid);
+    while (WiFi.begin(WIFI_SSID, WIFI_PASS) != WL_CONNECTED)
+    {
+        // failed, retry
+        Serial.print(".");
+        delay(5000);
+    }
 
-    pContext->pGlobalNetworkOk->setState(WiFi.status() == WL_CONNECTED); 
-    
+    logger.log("You're connected to the network");
+    Serial.println();
+    // Attempting to connect to the MQTT broker
+    if (!mqttClient.connect(broker, port))
+    {
+        Serial.print("MQTT connection failed! Error code = ");
+        Serial.println(mqttClient.connectError());
+
+        while (1);
+    }
+    pContext->pGlobalNetworkOk->setState(WiFi.status() == WL_CONNECTED);
+
     client.setServer(mqtt_server, SERVER_PORT);
     while (true)
     {
@@ -26,7 +49,7 @@ void ConnectionMonitoringTask::tick()
             }
             else
             {
-                vTaskDelay(500 / portTICK_PERIOD_MS);
+                vTaskDelay(500 / TICK_PERIOD_MS);
             }
             break;
 

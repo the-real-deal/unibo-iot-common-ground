@@ -1,13 +1,14 @@
 #include "AsyncFSM.hpp"
 
-#define DEBUG
+// #define DEBUG
 
-AsyncFSM::AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue)
+AsyncFSM::AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue, MsgServiceClass *msgService)
     : state(new StateHolder<SystemState>(UNCONNECTED)),
     lcd(lcd),
     potentiometer(pot),
     valve(valve),
-    queue(queue)
+    queue(queue),
+    msgService(msgService)
 {
     displayState();
 }
@@ -41,7 +42,9 @@ void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
         } 
         else 
         {
+            #ifdef DEBUG
             log("unexpected mode received!");
+            #endif
         }
         break;
     }
@@ -57,7 +60,9 @@ void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
     }
     default: 
     {
+        #ifdef DEBUG
         log("Unexpected msg topic received!");
+        #endif
         break;
     }
     }
@@ -66,6 +71,7 @@ void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
 void AsyncFSM::handleButtonEvt(ButtonEvent *buttonEvt)
 {
     SystemState currentSystemState = this->state->getState();
+    SystemState newState = currentSystemState;
     switch (currentSystemState)
     {
         case SystemState::UNCONNECTED:
@@ -75,15 +81,21 @@ void AsyncFSM::handleButtonEvt(ButtonEvent *buttonEvt)
         }
         case SystemState::AUTOMATIC:
         {
-            this->state->setState(SystemState::MANUAL);
+            newState = SystemState::MANUAL;
             break;
         }
         case SystemState::MANUAL:
         {
-            this->state->setState(SystemState::AUTOMATIC);
+            newState = SystemState::AUTOMATIC;
             break;
         }
     }
+
+    this->state->setState(newState);
+    String newStateStr = "UNCONNECTED";
+    if (newState == SystemState::AUTOMATIC) { newStateStr = "AUTOMATIC"; }
+    else if (newState == SystemState::MANUAL) { newStateStr = "MANUAL"; }
+    msgService->sendMsg("MODE:" + newStateStr);
 }
 
 void AsyncFSM::checkAndProcessEvent()
@@ -91,7 +103,7 @@ void AsyncFSM::checkAndProcessEvent()
     noInterrupts();
     bool isEmpty = queue->isEmpty();
     interrupts();
-    
+
     // Exit early if no events occurred
     if (isEmpty) { return; }
     
@@ -104,7 +116,9 @@ void AsyncFSM::checkAndProcessEvent()
     case EventType::SERIAL_EVT: 
     {
         SerialEvent *serialEvt = static_cast<SerialEvent *>(evt);
+        #ifdef DEBUG
         log("serial event!");
+        #endif
         handleSerialEvt(serialEvt);
         delete serialEvt;
         break;
@@ -112,13 +126,17 @@ void AsyncFSM::checkAndProcessEvent()
     case EventType::BUTTON_EVT:
     {
         ButtonEvent *buttonEvt = static_cast<ButtonEvent *>(evt);
+        #ifdef DEBUG
         log("button event!");
+        #endif
         handleButtonEvt(buttonEvt);
         delete buttonEvt;
         break;
     }
     default:
+        #ifdef DEBUG
         log("unexpected event received!");
+        #endif
         break;
     }
 
