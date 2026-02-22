@@ -76,6 +76,8 @@ void serialEvent() {
       content += ch;   
     } else {
       MsgTopic decodedTopic = MsgTopic::Unknown;
+      topic.trim();
+      topic.toUpperCase();
       if (topic.equalsIgnoreCase("VALVE")) {
         decodedTopic = MsgTopic::VALVE;
       } else if (topic.equalsIgnoreCase("MODE")) {

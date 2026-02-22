@@ -2,6 +2,7 @@
 #define __TASK__
 
 #include "Arduino.h"
+#include "WString.h"
 
 class SyncTask {
 
@@ -63,6 +64,7 @@ protected:
   bool active;
   bool completed;
   bool justEntered;
+  String taskName;
 };
 
 #endif

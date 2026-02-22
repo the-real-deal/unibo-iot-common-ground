@@ -1,8 +1,10 @@
 #include "model/Context.hpp"
 #include "model/StateHolder.hpp"
+#include "kernel/Logger.hpp"
 #include "kernel/SyncTask.hpp"
-#include "WiFi.h"
-#include "PubSubClient.h"
+#include "WiFiNINA.h"
+#include "ArduinoMqttClient.h"
+#include "secrets.hpp"
 
 enum ConnectionState {
     WIFI_CONNECTING,
@@ -19,7 +21,6 @@ class ConnectionMonitoringTask: public SyncTask
 
     private:
     void setState(ConnectionState state);
-
     StateHolder<ConnectionState> *pTaskState;
     Context *pContext;
 };

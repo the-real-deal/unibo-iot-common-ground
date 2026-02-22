@@ -1,12 +1,11 @@
 #include "tasks/api/ConnectionMonitoringTask.hpp"
+#include "model/ConnectionProvider.hpp"
 
-void ConnectionMonitoringTask::init(int period) 
+ConnectionMonitoringTask::ConnectionMonitoringTask(Context *pContext) :
+    pTaskState(new StateHolder<ConnectionState> (WIFI_CONNECTING)),   
+    pContext(pContext)
 {
-    SyncTask::init(period);
-    WiFi.begin("NickolausenMoPho", "password");
-    WiFi.setHostname("TMS - Tank Monitoring Subsystem");
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
+    this->setState(WIFI_CONNECTING);
 }
 
 void ConnectionMonitoringTask::tick()
@@ -15,42 +14,45 @@ void ConnectionMonitoringTask::tick()
     switch (currentState)
     {
     case WIFI_CONNECTING:
-        pContext->isNetworkOk = (WiFi.begin()==WL_CONNECTED);
+        pContext->isNetworkOk = connectionProvider.wifiConnect();
         if (pContext->isNetworkOk)
         {
-            pTaskState->setState(SERVER_CONNECTING);
-        }
-        else
-        {
-            vTaskDelay(500 / portTICK_PERIOD_MS);
+            this->setState(SERVER_CONNECTING);
         }
         break;
 
     case SERVER_CONNECTING:
-        pContext->isNetworkOk = (WiFi.begin()==WL_CONNECTED);
-        //pContext->canSendData = mqttClient.connect(broker,port);
+        pContext->isNetworkOk = connectionProvider.wifiIsConnected();
+        pContext->canSendData = connectionProvider.mqttConnect();
         if (!pContext->isNetworkOk)
         {
-            pTaskState->setState(WIFI_CONNECTING);
+            this->setState(WIFI_CONNECTING);
             return;
         }
         if(pContext->canSendData)
         {
-            pTaskState->setState(CONNECTION_ENABLED);
+            this->setState(CONNECTION_ENABLED);
         }
         break;
 
     case CONNECTION_ENABLED:
-        pContext->isNetworkOk = (WiFi.begin()==WL_CONNECTED);
-        pContext->canSendData = mqttClient.connected();
+        pContext->isNetworkOk = connectionProvider.wifiIsConnected();
+        pContext->canSendData = connectionProvider.mqttIsConnected();
         if (!pContext->isNetworkOk)
         {
-            pTaskState->setState(WIFI_CONNECTING);
+            this->setState(WIFI_CONNECTING);
         }
         if(!pContext->canSendData)
         {
-            pTaskState->setState(SERVER_CONNECTING);
+            this->setState(SERVER_CONNECTING);
         }
         break;
     }
+}
+
+void ConnectionMonitoringTask::setState(ConnectionState state)
+{
+    this->justEntered = true;
+    this->pTaskState->setState(state);
+    this->stateTimestamp = millis();
 }

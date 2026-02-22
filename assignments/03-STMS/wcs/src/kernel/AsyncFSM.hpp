@@ -13,7 +13,7 @@ enum SystemState { UNCONNECTED, AUTOMATIC, MANUAL };
 class AsyncFSM 
 {
 public:
-    AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue);
+    AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue, MsgServiceClass *msgService);
     void checkAndProcessEvent();
     StateHolder<SystemState> *state;
 private:
@@ -21,6 +21,7 @@ private:
     Pot *potentiometer;
     Valve *valve;
     EventQueue *queue;
+    MsgServiceClass *msgService;
     void displayState();
 
     void handleSerialEvt(SerialEvent *serialEvt);
