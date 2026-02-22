@@ -24,6 +24,7 @@ void setup()
     pHW = new HWPlatform();
     pContext = new Context(false, 0.0f, false);
 
+    // TODO: Study how to use RTOS task creation
     pConnectionTask = new ConnectionMonitoringTask(pContext);
     pConnectionTask->init(-1); // TODO: period
 
