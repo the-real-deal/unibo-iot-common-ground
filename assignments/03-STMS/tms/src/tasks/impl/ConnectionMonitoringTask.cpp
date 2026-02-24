@@ -7,6 +7,8 @@ ConnectionMonitoringTask::ConnectionMonitoringTask(Context *pContext) :
     this->setState(WIFI_CONNECTING);
 }
 
+// void ConnectionMonitoringTask::prova();
+
 void ConnectionMonitoringTask::tick()
 {
     ConnectionState currentState = pTaskState->getState();
