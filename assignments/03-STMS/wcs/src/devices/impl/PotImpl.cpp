@@ -15,3 +15,13 @@ float Pot::getValue()
 {
   return analogRead(pin);
 }
+
+bool Pot::hasChanged()
+{
+  float newVal = getValue();
+  if (newVal != lastVal) {
+    lastVal = newVal;
+    return true;
+  }
+  return false;
+}

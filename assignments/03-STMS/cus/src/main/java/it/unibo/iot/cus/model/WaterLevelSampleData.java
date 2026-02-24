@@ -8,4 +8,9 @@ public record WaterLevelSampleData(double level, long timestampMs) {
     public WaterLevelSampleData getCopy() {
         return new WaterLevelSampleData(level, timestampMs);
     }
+
+    @Override
+    public final String toString() {
+        return level + "#" + timestampMs;
+    }
 }

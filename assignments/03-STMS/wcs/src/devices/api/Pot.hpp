@@ -11,9 +11,12 @@
  */
 class Pot: public AbstractDevice, public EventPublisher 
 {
+private:
+  float lastVal = 0.0f;
 public:
   Pot(uint8_t pin, EventQueue *queue);
   float getValue();
+  bool hasChanged();
 };
 
 #endif

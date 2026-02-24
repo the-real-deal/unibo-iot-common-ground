@@ -13,7 +13,7 @@ class Valve: public AbstractDevice
 {
 public:
   Valve(uint8_t pin);
-  void setOpening(float angle, long min, long max);
+  void setOpening(float angle);
 
 private:
   ServoTimer2 motor;

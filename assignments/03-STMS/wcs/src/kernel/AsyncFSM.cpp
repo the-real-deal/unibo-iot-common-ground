@@ -1,9 +1,9 @@
-#include "AsyncFSM.hpp"
+#include "kernel/AsyncFSM.hpp"
 
 // #define DEBUG
 
 AsyncFSM::AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue, MsgServiceClass *msgService)
-    : state(new StateHolder<SystemState>(UNCONNECTED)),
+    : state(new StateHolder<SystemState>(MANUAL)),
     lcd(lcd),
     potentiometer(pot),
     valve(valve),
@@ -54,7 +54,7 @@ void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
         {
             // we received something about the valve
             // assuming the opening value arrives already in percentage between [0.0, 1.0]
-            this->valve->setOpening(receivedMsg->getContent().toFloat() * 100.0, 0L, 100L);
+            this->valve->setOpening(receivedMsg->getContent().toFloat() * 100.0);
         }
         break;
     }
@@ -98,18 +98,28 @@ void AsyncFSM::handleButtonEvt(ButtonEvent *buttonEvt)
     msgService->sendMsg("MODE:" + newStateStr);
 }
 
+void AsyncFSM::handlePotEvt(PotEvent *potEvt)
+{
+    SystemState currentSystemState = this->state->getState();
+    if (currentSystemState != SystemState::MANUAL) { return; }
+
+    float percentage = (potEvt->getValue() - POT_MIN) / (POT_MAX - POT_MIN);
+    valve->setOpening(percentage);
+    msgService->sendMsg("VALVE:" + String(percentage));
+}
+
 void AsyncFSM::checkAndProcessEvent()
 {
-    noInterrupts();
+    // noInterrupts();
     bool isEmpty = queue->isEmpty();
-    interrupts();
+    // interrupts();
 
     // Exit early if no events occurred
     if (isEmpty) { return; }
     
-    noInterrupts();
+    // noInterrupts();
     IEvent *evt = queue->dequeue();
-    interrupts();
+    // interrupts();
 
     switch (evt->getType())
     {
@@ -131,6 +141,16 @@ void AsyncFSM::checkAndProcessEvent()
         #endif
         handleButtonEvt(buttonEvt);
         delete buttonEvt;
+        break;
+    }
+    case EventType::POT_EVT: 
+    {
+        PotEvent *potEvt = static_cast<PotEvent *>(evt);
+        #ifdef DEBUG
+        log("pot event!");
+        #endif
+        handlePotEvt(potEvt);
+        delete potEvt;
         break;
     }
     default:

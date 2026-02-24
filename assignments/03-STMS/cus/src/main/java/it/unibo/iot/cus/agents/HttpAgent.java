@@ -40,7 +40,9 @@ public class HttpAgent extends AbstractVerticle {
                 return;
             }
             final var value = content.split(":")[1];
-            this.sharedData.setLastWaterLevelSample(new WaterLevelSampleData(Double.valueOf(value)));
+            this.sharedData.setLastWaterLevelSample(
+                new WaterLevelSampleData(Double.valueOf(value.split("#")[0]))
+            );
             logger.atInfo().log("tank.waterlevel updated internal state with: ".concat(content));
         });
         msgChannel.consumer("system.inputmode", msg -> {
@@ -127,7 +129,7 @@ public class HttpAgent extends AbstractVerticle {
                 response.setStatusCode(200)
                         .putHeader("content-type", "application/json")
                         .end(res.toString());
-                // logger.atInfo().log("POST /api/valve-opening -> Updated to " + newOpening);
+                logger.atInfo().log("POST /api/valve-opening -> Updated to " + newOpening);
             } else {
                 response.setStatusCode(400).end("Missing 'opening' property");
             }
@@ -146,7 +148,7 @@ public class HttpAgent extends AbstractVerticle {
                 response.setStatusCode(200)
                         .putHeader("content-type", "application/json")
                         .end(res.toString());
-                // logger.atInfo().log("POST /api/valve-opening -> Updated to " + newMode);
+                logger.atInfo().log("POST /api/status -> Updated to " + newMode);
             } else {
                 response.setStatusCode(400).end("Missing 'status' property");
             }

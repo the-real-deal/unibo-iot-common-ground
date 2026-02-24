@@ -52,7 +52,7 @@ public class MqttAgent extends AbstractVerticle {
                         this.sharedData.setLastWaterLevelSample(new WaterLevelSampleData(level));
                         vertx.eventBus().publish(
                             "tank.waterlevel",
-                            this.senderID.concat(":" + this.sharedData.getLastWaterLevelSample())
+                            this.senderID.concat(":" + this.sharedData.getLastWaterLevelSample().toString())
                         );
                     } catch (Exception e) {
                         logger.atInfo().log("Error parsing data: " + e.getMessage());

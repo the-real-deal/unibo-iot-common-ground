@@ -6,6 +6,7 @@
 #include "events/EventQueue.hpp"
 #include "events/ButtonEvent.hpp"
 #include "events/SerialEvent.hpp"
+#include "events/PotEvent.hpp"
 #include "devices/config/config.hpp"
 
 enum SystemState { UNCONNECTED, AUTOMATIC, MANUAL };
@@ -26,6 +27,7 @@ private:
 
     void handleSerialEvt(SerialEvent *serialEvt);
     void handleButtonEvt(ButtonEvent *buttonEvt);
+    void handlePotEvt(PotEvent *potEvt);
 };
 
 #endif

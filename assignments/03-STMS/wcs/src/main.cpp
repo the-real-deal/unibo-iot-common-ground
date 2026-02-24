@@ -2,6 +2,8 @@
 #include <kernel/MsgService.hpp>
 #include <kernel/AsyncFSM.hpp>
 #include <events/EventQueue.hpp>
+#include <events/EventPublisher.hpp>
+#include <events/PotEvent.hpp>
 #include <model/HWPlatform.hpp>
 #include <devices/config/config.hpp>
 #include <config.hpp>
@@ -10,6 +12,7 @@ AsyncFSM* asyncFSM;
 HWPlatform* pHWPlatform;
 EventQueue* sharedQueue;
 MsgServiceClass* msgService;
+EventPublisher* potPublisher;
 
 void setup() {
   sharedQueue = new EventQueue();
@@ -23,16 +26,16 @@ void setup() {
     sharedQueue,
     msgService
   );
+
+  potPublisher = new EventPublisher(sharedQueue);
 }
 
 void loop() {
-  asyncFSM->checkAndProcessEvent();
-  delay(100);
-  if (asyncFSM->state->getState() == SystemState::MANUAL) 
+  if (pHWPlatform->getPotentiometer()->hasChanged()) 
   {
     float rawOpening = pHWPlatform->getPotentiometer()->getValue();
-    int newOpening = map(rawOpening, POT_MIN, POT_MAX, 0, 100);
-    pHWPlatform->getValve()->setOpening(newOpening, 0L, 100L);
-    msgService->sendMsg("VALVE:" + String((float)newOpening / 100));
+    potPublisher->publish(new PotEvent(rawOpening));
   }
+  delay(100);
+  asyncFSM->checkAndProcessEvent();
 }

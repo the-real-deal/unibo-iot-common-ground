@@ -50,12 +50,12 @@ void MsgServiceClass::sendMsg(const String& msg){
     return;
   }
   Serial.println(msg);
-  // waits to send data
-  Serial.flush();  
 }
 
 void serialEvent() {
   if (instance == nullptr) return;
+  topic = "";
+  content = "";
 
   if (Serial.available() <= 0) 
   {
@@ -76,8 +76,8 @@ void serialEvent() {
       content += ch;   
     } else {
       MsgTopic decodedTopic = MsgTopic::Unknown;
-      topic.trim();
-      topic.toUpperCase();
+      topic.trim(); topic.toUpperCase();
+      content.trim(); content.toUpperCase();
       if (topic.equalsIgnoreCase("VALVE")) {
         decodedTopic = MsgTopic::VALVE;
       } else if (topic.equalsIgnoreCase("MODE")) {
@@ -85,9 +85,7 @@ void serialEvent() {
       }
       instance->publish(
         new SerialEvent(new Msg(decodedTopic, content))
-      );
-      instance->currentMsg = new Msg(decodedTopic, content);
-      instance->msgAvailable = true;      
+      );     
     }
   }
 }

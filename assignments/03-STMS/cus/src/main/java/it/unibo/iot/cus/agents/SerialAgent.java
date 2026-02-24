@@ -9,7 +9,6 @@ import io.vertx.core.AbstractVerticle;
 import it.unibo.iot.cus.commchannel.CommunicationChannel;
 import it.unibo.iot.cus.model.Context;
 import it.unibo.iot.cus.model.InputMode;
-import it.unibo.iot.cus.model.WaterLevelSampleData;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
@@ -37,7 +36,7 @@ public class SerialAgent extends AbstractVerticle implements SerialPortEventList
             this.port.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
             this.port.addEventListener(this);
         } catch (SerialPortException e) {
-            logger.error("Could not open serial port!");
+            logger.error("Could not open serial port " + portName + "!");
         }
         this.currentMessage = new StringBuffer("");
         this.senderID = SerialAgent.class.getName();
@@ -50,17 +49,20 @@ public class SerialAgent extends AbstractVerticle implements SerialPortEventList
 
     @Override
     public void serialEvent(SerialPortEvent serialPortEvent) {
+        // Avoiding events before the vertx is deployed
+        if (Objects.isNull(vertx)) {
+            return;
+        }
+
         if (serialPortEvent.isRXCHAR()) {
             final var msgChannel = vertx.eventBus();
             try {
                 final var rawMessage = port.readString(serialPortEvent.getEventValue());
                 currentMessage.append(rawMessage);
-            } catch (final SerialPortException ex) {
-            }
+            } catch (final SerialPortException ex) { }
             boolean goAhead = true;
             while (goAhead) {
                 final var finalMessage = currentMessage.toString();
-                logger.atInfo().log("SERIAL-READ: " + finalMessage);
                 final var indexOfNewLine = finalMessage.indexOf("\n");
                 if (indexOfNewLine >= 0) {
                     final var msg = finalMessage.substring(0, indexOfNewLine);
@@ -97,6 +99,7 @@ public class SerialAgent extends AbstractVerticle implements SerialPortEventList
             }
             logger.atInfo().log("SERIAL-SEND: " + message);
         } catch (final SerialPortException ex) {
+            logger.atError().log("Something wrong :/ — " + ex.getMessage());
         }
     }
 
@@ -107,24 +110,12 @@ public class SerialAgent extends AbstractVerticle implements SerialPortEventList
                 port.removeEventListener();
                 port.closePort();
             }
-        } catch (final Exception ex) {
-        }
+        } catch (final Exception ex) { }
     }
 
     @Override
     public void start() throws Exception {
         final var msgChannel = vertx.eventBus();
-        msgChannel.consumer("tank.waterlevel", msg -> {
-            final var content = String.valueOf(msg.body());
-            final var sender = content.split(":")[0].trim();
-            // avoid echo
-            if (sender.equals(this.senderID)) {
-                return;
-            }
-            final var value = content.split(":")[1].trim();
-            this.sharedData.setLastWaterLevelSample(new WaterLevelSampleData(Double.valueOf(value)));
-            logger.atInfo().log("tank.waterlevel updated internal state with: ".concat(value));
-        });
         msgChannel.consumer("system.inputmode", msg -> {
             final var content = String.valueOf(msg.body());
             final var sender = content.split(":")[0].trim();

@@ -7,13 +7,7 @@ Valve::Valve(uint8_t pin) : AbstractDevice(pin) {
   motor.attach(pin);
 }
 
-void Valve::setOpening(float angle, long min, long max) {
-  int newOpening = map(
-    (long)constrain(angle, min, max), 
-    min, 
-    max, 
-    VALVE_CLOSE_POS, 
-    VALVE_OPEN_POS
-  );
+void Valve::setOpening(float angle) {
+  int newOpening = VALVE_CLOSE_POS + (int)(angle * (VALVE_OPEN_POS - VALVE_CLOSE_POS));
   motor.write(newOpening);
 }
