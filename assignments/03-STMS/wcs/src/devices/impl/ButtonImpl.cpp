@@ -12,9 +12,8 @@ inline void onButtonPressed() {
 /*
 * Button Constructor
 */
-Button::Button(uint8_t pin, EventQueue *queue) : 
-  AbstractDevice(pin), 
-  EventPublisher(queue),
+Button::Button(uint8_t pin) : 
+  AbstractDevice(pin),
   lastPressedTime(0), 
   justClicked(false) 
 {

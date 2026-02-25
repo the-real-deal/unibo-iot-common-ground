@@ -7,10 +7,9 @@
 #include "events/EventQueue.hpp"
 #include "events/SerialEvent.hpp"
 
-class MsgServiceClass: public EventPublisher
+class MsgServiceClass
 {
-public: 
-  MsgServiceClass(EventQueue *queue);
+public:
   Msg* currentMsg;
   bool msgAvailable;
 
@@ -21,5 +20,7 @@ public:
 
   void sendMsg(const String& msg);
 };
+
+extern MsgServiceClass msgService;
 
 #endif

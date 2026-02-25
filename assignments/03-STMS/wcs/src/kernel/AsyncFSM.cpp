@@ -2,17 +2,17 @@
 
 // #define DEBUG
 
-AsyncFSM::AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve, EventQueue *queue, MsgServiceClass *msgService)
+AsyncFSM::AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve)
     : state(new StateHolder<SystemState>(MANUAL)),
     lcd(lcd),
     potentiometer(pot),
-    valve(valve),
-    queue(queue),
-    msgService(msgService)
+    valve(valve)
 {
     displayState();
 }
 
+// Pay attention! 
+// It uses Serial, so be sure not to need it to send messages to other systems! 
 void log(String msg) { Serial.println(msg); }
 
 void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
@@ -95,7 +95,7 @@ void AsyncFSM::handleButtonEvt(ButtonEvent *buttonEvt)
     String newStateStr = "UNCONNECTED";
     if (newState == SystemState::AUTOMATIC) { newStateStr = "AUTOMATIC"; }
     else if (newState == SystemState::MANUAL) { newStateStr = "MANUAL"; }
-    msgService->sendMsg("MODE:" + newStateStr);
+    msgService.sendMsg("MODE:" + newStateStr);
 }
 
 void AsyncFSM::handlePotEvt(PotEvent *potEvt)
@@ -105,21 +105,21 @@ void AsyncFSM::handlePotEvt(PotEvent *potEvt)
 
     float percentage = (potEvt->getValue() - POT_MIN) / (POT_MAX - POT_MIN);
     valve->setOpening(percentage);
-    msgService->sendMsg("VALVE:" + String(percentage));
+    msgService.sendMsg("VALVE:" + String(percentage));
 }
 
 void AsyncFSM::checkAndProcessEvent()
 {
-    // noInterrupts();
-    bool isEmpty = queue->isEmpty();
-    // interrupts();
+    // noInterrupts(); // TODO: check
+    bool isEmpty = sharedQueue.isEmpty();
+    // interrupts(); // TODO: check
 
     // Exit early if no events occurred
     if (isEmpty) { return; }
     
-    // noInterrupts();
-    IEvent *evt = queue->dequeue();
-    // interrupts();
+    // noInterrupts(); // TODO: check
+    IEvent *evt = sharedQueue.dequeue();
+    // interrupts(); // TODO: check
 
     switch (evt->getType())
     {

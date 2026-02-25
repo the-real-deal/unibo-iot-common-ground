@@ -1,10 +1,10 @@
 #include "HWPlatform.hpp"
 
-HWPlatform::HWPlatform(EventQueue *queue) : 
-    pButton(new Button(BUTTON_PIN, queue)),
+HWPlatform::HWPlatform() : 
+    pButton(new Button(BUTTON_PIN)),
     pValve(new Valve(VALVE_PIN)),
     pLcd(new Lcd()),
-    pPot(new Pot(POTENTIOMETER_PIN, queue))
+    pPot(new Pot(POTENTIOMETER_PIN))
 {
     pLcd->init();
 }

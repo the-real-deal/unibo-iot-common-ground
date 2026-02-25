@@ -16,7 +16,7 @@ class HWPlatform
 {
 
 public:
-  HWPlatform(EventQueue *queue);
+  HWPlatform();
   Button *getModeToggleButton();
   Valve *getValve();
   Lcd *getOperatorLCD();
