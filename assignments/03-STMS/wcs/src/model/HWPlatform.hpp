@@ -10,7 +10,6 @@
 #include "devices/api/Lcd.hpp"
 #include "devices/api/Pot.hpp"
 
-#define NUM_DEVICES 4
 
 class HWPlatform
 {

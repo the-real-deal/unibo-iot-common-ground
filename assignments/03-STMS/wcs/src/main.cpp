@@ -34,13 +34,15 @@ void loop()
     mainPublisher->publish(new PotEvent(rawOpening));
   }
 
-  // Serial publisher
-  if (msgService.isMsgAvailable())
-  {
-    Msg *msg = msgService.receiveMsg();
-    mainPublisher->publish(new SerialEvent(msg));
-  }
+  // Serial publisher - via polling 
+  // (commented because serial event is indeed an EventPublisher)
+  // if (msgService.isMsgAvailable())
+  // {
+  //   Msg *msg = msgService.receiveMsg();
+  //   mainPublisher->publish(new SerialEvent(msg));
+  // }
 
   delay(100);
+  // TODO: Probably to remove from here!
   asyncFSM->checkAndProcessEvent();
 }
