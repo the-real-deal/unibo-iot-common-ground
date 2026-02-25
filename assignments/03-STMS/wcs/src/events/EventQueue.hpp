@@ -7,14 +7,12 @@
 class EventQueue 
 {
 public:
-    void init();
+    EventQueue();
     void enqueue(IEvent* evt);
     IEvent* dequeue();
     bool isEmpty();
 private:
     LinkedList<IEvent*>* queue;
 };
-
-extern EventQueue sharedQueue;
 
 #endif

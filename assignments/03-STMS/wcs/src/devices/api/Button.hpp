@@ -13,7 +13,7 @@
 class Button: public AbstractDevice, public EventPublisher
 {
 public:
-  Button(uint8_t pin);
+  Button(uint8_t pin, EventQueue *queue);
 
 private:
   long lastPressedTime;

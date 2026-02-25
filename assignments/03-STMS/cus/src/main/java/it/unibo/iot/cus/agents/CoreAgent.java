@@ -34,7 +34,7 @@ public class CoreAgent extends AbstractVerticle {
                 return;
             }
             restartTMSConnectionTimeoutTimer();
-            final var waterLevel = Double.valueOf(content.split(":")[1]);
+            final var waterLevel = Double.valueOf(content.split(":")[1].split("#")[0]);
             this.sharedData.setLastWaterLevelSample(new WaterLevelSampleData(waterLevel));
             logger.atInfo().log("tank.waterlevel updated internal state with: ".concat(content));
             

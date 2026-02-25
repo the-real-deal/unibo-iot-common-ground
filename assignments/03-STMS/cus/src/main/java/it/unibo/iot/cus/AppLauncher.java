@@ -77,6 +77,8 @@ public final class AppLauncher {
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed CoreAgent");
                                 broadcast(sharedData, vertx.eventBus());
+                            }).onFailure(msg -> {
+                                logger.error("Cannot deploy CoreAgent :/ -" + msg.getMessage());
                             });
 
                     vertx.deployVerticle(new MqttAgent(
@@ -86,6 +88,8 @@ public final class AppLauncher {
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed MqttAgent");
                                 broadcast(sharedData, vertx.eventBus());
+                            }).onFailure(msg -> {
+                                logger.error("Cannot deploy MqttAgent :/ -" + msg.getMessage());
                             });
 
                     vertx.deployVerticle(new HttpAgent(
@@ -93,6 +97,8 @@ public final class AppLauncher {
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed HttpAgent");
                                 broadcast(sharedData, vertx.eventBus());
+                            }).onFailure(msg -> {
+                                logger.error("Cannot deploy HttpAgent :/ -" + msg.getMessage());
                             });
 
                     vertx.deployVerticle(new SerialAgent(
@@ -100,6 +106,8 @@ public final class AppLauncher {
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed SerialAgent");
                                 broadcast(sharedData, vertx.eventBus());
+                            }).onFailure(msg -> {
+                                logger.error("Cannot deploy SerialAgent :/ -" + msg.getMessage());
                             });
                     
                     broadcast(sharedData, vertx.eventBus());

@@ -4,45 +4,38 @@
 #include <events/EventQueue.hpp>
 #include <events/EventPublisher.hpp>
 #include <events/PotEvent.hpp>
-#include <events/SerialEvent.hpp>
 #include <model/HWPlatform.hpp>
 #include <devices/config/config.hpp>
 #include <config.hpp>
 
-AsyncFSM *asyncFSM;
-HWPlatform *pHWPlatform;
-EventPublisher *mainPublisher;
+AsyncFSM* asyncFSM;
+HWPlatform* pHWPlatform;
+EventQueue* sharedQueue;
+MsgServiceClass* msgService;
+EventPublisher* potPublisher;
 
-void setup()
-{
-  sharedQueue.init();
-  msgService.init();
-  pHWPlatform = new HWPlatform();
+void setup() {
+  sharedQueue = new EventQueue();
+  
+  msgService = new MsgServiceClass(sharedQueue);
+  pHWPlatform = new HWPlatform(sharedQueue);
   asyncFSM = new AsyncFSM(
-      pHWPlatform->getOperatorLCD(),
-      pHWPlatform->getPotentiometer(),
-      pHWPlatform->getValve());
-  mainPublisher = new EventPublisher();
+    pHWPlatform->getOperatorLCD(),
+    pHWPlatform->getPotentiometer(),
+    pHWPlatform->getValve(),
+    sharedQueue,
+    msgService
+  );
+
+  potPublisher = new EventPublisher(sharedQueue);
 }
 
-void loop()
-{
-  // Potentiometer publisher
-  if (pHWPlatform->getPotentiometer()->hasChanged())
+void loop() {
+  if (pHWPlatform->getPotentiometer()->hasChanged()) 
   {
     float rawOpening = pHWPlatform->getPotentiometer()->getValue();
-    mainPublisher->publish(new PotEvent(rawOpening));
+    potPublisher->publish(new PotEvent(rawOpening));
   }
-
-  // Serial publisher - via polling 
-  // (commented because serial event is indeed an EventPublisher)
-  // if (msgService.isMsgAvailable())
-  // {
-  //   Msg *msg = msgService.receiveMsg();
-  //   mainPublisher->publish(new SerialEvent(msg));
-  // }
-
   delay(100);
-  // TODO: Probably to remove from here!
   asyncFSM->checkAndProcessEvent();
 }

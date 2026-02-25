@@ -10,12 +10,13 @@
 #include "devices/api/Lcd.hpp"
 #include "devices/api/Pot.hpp"
 
+#define NUM_DEVICES 4
 
 class HWPlatform
 {
 
 public:
-  HWPlatform();
+  HWPlatform(EventQueue *queue);
   Button *getModeToggleButton();
   Valve *getValve();
   Lcd *getOperatorLCD();

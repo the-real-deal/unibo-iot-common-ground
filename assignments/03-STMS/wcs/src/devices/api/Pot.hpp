@@ -9,12 +9,12 @@
 /* Potentiometer Class:
  *  Interface for a potentiometer connected to an analog pin.
  */
-class Pot: public AbstractDevice
+class Pot: public AbstractDevice, public EventPublisher 
 {
 private:
   float lastVal = 0.0f;
 public:
-  Pot(uint8_t pin);
+  Pot(uint8_t pin, EventQueue *queue);
   float getValue();
   bool hasChanged();
 };

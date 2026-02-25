@@ -3,7 +3,7 @@
 /*
  * Pot Constructor
  */
-Pot::Pot(uint8_t pin) : AbstractDevice(pin)
+Pot::Pot(uint8_t pin, EventQueue *queue) : AbstractDevice(pin), EventPublisher(queue)
 {
   pinMode(pin, INPUT);
 }

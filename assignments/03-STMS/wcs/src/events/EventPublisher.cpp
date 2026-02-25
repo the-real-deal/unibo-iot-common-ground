@@ -1,10 +1,10 @@
 #include "events/EventPublisher.hpp"
 
-EventPublisher::EventPublisher() {}
+EventPublisher::EventPublisher(EventQueue *queue) : queue(queue) {}
 
 void EventPublisher::publish(IEvent *evt) 
 {
     // noInterrupts(); // TODO: check
-    sharedQueue.enqueue(evt);
+    queue->enqueue(evt);
     // interrupts();
 }

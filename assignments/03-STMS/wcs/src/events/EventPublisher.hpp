@@ -8,7 +8,9 @@
 class EventPublisher 
 {
 public:
-    EventPublisher();
+    EventPublisher(EventQueue *queue);
     void publish(IEvent* evt);
+private:
+    EventQueue* queue;
 };
 #endif

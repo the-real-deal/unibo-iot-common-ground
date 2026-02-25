@@ -2,9 +2,13 @@
 
 static String content;
 static String topic;
+static MsgServiceClass *instance = nullptr;
 
-EventPublisher pub;
-MsgServiceClass msgService;
+MsgServiceClass::MsgServiceClass(EventQueue* queue) : EventPublisher(queue) 
+{
+  instance = this;
+  this->init();
+}
 
 bool MsgServiceClass::isMsgAvailable(){
   return msgAvailable;
@@ -36,24 +40,26 @@ void MsgServiceClass::init(){
 void MsgServiceClass::sendMsg(const String& msg){
   if (!Serial) 
   {
-    pub.publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
+    publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
     return;
   }
   int availableBytes = Serial.availableForWrite();
   if (availableBytes < (int)msg.length()) 
   {
-    pub.publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
+    publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
     return;
   }
   Serial.println(msg);
 }
 
 void serialEvent() {
-  topic = ""; content = "";
+  if (instance == nullptr) return;
+  topic = "";
+  content = "";
 
   if (Serial.available() <= 0) 
   {
-    pub.publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
+    instance->publish(new SerialEvent(new Msg(MsgTopic::MODE, "UNCONNECTED")));
     return;
   }
   bool separatorSurpassed = false;
@@ -77,9 +83,9 @@ void serialEvent() {
       } else if (topic.equalsIgnoreCase("MODE")) {
         decodedTopic = MsgTopic::MODE;
       }
-      pub.publish(new SerialEvent(new Msg(decodedTopic, content)));
-      // msgService.currentMsg = new Msg(decodedTopic, content);
-      // msgService.msgAvailable = true;    
+      instance->publish(
+        new SerialEvent(new Msg(decodedTopic, content))
+      );     
     }
   }
 }
