@@ -2,7 +2,6 @@
 #include "model/Context.hpp"
 
 #include "kernel/SyncTask.hpp"
-#include "kernel/Scheduler.hpp"
 #include "kernel/HWPlatform.hpp"
 #include "tasks/api/ConnectionMonitoringTask.hpp"
 #include "tasks/api/DataSenderTask.hpp"
@@ -12,7 +11,6 @@
 HWPlatform *pHW;
 Context* pContext;
 
-Scheduler scheduler;
 SyncTask* pConnectionTask;
 SyncTask* pDataSenderTask;
 SyncTask* pSampleTask;
@@ -33,33 +31,27 @@ void setup()
     int t = 1;
     // TODO: Study how to use RTOS task creation
     pConnectionTask = new ConnectionMonitoringTask(pContext);
-    pConnectionTask->init(-1); // TODO: period
-    xTaskCreate([](void *p){ pConnectionTask->tick(); }, "ConnectionMonitoringTask", STACK_DEPTH, NULL, 2, &t1);
+    pConnectionTask->init(10);
+    xTaskCreatePinnedToCore([](void *p){ pConnectionTask->tick(); }, "ConnectionMonitoringTask", STACK_DEPTH, NULL, 2, &t1, 0);
     
     pDataSenderTask = new DataSenderTask(pContext);
-    pDataSenderTask->init(-1); // TODO: period
-    xTaskCreate([](void *p){ pDataSenderTask->tick(); }, "DataSenderTask", STACK_DEPTH, NULL, 1, &t2);
+    pDataSenderTask->init(SAMPLING_PERIOD);
+    xTaskCreatePinnedToCore([](void *p){ pDataSenderTask->tick(); }, "DataSenderTask", STACK_DEPTH, NULL, 1, &t2, 0);
 
     pSampleTask = new HWSampleWaterLevelTask(
         pHW->getTankSonar(),
         pContext
     );
-    pSampleTask->init(-1); // TODO: period
-    xTaskCreate([](void *p){ pSampleTask->tick(); }, "SampleTask", STACK_DEPTH, NULL, 1, &t3);
+    pSampleTask->init(SAMPLING_PERIOD);
+    xTaskCreatePinnedToCore([](void *p){ pSampleTask->tick(); }, "SampleTask", STACK_DEPTH, NULL, 1, &t3, 1);
 
     pLedsTask = new LedsTask(
         pContext, pHW->getOKLed(), pHW->getKOLed()
     );
-    xTaskCreate([](void *p){ pLedsTask->tick(); }, "LedsTask", STACK_DEPTH, NULL, 1, &t4);
-
-    // scheduler.addTask(pConnectionTask);
-    // scheduler.addTask(pSampleTask);
-    // scheduler.addTask(pDataSenderTask);
-    // scheduler.addTask(pLedsTask);
-    // scheduler.init(-1);
+    pLedsTask->init(LED_PERIOD);
+    xTaskCreatePinnedToCore([](void *p){ pLedsTask->tick(); }, "LedsTask", STACK_DEPTH, NULL, 1, &t4, 1);
 }
 
 void loop() 
 {
-    // scheduler.schedule();
 }

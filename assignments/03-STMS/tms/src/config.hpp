@@ -21,4 +21,10 @@
 #define MQTT_MSG_BUFFER_SIZE        50
 #define MQTT_TOPIC                  "tank/water-level"
 
+#define SAMPLING_PERIOD             pdMS_TO_TICKS(2 * FROM_S_TO_MS)
+#define LED_PERIOD                  pdMS_TO_TICKS(0.5 * FROM_S_TO_MS)
+#define CONNECTION_PERIOD           pdMS_TO_TICKS(100)
+
+
+
 #endif

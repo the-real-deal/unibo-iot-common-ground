@@ -11,37 +11,41 @@ LedsTask::LedsTask(Context *pContext, Led* pOkLed, Led* pKoLed) :
 
 void LedsTask::tick()
 {
-    LedsTaskStates currentTaskState = pTaskState->getState();
-    
-    switch (currentTaskState)
-    {
-        case PING:
+    for(;;){
+
+        LedsTaskStates currentTaskState = pTaskState->getState();
+        
+        switch (currentTaskState)
         {
-            if (!pContext->isNetworkOk) 
+            case PING:
             {
-                pKoLed->switchOn();
-                pOkLed->switchOff();
-                setState(PONG);
+                if (!pContext->isNetworkOk) 
+                {
+                    pKoLed->switchOn();
+                    pOkLed->switchOff();
+                    setState(PONG);
+                }
+                break;
             }
-            break;
-        }
-        case PONG:
-        {
-            if (pContext->isNetworkOk && pContext->canSendData) 
+            case PONG:
             {
-                pOkLed->switchOn();
-                pKoLed->switchOff();
-                setState(PING);
+                if (pContext->isNetworkOk && pContext->canSendData) 
+                {
+                    pOkLed->switchOn();
+                    pKoLed->switchOff();
+                    setState(PING);
+                }
+                break;
             }
-            break;
+            default: { break; }
         }
-        default: { break; }
+        vTaskDelay(this->getPeriod());
     }
 }
-
-void LedsTask::setState(LedsTaskStates state)
-{
-    this->justEntered = true;
-    this->pTaskState->setState(state);
-    this->stateTimestamp = millis();
-}
+    
+    void LedsTask::setState(LedsTaskStates state)
+    {
+        this->justEntered = true;
+        this->pTaskState->setState(state);
+        this->stateTimestamp = millis();
+    }

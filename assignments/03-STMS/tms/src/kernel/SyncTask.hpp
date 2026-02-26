@@ -54,6 +54,10 @@ public:
     }
     return bak;
   }
+
+  virtual char* getName() {
+    return this->taskName;
+  }
   
 protected:
 
@@ -64,7 +68,7 @@ protected:
   bool active;
   bool completed;
   bool justEntered;
-  String taskName;
+  char *taskName;
 };
 
 #endif

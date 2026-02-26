@@ -9,33 +9,37 @@ DataSenderTask::DataSenderTask(Context *pContext) :
 
 void DataSenderTask::tick()
 {
-    DataSenderTaskStates currentTaskState = pTaskState->getState();
-    switch (currentTaskState)
-    {
-    case OFFLINE:
-    {
-        if (pContext->isNetworkOk && pContext->canSendData)
+    for(;;){
+
+        DataSenderTaskStates currentTaskState = pTaskState->getState();
+        switch (currentTaskState)
         {
-            setState(ONLINE);
-            return;
+            case OFFLINE:
+            {
+                if (pContext->isNetworkOk && pContext->canSendData)
+                {
+                    setState(ONLINE);
+                    return;
+                }
+                break;
+            }
+            case ONLINE:
+            {
+                connectionProvider.mqttSendMsg(pContext->waterLevel);
+                if (!(pContext->isNetworkOk && pContext->canSendData))
+                {
+                    setState(OFFLINE);
+                    return;
+                }
+                break;
+            }
+            default: { break; }
         }
-        break;
-    }
-    case ONLINE:
-    {
-        connectionProvider.mqttSendMsg(pContext->waterLevel);
-        if (!(pContext->isNetworkOk && pContext->canSendData))
-        {
-            setState(OFFLINE);
-            return;
-        }
-        break;
-    }
-    default: { break; }
+        vTaskDelay(this->getPeriod());
     }
 }
-
-void DataSenderTask::setState(DataSenderTaskStates state)
+    
+    void DataSenderTask::setState(DataSenderTaskStates state)
 {
     this->justEntered = true;
     this->pTaskState->setState(state);
