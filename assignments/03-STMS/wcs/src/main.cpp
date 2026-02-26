@@ -30,7 +30,6 @@ void loop()
   // Potentiometer publisher
   if (pHWPlatform->getPotentiometer()->hasChanged())
   {
-    // TO INT
     int rawOpening = pHWPlatform->getPotentiometer()->getValue();
     mainPublisher->publish(new PotEvent(rawOpening));
   }
@@ -44,6 +43,5 @@ void loop()
   // }
 
   delay(100);
-  // TODO: Probably to remove from here!
   asyncFSM->checkAndProcessEvent();
 }

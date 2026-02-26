@@ -4,7 +4,7 @@ EventPublisher::EventPublisher() {}
 
 void EventPublisher::publish(IEvent *evt) 
 {
-    noInterrupts(); // TODO: check
+    noInterrupts();
     sharedQueue.enqueue(evt);
-    interrupts(); // TODO: check
+    interrupts();
 }

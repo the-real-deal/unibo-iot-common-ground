@@ -107,16 +107,16 @@ void AsyncFSM::handlePotEvt(PotEvent *potEvt)
 
 void AsyncFSM::checkAndProcessEvent()
 {
-    noInterrupts(); // TODO: check
+    noInterrupts();
     bool isEmpty = sharedQueue.isEmpty();
-    interrupts(); // TODO: check
+    interrupts();
 
     // Exit early if no events occurred
     if (isEmpty) { return; }
     
-    noInterrupts(); // TODO: check
+    noInterrupts();
     IEvent *evt = sharedQueue.dequeue();
-    interrupts(); // TODO: check
+    interrupts();
 
     switch (evt->getType())
     {
