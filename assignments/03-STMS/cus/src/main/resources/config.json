@@ -13,8 +13,5 @@
     },
     "http-server": {
         "port": 8080
-    },
-    "serial": {
-        "port": "/dev/cu.usbmodem1201"
     }
 }

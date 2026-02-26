@@ -62,7 +62,7 @@ public final class AppLauncher {
         final var mqttProps = loadedConf.get("mqtt").getAsJsonObject();
         final var httpProps = loadedConf.get("http-server").getAsJsonObject();
         final var sysProps = loadedConf.get("sys-params").getAsJsonObject();
-        final var serialProps = loadedConf.get("serial").getAsJsonObject();
+        final var serialPort = args.length > 0 ? args[0] : "/dev/cu.usbmodem1101";
 
         // Deployment stage
         vertx.deployVerticle(new MqttBrokerAgent(mqttProps.get("port").getAsInt()))
@@ -96,7 +96,7 @@ public final class AppLauncher {
                             });
 
                     vertx.deployVerticle(new SerialAgent(
-                            serialProps.get("port").getAsString(),
+                            serialPort,
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed SerialAgent");
                                 broadcast(sharedData, vertx.eventBus());

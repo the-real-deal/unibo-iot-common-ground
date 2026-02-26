@@ -46,6 +46,7 @@ void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
             log("unexpected mode received!");
             #endif
         }
+        displayState();
         break;
     }
     case MsgTopic::VALVE: 
@@ -93,6 +94,7 @@ void AsyncFSM::handleButtonEvt(ButtonEvent *buttonEvt)
     if (newState == SystemState::AUTOMATIC) { newStateStr = "AUTOMATIC"; }
     else if (newState == SystemState::MANUAL) { newStateStr = "MANUAL"; }
     msgService.sendMsg("MODE:" + newStateStr);
+    displayState();
 }
 
 void AsyncFSM::handlePotEvt(PotEvent *potEvt)
@@ -156,8 +158,6 @@ void AsyncFSM::checkAndProcessEvent()
         #endif
         break;
     }
-
-    displayState();
 }
 
 void AsyncFSM::displayState()

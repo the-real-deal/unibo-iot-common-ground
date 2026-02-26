@@ -17,7 +17,7 @@ Button::Button(uint8_t pin) :
   lastPressedTime(0), 
   justClicked(false) 
 {
-  pinMode(pin, INPUT);
+  pinMode(pin, INPUT_PULLUP);
   currentInstance = this;
-  enableInterrupt(pin, onButtonPressed, RISING);
+  enableInterrupt(pin, onButtonPressed, FALLING);
 }

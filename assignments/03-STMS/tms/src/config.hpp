@@ -11,8 +11,8 @@
 #define OK_LED_PIN                  -1 // TODO: Define !!!!!
 #define KO_LED_PIN                  -1 // TODO: Define !!!!!
 
-#define TRIG_PIN                    -1 // TODO: Define !!!!!
-#define ECHO_PIN                    -1 // TODO: Define !!!!!
+#define TRIG_PIN                    5
+#define ECHO_PIN                    18
 #define MAX_TIME                    1 * FROM_S_TO_MS
 
 #define MQTT_SERVER                 "localhost"
