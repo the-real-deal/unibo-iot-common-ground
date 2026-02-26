@@ -3,10 +3,10 @@
 
 #include "events/Event.hpp"
 
-class PotEvent: public Event<float> 
+class PotEvent: public Event<int> //changed to int
 {
 public:
-    PotEvent(float value);
+    PotEvent(int value); //changed to int
     EventType getType() const override;
 }; 
 #endif

@@ -12,10 +12,10 @@
 class Pot: public AbstractDevice
 {
 private:
-  float lastVal = 0.0f;
+  int lastVal = 0;
 public:
   Pot(uint8_t pin);
-  float getValue();
+  int getValue();
   bool hasChanged();
 };
 

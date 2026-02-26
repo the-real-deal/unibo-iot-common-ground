@@ -11,15 +11,15 @@ Pot::Pot(uint8_t pin) : AbstractDevice(pin)
 /*
  * Check the current value of the potentiometer
  */
-float Pot::getValue()
+int Pot::getValue()
 {
   return analogRead(pin);
 }
 
 bool Pot::hasChanged()
 {
-  float newVal = getValue();
-  if (newVal != lastVal) {
+  int newVal = getValue();
+  if (abs(newVal - lastVal) > DELTA_POT) {
     lastVal = newVal;
     return true;
   }

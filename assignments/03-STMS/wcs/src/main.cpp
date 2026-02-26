@@ -30,7 +30,8 @@ void loop()
   // Potentiometer publisher
   if (pHWPlatform->getPotentiometer()->hasChanged())
   {
-    float rawOpening = pHWPlatform->getPotentiometer()->getValue();
+    // TO INT
+    int rawOpening = pHWPlatform->getPotentiometer()->getValue();
     mainPublisher->publish(new PotEvent(rawOpening));
   }
 

@@ -3,7 +3,8 @@
 
 #include "devices/api/ServoTimer2.hpp"
 
-#define DELTA                   100     // Bedouncing delta time for button
+#define DELTA_BTN               100     // Bedouncing delta time for button
+#define DELTA_POT               5       // Bedouncing delta time for button
 
 #define LCD_I2C_ADDRESS         0x27
 

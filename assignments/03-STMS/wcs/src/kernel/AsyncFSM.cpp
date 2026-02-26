@@ -50,12 +50,9 @@ void AsyncFSM::handleSerialEvt(SerialEvent *serialEvt)
     }
     case MsgTopic::VALVE: 
     {
-        if (this->state->getState() == SystemState::AUTOMATIC) 
-        {
-            // we received something about the valve
-            // assuming the opening value arrives already in percentage between [0.0, 1.0]
-            this->valve->setOpening(receivedMsg->getContent().toFloat() * 100.0);
-        }
+        // we received something about the valve
+        // assuming the opening value arrives already in percentage between [0.0, 1.0]
+        this->valve->setOpening(receivedMsg->getContent().toFloat());
         break;
     }
     default: 
@@ -103,23 +100,23 @@ void AsyncFSM::handlePotEvt(PotEvent *potEvt)
     SystemState currentSystemState = this->state->getState();
     if (currentSystemState != SystemState::MANUAL) { return; }
 
-    float percentage = (potEvt->getValue() - POT_MIN) / (POT_MAX - POT_MIN);
+    float percentage = (float)(potEvt->getValue() - POT_MIN) / (POT_MAX - POT_MIN);
     valve->setOpening(percentage);
     msgService.sendMsg("VALVE:" + String(percentage));
 }
 
 void AsyncFSM::checkAndProcessEvent()
 {
-    // noInterrupts(); // TODO: check
+    noInterrupts(); // TODO: check
     bool isEmpty = sharedQueue.isEmpty();
-    // interrupts(); // TODO: check
+    interrupts(); // TODO: check
 
     // Exit early if no events occurred
     if (isEmpty) { return; }
     
-    // noInterrupts(); // TODO: check
+    noInterrupts(); // TODO: check
     IEvent *evt = sharedQueue.dequeue();
-    // interrupts(); // TODO: check
+    interrupts(); // TODO: check
 
     switch (evt->getType())
     {

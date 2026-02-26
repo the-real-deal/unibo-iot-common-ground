@@ -34,7 +34,7 @@ public class CoreAgent extends AbstractVerticle {
                 return;
             }
             restartTMSConnectionTimeoutTimer();
-            final var waterLevel = Double.valueOf(content.split(":")[1]);
+            final var waterLevel = Double.valueOf(content.split(":")[1].split("#")[0]);
             this.sharedData.setLastWaterLevelSample(new WaterLevelSampleData(waterLevel));
             logger.atInfo().log("tank.waterlevel updated internal state with: ".concat(content));
             
@@ -48,15 +48,15 @@ public class CoreAgent extends AbstractVerticle {
             // so the forced 50% or 100% openings should not happen
             if (waterLevel <= L1) {
                 restartThresholdTimer();
-                restartEmptyingTimer();
-                return;
+            } else {
+                // if the water level sampled is below L2 (but above L1), only the forced 100% opening should happen
+                if (waterLevel > L2) {
+                    restartThresholdTimer();
+                    emptyTank();
+                    return;
+                }
             }
 
-            // if the water level sampled is below L2 (but above L1), only the forced 100% opening should happen
-            if (waterLevel <= L2) {
-                restartThresholdTimer();
-                return;
-            }
         });
 
         msgChannel.consumer("system.inputmode", msg -> {
@@ -85,7 +85,7 @@ public class CoreAgent extends AbstractVerticle {
         
         restartTMSConnectionTimeoutTimer();
         restartThresholdTimer();
-        restartEmptyingTimer();
+        emptyTank();
     }
     
     private void restartTMSConnectionTimeoutTimer() {
@@ -107,14 +107,12 @@ public class CoreAgent extends AbstractVerticle {
         });
     }
 
-    private void restartEmptyingTimer() {
-        // Sets the valve opening at 100% after T2 seconds
-        vertx.setTimer(T2, (timerID) -> {
-            if (!this.sharedData.isSystemInAutomaticMode()) {
-                return;
-            }
-            this.sharedData.setValveOpeningPercentage(1.0);
-            vertx.eventBus().publish("tank.valveopening", this.senderID.concat(":" + String.valueOf(this.sharedData.getValveOpeningPercentage())));
-        });
+    private void emptyTank() {
+        // Sets the valve opening at 100%
+        if (!this.sharedData.isSystemInAutomaticMode()) {
+            return;
+        }
+        this.sharedData.setValveOpeningPercentage(1.0);
+        vertx.eventBus().publish("tank.valveopening", this.senderID.concat(":" + String.valueOf(this.sharedData.getValveOpeningPercentage())));
     }
 }

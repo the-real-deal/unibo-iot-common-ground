@@ -1,9 +1,9 @@
 {
     "sys-params": {
-        "L1": -1, 
-        "L2": -1, 
-        "T1": -1, 
-        "T2": -1
+        "L1": 10, 
+        "L2": 20, 
+        "T1": 3000, 
+        "T2": 10000
     },
     "mqtt": {
         "brokerAddress": "tcp://localhost:manca-porta",
@@ -15,6 +15,6 @@
         "port": 8080
     },
     "serial": {
-        "port": "/dev/cu.usbmodem1101"
+        "port": "/dev/cu.usbmodem1201"
     }
 }

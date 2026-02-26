@@ -5,7 +5,7 @@
 
 #define BUTTON_PIN          2
 #define POTENTIOMETER_PIN   A0
-#define VALVE_PIN           10
+#define VALVE_PIN           9
 #define LCD_SDA             A4
 #define LCD_SCL             A5
 
