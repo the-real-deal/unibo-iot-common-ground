@@ -15,25 +15,30 @@ public class MqttAgent extends AbstractVerticle {
     private static final Logger logger = LoggerFactory.getLogger(MqttAgent.class);
     private MqttClient client;
     private String topic;
+    private String clientID;
+    private String broker;
     private int port;
     private Context sharedData;
     private String senderID;
 
     public MqttAgent(
         final String mqttClientID,
-        final String mqttTopic, 
+        final String mqttTopic,
+        final String mqttBroker, 
         final int mqttPort,
         final Context sharedData) {
-        this.client = MqttClient.create(vertx, new MqttClientOptions().setClientId(mqttClientID));
+        this.clientID = mqttClientID;
         this.topic = mqttTopic;
         this.port = mqttPort;
         this.sharedData = sharedData;
+        this.broker = mqttBroker;
         this.senderID = MqttAgent.class.getName();
     }
     @Override
     public void start() throws Exception {
-        client.connect(port, "localhost", sub -> {
-            if (sub.succeeded()) {
+        this.client = MqttClient.create(vertx, new MqttClientOptions().setClientId(this.clientID));
+        client.connect(port, broker, conn -> {
+            if (conn.succeeded()) {
                 logger.atInfo().log("Connected to broker!");
                 client.subscribe(this.topic, MqttQoS.AT_LEAST_ONCE.value(), subscription -> {
                     if (subscription.succeeded()) {
@@ -59,7 +64,7 @@ public class MqttAgent extends AbstractVerticle {
                     }
                 });
             } else {
-                logger.atError().log("Failed to connect: " + sub.cause().getMessage());
+                logger.atError().log("Failed to connect: " + conn.cause().getMessage());
             }
         });
     }

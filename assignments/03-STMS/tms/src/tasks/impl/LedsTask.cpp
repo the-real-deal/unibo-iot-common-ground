@@ -19,7 +19,7 @@ void LedsTask::tick()
         {
             case PING:
             {
-                if (!pContext->isNetworkOk) 
+                if (!pContext->isWiFiOK) 
                 {
                     pKoLed->switchOn();
                     pOkLed->switchOff();
@@ -29,7 +29,7 @@ void LedsTask::tick()
             }
             case PONG:
             {
-                if (pContext->isNetworkOk && pContext->canSendData) 
+                if (pContext->isWiFiOK && pContext->isMQTTOK) 
                 {
                     pOkLed->switchOn();
                     pKoLed->switchOff();

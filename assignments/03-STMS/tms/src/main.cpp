@@ -1,5 +1,6 @@
 #include "model/ConnectionProvider.hpp"
 #include "model/Context.hpp"
+#include "kernel/Logger.hpp"
 
 #include "kernel/SyncTask.hpp"
 #include "kernel/HWPlatform.hpp"
@@ -28,11 +29,7 @@ void setup()
     connectionProvider.init();
     pHW = new HWPlatform();
     pContext = new Context(false, 0.0f, false);
-    int t = 1;
     // TODO: Study how to use RTOS task creation
-    pConnectionTask = new ConnectionMonitoringTask(pContext);
-    pConnectionTask->init(10);
-    xTaskCreatePinnedToCore([](void *p){ pConnectionTask->tick(); }, "ConnectionMonitoringTask", STACK_DEPTH, NULL, 2, &t1, 0);
     
     pDataSenderTask = new DataSenderTask(pContext);
     pDataSenderTask->init(SAMPLING_PERIOD);
@@ -53,5 +50,31 @@ void setup()
 }
 
 void loop() 
-{
+{   
+    pContext->isWiFiOK = connectionProvider.wifiIsConnected();
+    if (!pContext->isWiFiOK) 
+    {
+        connectionProvider.wifiConnect();
+        while (!connectionProvider.wifiIsConnected()) 
+        {
+            logger.log(".");
+            delay(500);
+        }
+        pContext->isWiFiOK = true;
+        logger.log("Connected to WiFi!");
+    }
+
+    pContext->isMQTTOK = connectionProvider.mqttIsConnected();
+    if (!pContext->isMQTTOK) 
+    {
+        logger.log("Connecting to MQTT...");
+        connectionProvider.mqttConnect();
+        while (!connectionProvider.mqttIsConnected()) 
+        {
+            logger.log(".");
+            delay(500);
+        }
+        pContext->isMQTTOK = true;
+        logger.log("Connected to MQTT!");
+    }
 }

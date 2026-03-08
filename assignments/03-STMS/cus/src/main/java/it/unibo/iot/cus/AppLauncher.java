@@ -24,18 +24,18 @@ import it.unibo.iot.cus.model.WaterLevelSampleData;
 public final class AppLauncher {
 
     private static final Logger logger = LoggerFactory.getLogger(AppLauncher.class);
-
+    private static final String senderID = "AppLauncher";
     private AppLauncher() {
     }
 
     // Broadcast to all deployed agents the initial system state
     private static void broadcast(Context ctx, EventBus bus) {
         bus.publish("system.inputmode",
-                "AppLauncher:" + String.valueOf(ctx.getInputMode()));
+                senderID + ":" + String.valueOf(ctx.getInputMode()));
         bus.publish("tank.waterlevel",
-                "AppLauncher:" + String.valueOf(ctx.getLastWaterLevelSample()));
+                senderID + ":" + String.valueOf(ctx.getLastWaterLevelSample()));
         bus.publish("tank.valveopening",
-                "AppLauncher:" + String.valueOf(ctx.getValveOpeningPercentage()));
+                senderID + ":" + String.valueOf(ctx.getValveOpeningPercentage()));
     }
 
     /**
@@ -56,7 +56,7 @@ public final class AppLauncher {
         final var vertx = Vertx.vertx();
         final var sharedData = new Context(
                 new WaterLevelSampleData(0),
-                InputMode.AUTOMATIC,
+                InputMode.UNCONNECTED,
                 0);
 
         final var mqttProps = loadedConf.get("mqtt").getAsJsonObject();
@@ -82,10 +82,14 @@ public final class AppLauncher {
                     vertx.deployVerticle(new MqttAgent(
                             mqttProps.get("clientID").getAsString(),
                             mqttProps.get("topic").getAsString(),
+                            mqttProps.get("brokerAddress").getAsString(),
                             mqttProps.get("port").getAsInt(),
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed MqttAgent");
                                 broadcast(sharedData, vertx.eventBus());
+                            })
+                            .onFailure(err -> {
+                                logger.error("Could not deploy MqttAgent! Reason: " + err.getMessage());
                             });
 
                     vertx.deployVerticle(new HttpAgent(
@@ -108,5 +112,44 @@ public final class AppLauncher {
                     logger.error("Could not start the CUS application!");
                     ex.printStackTrace();
                 });
+
+        final var msgChannel = vertx.eventBus();
+        msgChannel.consumer("tank.valveopening", msg -> {
+            final var content = String.valueOf(msg.body());
+            final var sender = content.split(":")[0];
+            // avoid echo
+            if (sender.equals(senderID)) {
+                return;
+            }
+            final var value = content.split(":")[1];
+            sharedData.setValveOpeningPercentage(Double.valueOf(value));
+            logger.atInfo().log(msg.address() + " updated internal state with: " + value);
+        });
+
+        msgChannel.consumer("system.inputmode", msg -> {
+            final var content = String.valueOf(msg.body());
+            final var sender = content.split(":")[0];
+            // avoid echo
+            if (sender.equals(senderID)) {
+                return;
+            }
+            final var value = content.split(":")[1];
+            sharedData.setInputMode(InputMode.valueOf(value));
+            logger.atInfo().log(msg.address() + " updated internal state with: " + value);
+        });
+
+        msgChannel.consumer("tank.waterlevel", msg -> {
+            final var content = String.valueOf(msg.body());
+            final var sender = content.split(":")[0];
+            // avoid echo
+            if (sender.equals(senderID)) {
+                return;
+            }
+            final var value = content.split(":")[1];
+            sharedData.setLastWaterLevelSample(
+                new WaterLevelSampleData(Double.valueOf(value.split("#")[0]))
+            );
+            logger.atInfo().log("tank.waterlevel updated internal state with: ".concat(content));
+        });
     }
 }

@@ -3,13 +3,13 @@
         "L1": 10, 
         "L2": 20, 
         "T1": 3000, 
-        "T2": 10000
+        "T2": 60000
     },
     "mqtt": {
-        "brokerAddress": "tcp://localhost:manca-porta",
-        "clientID": "tcp://localhost:manca-porta",
+        "brokerAddress": "broker.mqtt-dashboard.com",
+        "clientID": "CUS Agent",
         "topic": "tank/water-level",
-        "port": 20000
+        "port": 1883
     },
     "http-server": {
         "port": 8080

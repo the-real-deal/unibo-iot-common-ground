@@ -33,38 +33,38 @@ public class MqttBrokerAgent extends AbstractVerticle {
 			
 			// add the connected client to the subscribers list,
 			// specifying some QoS params (Quality of Service)
-			endpoint.subscribeHandler(newSub -> {
-				this.subscribers.add(endpoint);
+			// endpoint.subscribeHandler(newSub -> {
+			// 	this.subscribers.add(endpoint);
 
-				final List<MqttQoS> grantedQosLevels = new ArrayList<>();
-                newSub.topicSubscriptions().forEach(s -> {
-                    logger.info("[BR] Client " + endpoint.clientIdentifier() + " subscribed to " + s.topicName());
-                    grantedQosLevels.add(s.qualityOfService());
-                });
-                endpoint.subscribeAcknowledge(newSub.messageId(), grantedQosLevels);
-			});
+			// 	final List<MqttQoS> grantedQosLevels = new ArrayList<>();
+            //     newSub.topicSubscriptions().forEach(s -> {
+            //         logger.info("[BR] Client " + endpoint.clientIdentifier() + " subscribed to " + s.topicName());
+            //         grantedQosLevels.add(s.qualityOfService());
+            //     });
+            //     endpoint.subscribeAcknowledge(newSub.messageId(), grantedQosLevels);
+			// });
 
 			// notify all the subscribers of the new message
-			endpoint.publishHandler(msg -> {
-				subscribers.forEach(sub -> {
-					sub.publish(
-						msg.topicName(),
-						msg.payload(),
-						msg.qosLevel(),
-						msg.isDup(),
-						msg.isRetain());
-					});
+			// endpoint.publishHandler(msg -> {
+			// 	subscribers.forEach(sub -> {
+			// 		sub.publish(
+			// 			msg.topicName(),
+			// 			msg.payload(),
+			// 			msg.qosLevel(),
+			// 			msg.isDup(),
+			// 			msg.isRetain());
+			// 		});
 					
-					if (msg.qosLevel() == MqttQoS.AT_LEAST_ONCE) {
-                    	endpoint.publishAcknowledge(msg.messageId());
-                	}
-			});
+			// 		if (msg.qosLevel() == MqttQoS.AT_LEAST_ONCE) {
+            //         	endpoint.publishAcknowledge(msg.messageId());
+            //     	}
+			// });
 
 			// removal from subscribers list
-			endpoint.disconnectHandler(v -> {
-                logger.info("MQTT client disconnected: " + endpoint.clientIdentifier());
-                subscribers.remove(endpoint);
-            });
+			// endpoint.disconnectHandler(v -> {
+            //     logger.info("MQTT client disconnected: " + endpoint.clientIdentifier());
+            //     subscribers.remove(endpoint);
+            // });
 
 			// accept connection from the remote client
 			endpoint.accept(false);

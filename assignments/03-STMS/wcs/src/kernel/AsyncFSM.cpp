@@ -3,7 +3,7 @@
 // #define DEBUG
 
 AsyncFSM::AsyncFSM(Lcd *lcd, Pot *pot, Valve *valve)
-    : state(new StateHolder<SystemState>(MANUAL)),
+    : state(new StateHolder<SystemState>(UNCONNECTED)),
     lcd(lcd),
     potentiometer(pot),
     valve(valve)

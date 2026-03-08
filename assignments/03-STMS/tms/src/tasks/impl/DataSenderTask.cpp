@@ -9,27 +9,24 @@ DataSenderTask::DataSenderTask(Context *pContext) :
 
 void DataSenderTask::tick()
 {
-    for(;;){
-
+    for(;;) {
         DataSenderTaskStates currentTaskState = pTaskState->getState();
         switch (currentTaskState)
         {
             case OFFLINE:
             {
-                if (pContext->isNetworkOk && pContext->canSendData)
+                if (pContext->isWiFiOK && pContext->isMQTTOK)
                 {
                     setState(ONLINE);
-                    return;
                 }
                 break;
             }
             case ONLINE:
             {
                 connectionProvider.mqttSendMsg(pContext->waterLevel);
-                if (!(pContext->isNetworkOk && pContext->canSendData))
+                if (!(pContext->isWiFiOK && pContext->isMQTTOK))
                 {
                     setState(OFFLINE);
-                    return;
                 }
                 break;
             }
@@ -39,7 +36,7 @@ void DataSenderTask::tick()
     }
 }
     
-    void DataSenderTask::setState(DataSenderTaskStates state)
+void DataSenderTask::setState(DataSenderTaskStates state)
 {
     this->justEntered = true;
     this->pTaskState->setState(state);

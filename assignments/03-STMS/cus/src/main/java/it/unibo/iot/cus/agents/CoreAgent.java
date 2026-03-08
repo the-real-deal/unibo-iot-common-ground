@@ -34,6 +34,10 @@ public class CoreAgent extends AbstractVerticle {
                 return;
             }
             restartTMSConnectionTimeoutTimer();
+            if (this.sharedData.getInputMode().equals(InputMode.UNCONNECTED)) {
+                this.sharedData.setInputMode(InputMode.AUTOMATIC);
+                vertx.eventBus().publish("system.inputmode", this.senderID.concat(":" + this.sharedData.getInputMode().name()));
+            }
             final var waterLevel = Double.valueOf(content.split(":")[1].split("#")[0]);
             this.sharedData.setLastWaterLevelSample(new WaterLevelSampleData(waterLevel));
             logger.atInfo().log("tank.waterlevel updated internal state with: ".concat(content));

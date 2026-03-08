@@ -2,8 +2,8 @@
 
 #include "model/Context.hpp"
 
-Context::Context(bool canSendData, 
+Context::Context(bool isMQTTOK, 
     float waterLevel, 
-    bool isNetworkOk) : 
-    canSendData(canSendData), waterLevel(waterLevel), isNetworkOk(isNetworkOk)
+    bool isWiFiOK) : 
+    isMQTTOK(isMQTTOK), waterLevel(waterLevel), isWiFiOK(isWiFiOK)
 { }
