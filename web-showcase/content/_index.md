@@ -10,8 +10,19 @@ aliases = [
 
 +++
 
+<small>
+{{% badge %}}
+{{% academic_year %}}
+{{% /badge %}}
+</small>
+
 #### Embedded Systems and Internet of Things Course
-Bachelor Degree in Computer Science and Engineering @ University of Bologna, Cesena Campus, IT
+<div>
+
+Bachelor Degree in Computer Science and Engineering <br>
+**@** University of Bologna, Cesena Campus, IT
+
+</div>
 
 # **Assignments showcase**
 
@@ -33,6 +44,8 @@ Bachelor Degree in Computer Science and Engineering @ University of Bologna, Ces
 {{% /col %}}
 {{% /multicol %}}
 
+
+
 ---
 {{% section %}}
 ### **Assignment#01**
@@ -41,7 +54,7 @@ Bachelor Degree in Computer Science and Engineering @ University of Bologna, Ces
 
 <small>
 
-[{{% icon code="link" %}} README.md](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/01-TOS/README.md) | [<i class="fa-brands fa-github"></i> Repository](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/01-TOS)
+[{{% icon code="link" %}} README.md](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/01-TOS/README.md) | [<i class="fa-brands fa-github"></i> Source Code](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/01-TOS)
 
 </small>
 
@@ -70,7 +83,7 @@ Bachelor Degree in Computer Science and Engineering @ University of Bologna, Ces
 
 <small>
 
-[{{% icon code="link" %}} README.md](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/02-SDH/README.md) | [<i class="fa-brands fa-github"></i> Repository](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/02-SDH)
+[{{% icon code="link" %}} README.md](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/02-SDH/README.md) | [<i class="fa-brands fa-github"></i> Source Code](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/02-SDH)
 
 </small>
 
@@ -100,7 +113,7 @@ Bachelor Degree in Computer Science and Engineering @ University of Bologna, Ces
 
 <small>
 
-[{{% icon code="link" %}} README.md](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/03-STMS/README.md) | [<i class="fa-brands fa-github"></i> Repository](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/03-STMS)
+[{{% icon code="link" %}} README.md](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/03-STMS/README.md) | [<i class="fa-brands fa-github"></i> Source Code](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/03-STMS)
 
 </small>
 
