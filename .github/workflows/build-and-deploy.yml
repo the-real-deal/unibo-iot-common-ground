@@ -11,6 +11,9 @@ on:
       - 'README.md'
       - 'CHANGELOG.md'
       - 'LICENSE'
+      - 'assignments/'
+      - 'lab/'
+      - 'misc/'
       - '.github/workflows/update-hugo.yml'
   pull_request:
   workflow_dispatch:
