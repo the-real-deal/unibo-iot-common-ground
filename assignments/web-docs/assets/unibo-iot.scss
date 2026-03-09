@@ -1,0 +1,183 @@
+@use "sass:color";
+
+@import "reveal-js/dist/theme/template/mixins";
+@import "reveal-js/dist/theme/template/settings";
+
+// Base settings for all themes that can optionally be
+// overridden by the super-theme
+
+// Fonts
+// Monospace
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono');
+
+// Sans-serif
+// @import url('https://fonts.googleapis.com/css2?family=Poppins');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather');
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* 
+	You may want a logo to be displayed 
+	on the bottom-left of the slides 
+*/
+$logo: url("../example-background.svg");
+
+$dark-theme: false !default;
+
+// DEFAULT COLORS: LIGHT MODE
+// Background of the presentation
+$backgroundColor: #fefefe;
+
+// Primary/body text
+$mainFont: 'Questrial', sans-serif;
+$mainFontSize: 40px;
+$mainColor: #000000;
+$accentClr: #760000;
+$codeClr: $accentClr;
+$headingColor: #222;
+
+// Colors used for UI elements that are overlaid on top of
+// the presentation
+$overlayElementBgColor: 240, 240, 240;
+$overlayElementFgColor: 0, 0, 0;
+
+// OVERRIDES COLORS IF DARK MODE SET TO TRUE
+@if $dark-theme {
+	// Background of the presentation
+	$backgroundColor: #000000;
+
+	// Primary/body text
+	$mainFont: 'Lato', sans-serif;
+	$mainFontSize: 40px;
+	$mainColor: white;
+	$accentClr: #760000;
+	$codeClr: rgb(144, 209, 21);
+	$headingColor: white;
+
+	
+	// Colors used for UI elements that are overlaid on top of
+	// the presentation
+	$overlayElementBgColor: 240, 240, 240;
+	$overlayElementFgColor: 0, 0, 0;
+}
+
+// Text selection
+$selectionBackgroundColor: #{$accentClr}77;
+$selectionColor: lighten( $backgroundColor, 10% );
+
+// Vertical spacing between blocks of text
+$blockMargin: 10px;
+
+// Headings
+$headingMargin: 30px 0;
+$headingFont: 'Merriweather';
+$headingLineHeight: 1;
+$headingLetterSpacing: normal;
+// $headingTextTransform: uppercase;
+$headingTextShadow: none;
+$headingFontWeight: normal;
+$heading1TextShadow: $headingTextShadow;
+
+$heading1Size: 3.77em;
+$heading2Size: 2.11em;
+$heading3Size: 1.55em;
+$heading4Size: 1.00em;
+$heading5Size: .80em;
+
+$codeFont: monospace;
+
+// Links and actions
+$linkColor: lighten($accentClr, 20%);
+$linkColorHover: lighten($linkColor, 20%);
+
+// Generates the presentation background, can be overridden
+// to return a background image or gradient
+@mixin bodyBackground() {
+	background: $backgroundColor;
+}
+
+@import "reveal-js/dist/theme/template/theme";
+
+// Override **some** bootstrap default values
+.reveal [class*="primary"] {
+	--bs-primary: #{$accentClr};
+	--bs-primary-bg: #{$accentClr};
+	--bs-primary-rgb: #{red($accentClr)}, #{green($accentClr)}, #{blue($accentClr)};
+
+	// Buttons variable
+	--bs-btn-bg: #{$accentClr};
+	--bs-btn-border-color: #{$accentClr};
+	--bs-btn-color: #{fff};
+	--bs-btn-bg: #{$accentClr};
+	--bs-btn-border-color: #{$accentClr};
+	--bs-btn-hover-color: #{$backgroundColor};
+	--bs-btn-hover-bg: #{$accentClr};
+	--bs-btn-hover-border-color: #{$accentClr};
+	--bs-btn-focus-shadow-rgb: 49, 132, 253;
+	--bs-btn-active-color: #{$backgroundColor};
+	--bs-btn-active-bg: #{$accentClr};
+	--bs-btn-active-border-color: #{$accentClr};
+	--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+	--bs-btn-disabled-color: #{$backgroundColor};
+	--bs-btn-disabled-bg: #{$accentClr};
+	--bs-btn-disabled-border-color: #{$accentClr};
+	color: $backgroundColor !important;
+}
+
+.reveal .slide-background:not(.stack) {
+	background-color: transparent;
+	// Uncomment to add bottom right logo in every slide
+	background-image: $logo;
+	background-repeat: no-repeat;
+	background-position: 1.5% 97%;
+	background-size: 15%;
+	background-clip: border-box;
+
+	// Uncomment to add slides border
+	border-style: solid;
+	border-color: $accentClr;
+	border-width: 0.3em;
+}
+
+.reveal .slide-background:not(:first-child, .stack):after {
+	content: "N. Magi, R. Scarcelli, E. Ventura";
+	position: absolute;
+	bottom: 2.5%;
+	right: 7%;
+	z-index: -1;
+	color: $accentClr;
+	font-size: .5em;
+	font-family: $mainFont;
+}
+
+.reveal strong,
+.reveal b {
+	font-weight: bold;
+	color: $accentClr;
+}
+
+.reveal em {
+	font-style: italic;
+	color: $accentClr;
+}
+
+.reveal section img {
+	border: 0em;
+	box-shadow: none;
+	max-width: 100%;
+	max-height: 23em;
+	height: auto;
+	object-fit: contain;
+}
+
+.reveal code:not(.nohighlight) {
+	color: $codeClr;
+	font-family: "JetBrains Mono", "Oxygen Mono", "Roboto Mono", "Ubuntu Mono", "Courier New", Courier, monospace;
+	font-weight: bold;
+}
+
+.reveal .code-wrapper {
+	border-radius: 10px;
+	padding: 7px;
+	box-shadow: 2.5px 2.5px 10px $mainColor;
+}
