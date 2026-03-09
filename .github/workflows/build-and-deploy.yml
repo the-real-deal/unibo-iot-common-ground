@@ -41,11 +41,11 @@ jobs:
       - name: Build slides with hugo
         run: hugo
         working-directory: web-showcase
-      - name: Transform and Inline Mermaid charts
-        uses: cric96/inline-mermaid@1.19.0
-        with:
-          directory: web-showcase/dist
-          css-file-regex: '^css\\/.*unibo.*iot.*\\.css$'
+      # - name: Transform and Inline Mermaid charts
+      #   uses: cric96/inline-mermaid@1.19.0
+      #   with:
+      #     directory: web-showcase/dist
+      #     css-file-regex: '^css\\/.*unibo.*iot.*\\.css$'
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v9
