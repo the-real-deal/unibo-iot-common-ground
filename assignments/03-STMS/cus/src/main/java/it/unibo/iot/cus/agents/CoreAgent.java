@@ -11,6 +11,7 @@ import io.vertx.core.AbstractVerticle;
 public class CoreAgent extends AbstractVerticle {
     private long T1, T2;
     private double L1, L2;
+    private long connTimeoutTimer, threshTimeoutTimer;
     private Context sharedData;
     private String senderID;
     private static final Logger logger = LoggerFactory.getLogger(CoreAgent.class);
@@ -49,11 +50,11 @@ public class CoreAgent extends AbstractVerticle {
             }
 
             // if the water level sampled is below L1, then the valve can have any opening level -
-            // so the forced 50% or 100% openings should not happen
+            // so the forced 50% or 100% openings should not happen     
             if (waterLevel <= L1) {
                 restartThresholdTimer();
             } else {
-                // if the water level sampled is below L2 (but above L1), only the forced 100% opening should happen
+                // if the water level sampled is above L2, only the forced 100% opening should happen
                 if (waterLevel > L2) {
                     restartThresholdTimer();
                     emptyTank();
@@ -89,20 +90,25 @@ public class CoreAgent extends AbstractVerticle {
         
         restartTMSConnectionTimeoutTimer();
         restartThresholdTimer();
-        emptyTank();
     }
     
     private void restartTMSConnectionTimeoutTimer() {
+        // Clears previous timer
+        vertx.cancelTimer(connTimeoutTimer);
         // Checks connection with TMS
-        vertx.setTimer(T2, (timerID) -> {
+        // New timer is created
+        connTimeoutTimer = vertx.setTimer(T2, (timerID) -> {
             this.sharedData.setInputMode(InputMode.UNCONNECTED);
             vertx.eventBus().publish("system.inputmode", this.senderID.concat(":" + this.sharedData.getInputMode().name()));
         });
     }
 
     private void restartThresholdTimer() {
+        // Clears previous timer
+        vertx.cancelTimer(threshTimeoutTimer);
         // Sets the valve opening at 50% after T1 seconds
-        vertx.setTimer(T1, (timerID) -> {
+        // New timer is created
+        threshTimeoutTimer = vertx.setTimer(T1, (timerID) -> {
             if (!this.sharedData.isSystemInAutomaticMode()) {
                 return;
             }

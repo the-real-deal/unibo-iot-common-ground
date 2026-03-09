@@ -25,8 +25,9 @@ public final class AppLauncher {
 
     private static final Logger logger = LoggerFactory.getLogger(AppLauncher.class);
     private static final String senderID = "AppLauncher";
-    private AppLauncher() {
-    }
+    
+    // Do not instantiate this class
+    private AppLauncher() { }
 
     // Broadcast to all deployed agents the initial system state
     private static void broadcast(Context ctx, EventBus bus) {
@@ -54,6 +55,7 @@ public final class AppLauncher {
         }
         final var loadedConf = config.get();
         final var vertx = Vertx.vertx();
+        final var msgChannel = vertx.eventBus();
         final var sharedData = new Context(
                 new WaterLevelSampleData(0),
                 InputMode.UNCONNECTED,
@@ -76,7 +78,7 @@ public final class AppLauncher {
                             sysProps.get("L2").getAsDouble(),
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed CoreAgent");
-                                broadcast(sharedData, vertx.eventBus());
+                                broadcast(sharedData, msgChannel);
                             });
 
                     vertx.deployVerticle(new MqttAgent(
@@ -86,7 +88,7 @@ public final class AppLauncher {
                             mqttProps.get("port").getAsInt(),
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed MqttAgent");
-                                broadcast(sharedData, vertx.eventBus());
+                                broadcast(sharedData, msgChannel);
                             })
                             .onFailure(err -> {
                                 logger.error("Could not deploy MqttAgent! Reason: " + err.getMessage());
@@ -96,14 +98,14 @@ public final class AppLauncher {
                             httpProps.get("port").getAsInt(),
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed HttpAgent");
-                                broadcast(sharedData, vertx.eventBus());
+                                broadcast(sharedData, msgChannel);
                             });
 
                     vertx.deployVerticle(new SerialAgent(
                             serialPort,
                             sharedData.getCopy())).onSuccess(aid -> {
                                 logger.info("Deployed SerialAgent");
-                                broadcast(sharedData, vertx.eventBus());
+                                broadcast(sharedData, msgChannel);
                             });
                     
                     broadcast(sharedData, vertx.eventBus());
@@ -113,7 +115,8 @@ public final class AppLauncher {
                     ex.printStackTrace();
                 });
 
-        final var msgChannel = vertx.eventBus();
+        // AppLauncher needs to listen to the internal EventBus in order to update
+        // its copy of the shared object as deployed agents use it 
         msgChannel.consumer("tank.valveopening", msg -> {
             final var content = String.valueOf(msg.body());
             final var sender = content.split(":")[0];

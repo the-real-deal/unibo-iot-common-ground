@@ -1,51 +1,52 @@
 #include "tasks/api/LedsTask.hpp"
 
-LedsTask::LedsTask(Context *pContext, Led* pOkLed, Led* pKoLed) :
-    pTaskState(new StateHolder<LedsTaskStates>(PING)),
-    pContext(pContext),
-    pKoLed(pKoLed),
-    pOkLed(pOkLed)
+LedsTask::LedsTask(Context *pContext, Led *pOkLed, Led *pKoLed) : pTaskState(new StateHolder<LedsTaskStates>(PING)),
+                                                                  pContext(pContext),
+                                                                  pKoLed(pKoLed),
+                                                                  pOkLed(pOkLed)
 {
     setState(PING);
 }
 
 void LedsTask::tick()
 {
-    for(;;){
-
+    for (;;)
+    {
         LedsTaskStates currentTaskState = pTaskState->getState();
-        
         switch (currentTaskState)
         {
-            case PING:
+        case PING:
+        {
+            if (!pContext->isWiFiOK || !pContext->isMQTTOK)
             {
-                if (!pContext->isWiFiOK) 
-                {
-                    pKoLed->switchOn();
-                    pOkLed->switchOff();
-                    setState(PONG);
-                }
-                break;
+                pKoLed->switchOn();
+                pOkLed->switchOff();
+                setState(PONG);
             }
-            case PONG:
+            break;
+        }
+        case PONG:
+        {
+            if (pContext->isWiFiOK && pContext->isMQTTOK)
             {
-                if (pContext->isWiFiOK && pContext->isMQTTOK) 
-                {
-                    pOkLed->switchOn();
-                    pKoLed->switchOff();
-                    setState(PING);
-                }
-                break;
+                pOkLed->switchOn();
+                pKoLed->switchOff();
+                setState(PING);
             }
-            default: { break; }
+            break;
+        }
+        default:
+        {
+            break;
+        }
         }
         vTaskDelay(this->getPeriod());
     }
 }
-    
-    void LedsTask::setState(LedsTaskStates state)
-    {
-        this->justEntered = true;
-        this->pTaskState->setState(state);
-        this->stateTimestamp = millis();
-    }
+
+void LedsTask::setState(LedsTaskStates state)
+{
+    this->justEntered = true;
+    this->pTaskState->setState(state);
+    this->stateTimestamp = millis();
+}

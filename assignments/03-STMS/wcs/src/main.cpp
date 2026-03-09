@@ -42,6 +42,5 @@ void loop()
   //   mainPublisher->publish(new SerialEvent(msg));
   // }
 
-  delay(100);
   asyncFSM->checkAndProcessEvent();
 }

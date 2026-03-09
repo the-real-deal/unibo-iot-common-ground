@@ -11,7 +11,7 @@ import it.unibo.iot.cus.model.Context;
 import it.unibo.iot.cus.model.WaterLevelSampleData;
 
 public class MqttAgent extends AbstractVerticle {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(MqttAgent.class);
     private MqttClient client;
     private String topic;
@@ -22,11 +22,11 @@ public class MqttAgent extends AbstractVerticle {
     private String senderID;
 
     public MqttAgent(
-        final String mqttClientID,
-        final String mqttTopic,
-        final String mqttBroker, 
-        final int mqttPort,
-        final Context sharedData) {
+            final String mqttClientID,
+            final String mqttTopic,
+            final String mqttBroker,
+            final int mqttPort,
+            final Context sharedData) {
         this.clientID = mqttClientID;
         this.topic = mqttTopic;
         this.port = mqttPort;
@@ -34,6 +34,7 @@ public class MqttAgent extends AbstractVerticle {
         this.broker = mqttBroker;
         this.senderID = MqttAgent.class.getName();
     }
+
     @Override
     public void start() throws Exception {
         this.client = MqttClient.create(vertx, new MqttClientOptions().setClientId(this.clientID));
@@ -56,9 +57,8 @@ public class MqttAgent extends AbstractVerticle {
                         double level = Double.valueOf(payload);
                         this.sharedData.setLastWaterLevelSample(new WaterLevelSampleData(level));
                         vertx.eventBus().publish(
-                            "tank.waterlevel",
-                            this.senderID.concat(":" + this.sharedData.getLastWaterLevelSample().toString())
-                        );
+                                "tank.waterlevel",
+                                this.senderID.concat(":" + this.sharedData.getLastWaterLevelSample().toString()));
                     } catch (Exception e) {
                         logger.atInfo().log("Error parsing data: " + e.getMessage());
                     }
@@ -68,5 +68,5 @@ public class MqttAgent extends AbstractVerticle {
             }
         });
     }
-    
+
 }

@@ -32,21 +32,21 @@ bool ConnectionProviderClass::wifiIsConnected()
 bool ConnectionProviderClass::mqttConnect()
 {
     bool success = _mqttClient.connect("ESP32 TMS");
-    if (success) 
-    {
-        _mqttClient.subscribe(MQTT_TOPIC);
-        _mqttClient.loop();
-    }
     return success;
 }
 
 bool ConnectionProviderClass::mqttIsConnected()
 {
     bool isConnected = _mqttClient.connected();
+    if (isConnected) 
+    {
+        _mqttClient.subscribe(MQTT_TOPIC);
+        _mqttClient.loop();
+    }
     return isConnected;
 }
 
-void ConnectionProviderClass::mqttSendMsg(float msg)
+void ConnectionProviderClass::mqttSendMeasurement(float msg)
 {
     char toSend[MQTT_MSG_BUFFER_SIZE];
     snprintf(toSend, MQTT_MSG_BUFFER_SIZE, "%.2f", msg);

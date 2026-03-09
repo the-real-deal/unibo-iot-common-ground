@@ -2,6 +2,7 @@
 #define __SAMPLE_WATER_LEVEL_TASK__
 
 #include "kernel/SyncTask.hpp"
+#include "kernel/Logger.hpp"
 #include "model/Context.hpp"
 #include "model/StateHolder.hpp"
 #include "devices/api/Sonar.hpp"

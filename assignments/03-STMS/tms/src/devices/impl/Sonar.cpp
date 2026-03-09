@@ -1,35 +1,13 @@
 #include "devices/api/Sonar.hpp"
 
-/*
-* Internal constants
-*/
-namespace {
-  constexpr float SOUND_SPEED = 331.5f;      
-  constexpr float SOUND_SPEED_TEMP_COEFF = 0.6f;  
-}
-
 /* 
 * Sonar Constructor
 */
-Sonar::Sonar(int echoP, int trigP, long maxTime)
-  : echoPin(echoP), trigPin(trigP), timeOut(maxTime), temperature(20.0f) {
+Sonar::Sonar(int echoP, int trigP)
+  : echoPin(echoP), trigPin(trigP) {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   digitalWrite(trigPin, LOW); 
-}
-
-/*
-* Get distance measurement from the sonar sensor.
-*/
-void Sonar::setTemperature(float temp) {
-  temperature = temp;
-}
-
-/*
-* Calculate speed of sound based on current temperature.
-*/
-float Sonar::getSoundSpeed() const {
-  return SOUND_SPEED + (SOUND_SPEED_TEMP_COEFF * temperature);
 }
 
 /*

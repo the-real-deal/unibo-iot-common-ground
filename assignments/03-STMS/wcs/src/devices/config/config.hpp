@@ -4,7 +4,7 @@
 #include "devices/api/ServoTimer2.hpp"
 
 #define DELTA_BTN               100     // Bedouncing delta time for button
-#define DELTA_POT               5       // delta value to reduce potentiometer uncertainty
+#define DELTA_POT               10      // delta value to reduce potentiometer uncertainty
 
 #define LCD_I2C_ADDRESS         0x27
 

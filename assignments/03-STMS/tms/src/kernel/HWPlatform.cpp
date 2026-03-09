@@ -4,7 +4,7 @@ void wakeUp() {}
 
 HWPlatform::HWPlatform()
 {
-    pTankSonar = new Sonar(ECHO_PIN, TRIG_PIN, MAX_TIME);
+    pTankSonar = new Sonar(ECHO_PIN, TRIG_PIN);
     pOKLed = new Led(OK_LED_PIN);
     pKOLed = new Led(KO_LED_PIN);
 }

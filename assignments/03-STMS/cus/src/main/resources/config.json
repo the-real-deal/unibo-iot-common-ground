@@ -1,9 +1,9 @@
 {
     "sys-params": {
-        "L1": 10, 
-        "L2": 20, 
+        "L1": 20, 
+        "L2": 40, 
         "T1": 3000, 
-        "T2": 60000
+        "T2": 5000
     },
     "mqtt": {
         "brokerAddress": "broker.mqtt-dashboard.com",

@@ -21,7 +21,7 @@ public:
     bool wifiIsConnected();
     bool mqttConnect();
     bool mqttIsConnected();
-    void mqttSendMsg(float msg);
+    void mqttSendMeasurement(float value);
 };
 
 extern ConnectionProviderClass connectionProvider;
