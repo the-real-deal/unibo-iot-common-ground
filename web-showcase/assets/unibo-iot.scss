@@ -36,6 +36,14 @@ $accentClr: #760000;
 $codeClr: $accentClr;
 $headingColor: #222;
 
+// Callouts styling
+$success: #28a745;
+$danger: #dc3545;
+$warning: #ffc107;
+$tip: #5a339e;
+$note: #17a2b8;
+$cite: gray;
+
 // Colors used for UI elements that are overlaid on top of
 // the presentation
 $overlayElementBgColor: 240, 240, 240;
@@ -54,7 +62,6 @@ $overlayElementFgColor: 0, 0, 0;
 	$codeClr: rgb(144, 209, 21);
 	$headingColor: white;
 
-	
 	// Colors used for UI elements that are overlaid on top of
 	// the presentation
 	$overlayElementBgColor: 240, 240, 240;
@@ -63,7 +70,7 @@ $overlayElementFgColor: 0, 0, 0;
 
 // Text selection
 $selectionBackgroundColor: #{$accentClr}77;
-$selectionColor: lighten( $backgroundColor, 10% );
+$selectionColor: lighten($backgroundColor, 10%);
 
 // Vertical spacing between blocks of text
 $blockMargin: 10px;
@@ -99,6 +106,10 @@ $linkColorHover: lighten($linkColor, 20%);
 @import "reveal-js/dist/theme/template/theme";
 
 // Override **some** bootstrap default values
+ol, ul {
+  padding-left: 0rem !important;
+}
+
 .reveal [class*="primary"] {
 	--bs-primary: #{$accentClr};
 	--bs-primary-bg: #{$accentClr};
@@ -180,4 +191,179 @@ $linkColorHover: lighten($linkColor, 20%);
 	border-radius: 10px;
 	padding: 7px;
 	box-shadow: 2.5px 2.5px 10px $mainColor;
+}
+
+/* Base callout styling */
+.callout {
+	margin: 0 auto;
+	// padding: 15px;
+	max-width: fit-content;
+	position: relative;
+	border-left: 10px solid #007bff;
+	border-radius: 10px;
+	background: #f8f9fa;
+	box-shadow: 7px 7px 5px rgba(red($mainColor),
+			green($mainColor),
+			blue($mainColor),
+			0.1);
+}
+
+.callout p {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	vertical-align: middle;
+}
+
+.callout-title {
+	font-weight: bold;
+	color: #333;
+	font-size: 1.1em;
+	justify-content: start;
+}
+
+.callout-title::before {
+	content: "";
+	margin-inline: .3em;
+	background-size: contain;
+}
+
+/* Note styling */
+.callout.note {
+	border-left-color: $note;
+	background: #e1f5fe;
+}
+
+.callout.note .callout-title {
+	color: #0277bd;
+}
+
+/* Tip styling */
+.callout.tip {
+	border-left-color: $tip;
+	background: lighten($tip, 50%);
+}
+
+.callout.tip .callout-title {
+	color: $tip;
+}
+
+.callout.tip::before {
+	content: '';
+    width: 130px;
+    height: 130px;
+    position: absolute;
+    display: inline-block;
+    transform: rotate(-30deg);
+	left: -110px;
+	top: -80px;
+    mask: url("../accent.svg") 100% 100% no-repeat;
+    mask-size: cover;
+    background: $tip;
+}
+
+/* Warning styling */
+.callout.warning {
+	border-left-color: $warning;
+	background: lighten($color: $warning, $amount: 45%);
+}
+
+.callout.warning .callout-title {
+	color: #f57c00;
+}
+
+/* Danger styling */
+.callout.danger {
+	border-left-color: $danger;
+	background: lighten($danger, 40%);
+}
+
+.callout.danger .callout-title {
+	color: darken($danger, 12%);
+}
+
+/* Success styling */
+.callout.success {
+	border-left-color: $success;
+	background: lighten($success, 55%);
+}
+
+.callout.success .callout-title {
+	color: darken($success, 12%);
+}
+
+/* Citation styling */
+.callout.cite {
+	border-left-color: transparent;
+	background: lighten($cite, 45%);
+}
+
+.callout.cite .callout-title {
+	color: darken($cite, 12%);
+	padding-left: .4em;
+}
+
+.callout.cite::before, .callout.cite::after {
+    position: absolute;
+	font-size: 6.5em;
+    display: inline-block;
+	color: $cite;
+	text-shadow: 5px 5px 0 lighten($color: $cite, $amount: 20%);
+}
+
+.callout.cite::before {
+	content: '\201C';
+	left: -60px;
+	top: -100px;
+}
+
+.callout.cite::after {
+	content: '\201D';
+	right: -50px;
+	bottom: -220px;
+}
+
+/* Interactive hover effects */
+.callout {
+	transition: all 0.3s ease;
+	cursor: default;
+}
+
+.callout:hover {
+	box-shadow: 0 4px 12px rgba(red($mainColor), green($mainColor), blue($mainColor), 0.15);
+	transform: translateY(-1px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	.callout {
+		margin: 15px -10px;
+		padding: 12px;
+		border-radius: 0;
+	}
+}
+
+.callout.success .callout-title::before {
+	content: "✅";
+}
+
+.callout.note .callout-title::before {
+	content: "ℹ️";
+}
+
+.callout.tip .callout-title::before {
+	content: "💡";
+}
+
+.callout.warning .callout-title::before {
+	content: "⚠️";
+}
+
+.callout.danger .callout-title::before {
+	content: "🚨";
+}
+
+.callout.cite .callout-title::before {
+	content: "";
 }

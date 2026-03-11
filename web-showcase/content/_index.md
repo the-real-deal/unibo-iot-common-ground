@@ -44,8 +44,6 @@ Bachelor Degree in Computer Science and Engineering <br>
 {{% /col %}}
 {{% /multicol %}}
 
-
-
 ---
 {{% section %}}
 ### **Assignment#01**
@@ -60,9 +58,27 @@ Bachelor Degree in Computer Science and Engineering <br>
 
 ---
 
+{{% multicol %}}
+{{% col %}}
+
+## Key Topics
+
+- Arduino Uno
+- Superloop Architecture
+- PWM & Analog vs Digital Pins
+- Hardware configuration
+- Hardware Interrupts
+- I2C and UART
+
+{{% /col %}}
+{{% col %}}
+
 ## Circuit
 
 ![](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/01-TOS/doc/circuit-sketch.jpeg?raw=true)
+
+{{% /col %}}
+{{% /multicol %}}
 
 ---
 
@@ -89,9 +105,25 @@ Bachelor Degree in Computer Science and Engineering <br>
 
 ---
 
+{{% multicol %}}
+{{% col %}}
+## Key topics
+- Sensors and Actuators
+- Finite State Machines
+  - **synchronous** and asynchronous
+- Task-based Architecture
+  - scheduler
+- Modelling hardware via OOP
+  - using C++
+- Serial Communication
+  - implementation via Java
+{{% /col %}}
+{{% col %}}
 ## Circuit
 
 ![](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/02-SDH/doc/ass02-SDH%20Circuit.png?raw=true)
+{{% /col %}}
+{{% /multicol %}}
 
 ---
 
@@ -119,9 +151,22 @@ Bachelor Degree in Computer Science and Engineering <br>
 
 ---
 
+{{% multicol %}}
+{{% col %}}
+## Key topics
+- Protocols for Embedded Systems: MQTT
+  - Using WiFi via hardware
+- ESP32
+- Real Time Operating Systems (*RTOS*)
+  - *ESP32 Expressif API*
+- `vertx` Java library
+{{% /col %}}
+{{% col %}}
 ## Circuit
 
 *TO BE REFINED*
+{{% /col %}}
+{{% /multicol %}}
 
 ---
 
