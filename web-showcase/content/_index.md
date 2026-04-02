@@ -151,20 +151,30 @@ Bachelor Degree in Computer Science and Engineering <br>
 
 ---
 
+## Key topics
+
 {{% multicol %}}
 {{% col %}}
-## Key topics
 - Protocols for Embedded Systems: MQTT
   - Using WiFi via hardware
 - ESP32
+{{% /col %}}
+{{% col %}}
 - Real Time Operating Systems (*RTOS*)
   - *ESP32 Expressif API*
 - `vertx` Java library
 {{% /col %}}
-{{% col %}}
-## Circuit
+{{% /multicol %}}
 
-*TO BE REFINED*
+{{% multicol %}}
+{{% col %}}
+![](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/03-STMS/doc/TMS-Circuit.jpeg?raw=true)
+## Circuit(s)
+{{% /col %}}
+{{% col %}}
+
+![](https://github.com/the-real-deal/unibo-iot-common-ground/blob/main/assignments/03-STMS/doc/WCS-Circuit.jpeg?raw=true)
+
 {{% /col %}}
 {{% /multicol %}}
 
@@ -172,6 +182,10 @@ Bachelor Degree in Computer Science and Engineering <br>
 
 ## Video
 
-*TO BE REFINED*
+<div style="max-width: 1280px; margin-inline: auto;"><div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"><iframe src="https://liveunibo-my.sharepoint.com/personal/nicholas_magi_studio_unibo_it/_layouts/15/embed.aspx?UniqueId=b2ac3d45-1f55-4d90-b61a-17ce7c8fad22&embed=%7B%22ust%22%3Afalse%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create" width="1280" height="720" frameborder="0" scrolling="no" allowfullscreen title="ass03-STMS-video-demo.mov" style="border:none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; height: 100%; max-width: 100%;"></iframe></div></div>
+
+{{% emoji bulb %}}[Click here](https://liveunibo-my.sharepoint.com/:v:/g/personal/nicholas_magi_studio_unibo_it/IQByJ_D9CLRFSpkgr1TAZhisAU6f0DKJ2ANaA3Tk_ZulMRc?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=2UpDqz) if it doesn't load properly!
+
+<small>*DISCLAIMER*: Only people with an active account within **University of Bologna** can view the video.</small>
 
 {{% /section %}}

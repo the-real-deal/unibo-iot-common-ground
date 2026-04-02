@@ -150,14 +150,15 @@ ol, ul {
 	border-width: 0.3em;
 }
 
-.reveal .slide-background:not(:first-child, .stack):after {
+.reveal .navigate-left::before {
 	content: "N. Magi, R. Scarcelli, E. Ventura";
+	min-width: max-content;
 	position: absolute;
-	bottom: 2.5%;
-	right: 7%;
+	right: 45px;
+	top: 6px;
 	z-index: -1;
 	color: $accentClr;
-	font-size: .5em;
+	font-size: 2em;
 	font-family: $mainFont;
 }
 
