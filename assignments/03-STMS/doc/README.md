@@ -3,7 +3,7 @@
 
 ## Slides link
 
-[Web slides]()
+[Web slides](https://the-real-deal.github.io/unibo-iot-common-ground/#/3)
 
 ## Video link
 
